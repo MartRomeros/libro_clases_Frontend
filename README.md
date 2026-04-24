@@ -1,59 +1,53 @@
-# Frontend
+# Colegio Bernardo O’Higgins — Libro de Clases Digital (Frontend de Apoyo)
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.8.
+![Angular](https://img.shields.io/badge/Angular-21.2-DD0031?style=for-the-badge&logo=angular)
+![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-4.0-38B2AC?style=for-the-badge&logo=tailwind-css)
+![AWS](https://img.shields.io/badge/AWS-Academy_Ready-232F3E?style=for-the-badge&logo=amazon-aws)
 
-## Development server
+Este proyecto es el Frontend de apoyo para los microservicios de la plataforma de gestión académica del **Colegio Bernardo O’Higgins**. Construido sobre una arquitectura moderna, serverless y altamente escalable, optimizada para el entorno de **AWS Academy**.
 
-To start a local development server, run:
+## 🚀 Stack Tecnológico
 
+*   **Core:** Angular v21.2 (Standalone Components, Signals, Control Flow).
+*   **UI/UX:** Angular Material (Componentes Enterprise) + Tailwind CSS (Layout & Styling).
+*   **Infraestructura (AWS Academy):**
+    *   **Hosting:** Amazon S3 + Amazon CloudFront.
+    *   **Backend:** Amazon API Gateway + AWS Lambda.
+    *   **Mensajería:** Amazon SQS.
+    *   **Monitoreo:** Amazon CloudWatch.
+
+## 🛠️ Comandos de Desarrollo
+
+### Instalación
 ```bash
-ng serve
+npm install
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
+### Ejecución Local
 ```bash
-ng generate component component-name
+npm start
+# La aplicación estará disponible en http://localhost:4200
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
+### Construcción para Producción
 ```bash
-ng generate --help
+npm run build
 ```
 
-## Building
-
-To build the project run:
-
+### Linting
 ```bash
-ng build
+npm run lint
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+## 📂 Estructura del Proyecto
 
-## Running unit tests
+*   `src/app/core`: Servicios globales, interceptores de seguridad y modelos de datos.
+*   `src/app/shared`: Componentes UI reutilizables, pipes y directivas.
+*   `src/app/features`: Módulos funcionales (Académico, Asistencia, Comunicaciones).
+*   `src/app/layout`: Componentes estructurales (Sidebar, Navbar, Footer).
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+## 🛡️ Estrategia de Autenticación
+Debido a las restricciones de AWS Academy (sin Cognito), se utiliza un flujo de **Autenticación Personalizada** mediante Lambdas que generan y validan tokens JWT, integrados en el frontend a través de interceptores HTTP.
 
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+---
+© 2026 Colegio Bernardo O’Higgins. Todos los derechos reservados.

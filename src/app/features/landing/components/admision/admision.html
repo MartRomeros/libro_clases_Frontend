@@ -1,0 +1,115 @@
+<section class="py-24 bg-linear-to-br from-[#001e40] to-[#004080] relative overflow-hidden text-white" id="admision"
+    #sectionElement>
+    <div
+        class="absolute top-[-200px] right-[-150px] w-[700px] h-[700px] rounded-full bg-[radial-gradient(circle,rgba(45,188,254,0.08)_0%,transparent_70%)] pointer-events-none">
+    </div>
+
+    <div class="max-w-[1200px] mx-auto px-[5%] flex flex-col md:flex-row gap-20 relative z-10">
+        <div class="flex-1 reveal">
+            <span class="inline-block text-[0.65rem] font-bold tracking-widest uppercase text-[#2dbcfe] mb-4">PROCESO
+                2025</span>
+            <h2 class="font-display text-3xl md:text-5xl font-extrabold leading-tight text-white mb-5">Admisión
+                abierta.<br />Tu futuro<br /><span class="text-[#2dbcfe]">empieza aquí.</span></h2>
+            <p class="text-[0.9375rem] text-white/75 leading-relaxed max-w-[420px] mb-8">
+                Inscripciones abiertas para Kinder a 4° Medio. Cupos limitados.
+                Completa el formulario y un asesor se contactará contigo en menos de 24 horas.
+            </p>
+            <ul class="flex flex-col gap-3.5" role="list">
+                <li class="flex items-center gap-3.5 text-sm text-white/85" role="listitem"><span
+                        class="font-display text-[0.6875rem] font-bold text-[#2dbcfe] bg-[#2dbcfe]/15 border border-[#2dbcfe]/30 rounded-full px-2.5 py-1 shrink-0">01</span>
+                    <span>Completa el formulario</span>
+                </li>
+                <li class="flex items-center gap-3.5 text-sm text-white/85" role="listitem"><span
+                        class="font-display text-[0.6875rem] font-bold text-[#2dbcfe] bg-[#2dbcfe]/15 border border-[#2dbcfe]/30 rounded-full px-2.5 py-1 shrink-0">02</span>
+                    <span>Entrevista familiar</span>
+                </li>
+                <li class="flex items-center gap-3.5 text-sm text-white/85" role="listitem"><span
+                        class="font-display text-[0.6875rem] font-bold text-[#2dbcfe] bg-[#2dbcfe]/15 border border-[#2dbcfe]/30 rounded-full px-2.5 py-1 shrink-0">03</span>
+                    <span>Evaluación diagnóstica</span>
+                </li>
+                <li class="flex items-center gap-3.5 text-sm text-white/85" role="listitem"><span
+                        class="font-display text-[0.6875rem] font-bold text-[#2dbcfe] bg-[#2dbcfe]/15 border border-[#2dbcfe]/30 rounded-full px-2.5 py-1 shrink-0">04</span>
+                    <span>Confirmación de matrícula</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="flex-none w-full md:w-[420px] reveal">
+            <form [formGroup]="admisionForm" (ngSubmit)="onAdmisionSubmit()"
+                class="bg-white/98 backdrop-blur-xl p-10 rounded-4xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/20 text-[#1a1c1c]"
+                id="admision-form">
+
+                <div class="mb-8">
+                    <h3 id="admision-form-title" class="font-display text-2xl font-extrabold text-[#001e40] mb-2">
+                        Solicita Información</h3>
+                    <p class="text-sm text-gray-500">Inicia el camino hacia una educación de excelencia.</p>
+                </div>
+
+                <div class="space-y-4">
+                    <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Nombre completo</mat-label>
+                        <mat-icon matPrefix class="mr-3 text-gray-400">person</mat-icon>
+                        <input matInput formControlName="nombre" placeholder="Ej: María González" aria-required="true">
+                        @if (admisionForm.get('nombre')?.hasError('required')) {
+                        <mat-error>El nombre es obligatorio</mat-error>
+                        }
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Correo electrónico</mat-label>
+                        <mat-icon matPrefix class="mr-3 text-gray-400">email</mat-icon>
+                        <input matInput formControlName="email" type="email" placeholder="ejemplo@correo.cl"
+                            aria-required="true">
+                        @if (admisionForm.get('email')?.hasError('required')) {
+                        <mat-error>El email es obligatorio</mat-error>
+                        }
+                        @if (admisionForm.get('email')?.hasError('email')) {
+                        <mat-error>Email inválido</mat-error>
+                        }
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Teléfono</mat-label>
+                        <mat-icon matPrefix class="mr-3 text-gray-400">phone</mat-icon>
+                        <input matInput formControlName="telefono" placeholder="+56 9 1234 5678">
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Nivel de interés</mat-label>
+                        <mat-icon matPrefix class="mr-3 text-gray-400">school</mat-icon>
+                        <mat-select formControlName="nivel" aria-required="true">
+                            <mat-option value="" disabled>Seleccione un nivel</mat-option>
+                            <mat-option value="kinder">Kinder</mat-option>
+                            <mat-option value="basica-1-4">Básica 1° – 4°</mat-option>
+                            <mat-option value="basica-5-8">Básica 5° – 8°</mat-option>
+                            <mat-option value="media-1-2">Media 1° – 2°</mat-option>
+                            <mat-option value="media-3-4">Media 3° – 4°</mat-option>
+                        </mat-select>
+                        @if (admisionForm.get('nivel')?.hasError('required')) {
+                        <mat-error>El nivel es obligatorio</mat-error>
+                        }
+                    </mat-form-field>
+                </div>
+
+                <button mat-flat-button type="submit" [disabled]="isLoading()" class="w-full! mt-8! py-8!   ">
+                    <div class="flex items-center justify-center gap-2">
+                        @if (isLoading()) {
+                        <mat-spinner diameter="20" color="accent"></mat-spinner>
+                        <span>Procesando...</span>
+                        } @else {
+                        <span class="relative z-10">Enviar Solicitud</span>
+                        <div
+                            class="absolute inset-0 bg-linear-to-r from-[#2dbcfe] to-[#001e40] opacity-0 group-hover:opacity-10 transition-opacity duration-300">
+                        </div>
+                        }
+                    </div>
+                </button>
+
+                <div class="flex items-center justify-center gap-2 mt-6 text-[#001e40]/60">
+                    <mat-icon class="w-4! h-4! text-[16px]!">bolt</mat-icon>
+                    <p class="text-[0.75rem] font-medium">Respuesta en menos de 24 horas</p>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
