@@ -1,0 +1,43 @@
+:host {
+  display: block;
+}
+
+/* Customizing Angular Material Form Fields using Material 3 System Variables */
+.custom-field {
+  --mdc-outlined-field-label-text-color: var(--mat-sys-on-surface-variant);
+  --mdc-outlined-field-focus-label-text-color: var(--mat-sys-primary);
+  --mdc-outlined-field-outline-color: var(--mat-sys-outline-variant);
+  --mdc-outlined-field-focus-outline-color: var(--mat-sys-primary);
+  --mat-form-field-container-placeholder-text-color: var(--mat-sys-on-surface-variant);
+  --mdc-outlined-field-input-text-color: var(--mat-sys-on-surface);
+  --mdc-outlined-field-caret-color: var(--mat-sys-primary);
+}
+
+::ng-deep .custom-field .mat-mdc-form-field-flex {
+  border-radius: 1rem !important;
+}
+
+::ng-deep .custom-field .mat-mdc-text-field-wrapper {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+}
+
+::ng-deep .custom-field .mat-mdc-form-field-outline {
+    border-radius: 1rem !important;
+}
+
+/* Override Mat Button using theme primary color */
+::ng-deep .mat-flat-button {
+  background-color: var(--mat-sys-primary) !important;
+  color: var(--mat-sys-on-primary) !important;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-in {
+  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

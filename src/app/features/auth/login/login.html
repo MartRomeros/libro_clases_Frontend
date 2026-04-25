@@ -1,0 +1,74 @@
+<div class="min-h-screen flex items-center justify-center bg-(--mat-sys-surface-container-low) p-4">
+  <div class="w-full max-w-md">
+    <!-- Card Container -->
+    <div
+      class="w-full max-w-md bg-(--mat-sys-surface) border border-(--mat-sys-outline-variant) rounded-3xl shadow-xl overflow-hidden p-8 space-y-8 animate-in">
+
+      <!-- Header -->
+      <div class="text-center space-y-2">
+        <h1 class="text-4xl font-bold text-(--mat-sys-on-surface) tracking-tight">Bienvenido</h1>
+        <p class="text-(--mat-sys-on-surface-variant) font-medium">Inicia sesión para continuar</p>
+      </div>
+
+      <!-- Form -->
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="flex flex-col space-y-4">
+
+        <!-- Email Field -->
+        <mat-form-field appearance="outline" class="w-full custom-field">
+          <mat-label>Correo Electrónico</mat-label>
+          <input matInput type="email" formControlName="email" placeholder="ejemplo@correo.com" autocomplete="email">
+          <mat-icon matPrefix class="mr-2 text-(--mat-sys-primary)">mail</mat-icon>
+          <mat-error *ngIf="loginForm.get('email')?.hasError('required')">El correo es obligatorio</mat-error>
+          <mat-error *ngIf="loginForm.get('email')?.hasError('email')">Ingresa un correo válido</mat-error>
+        </mat-form-field>
+
+        <!-- Password Field -->
+        <mat-form-field appearance="outline" class="w-full custom-field">
+          <mat-label>Contraseña</mat-label>
+          <input matInput [type]="hidePassword() ? 'password' : 'text'" formControlName="password"
+            autocomplete="current-password">
+          <mat-icon matPrefix class="mr-2 text-(--mat-sys-primary)">lock</mat-icon>
+          <button mat-icon-button matSuffix (click)="togglePasswordVisibility(); $event.preventDefault()" type="button"
+            class="text-(--mat-sys-on-surface-variant)">
+            <mat-icon>{{hidePassword() ? 'visibility_off' : 'visibility'}}</mat-icon>
+          </button>
+          <mat-error *ngIf="loginForm.get('password')?.hasError('required')">La contraseña es obligatoria</mat-error>
+          <mat-error *ngIf="loginForm.get('password')?.hasError('minlength')">Mínimo 6 caracteres</mat-error>
+        </mat-form-field>
+
+        <!-- Options -->
+        <div class="flex items-center justify-between text-sm">
+          <label class="flex items-center text-(--mat-sys-on-surface-variant) cursor-pointer">
+            <input type="checkbox"
+              class="rounded border-(--mat-sys-outline) bg-transparent text-(--mat-sys-primary) focus:ring-(--mat-sys-primary) mr-2">
+            Recordarme
+          </label>
+          <a routerLink="/forgot-password"
+            class="text-(--mat-sys-primary) hover:underline transition-colors font-medium">¿Olvidaste tu contraseña?</a>
+        </div>
+
+        <!-- Submit Button -->
+        <button mat-flat-button
+          class="w-full h-14 rounded-2xl! text-lg! font-bold! transition-all hover:opacity-90 active:scale-[0.98] shadow-md"
+          [disabled]="isLoading()" type="submit">
+          <span *ngIf="!isLoading()">Ingresar</span>
+          <mat-spinner *ngIf="isLoading()" diameter="24" color="accent" class="mx-auto"></mat-spinner>
+        </button>
+
+      </form>
+
+      <!-- Footer -->
+      <p class="text-center text-(--mat-sys-on-surface-variant) text-sm">
+        <a routerLink="/" class="text-(--mat-sys-primary) hover:underline font-bold">Volver al inicio</a>
+      </p>
+    </div>
+
+    <!-- Background decorative elements (Using theme colors) -->
+    <div
+      class="fixed -top-24 -left-24 w-96 h-96 bg-(--mat-sys-primary-container) rounded-full blur-3xl -z-10 opacity-20">
+    </div>
+    <div
+      class="fixed -bottom-24 -right-24 w-96 h-96 bg-(--mat-sys-tertiary-container) rounded-full blur-3xl -z-10 opacity-20">
+    </div>
+  </div>
+</div>
