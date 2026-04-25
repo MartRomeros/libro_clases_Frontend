@@ -13,6 +13,22 @@
       <!-- Form -->
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="flex flex-col space-y-4">
 
+        <!-- Error Alert -->
+        @if (errorMessage()) {
+        <div
+          class="p-4 rounded-2xl bg-red-50 border border-red-200 flex items-start space-x-3 animate-in fade-in slide-in-from-top-4">
+          <mat-icon class="text-red-500">error_outline</mat-icon>
+          <div class="flex-1">
+            <h3 class="text-sm font-bold text-red-800">Error de inicio de sesión</h3>
+            <p class="text-xs text-red-600 mt-1">{{ errorMessage() }}</p>
+          </div>
+          <button type="button" (click)="errorMessage.set(null)"
+            class="text-red-400 hover:text-red-600 transition-colors">
+            <mat-icon class="text-sm">close</mat-icon>
+          </button>
+        </div>
+        }
+
         <!-- Email Field -->
         <mat-form-field appearance="outline" class="w-full custom-field">
           <mat-label>Correo Electrónico</mat-label>
@@ -38,11 +54,6 @@
 
         <!-- Options -->
         <div class="flex items-center justify-between text-sm">
-          <label class="flex items-center text-(--mat-sys-on-surface-variant) cursor-pointer">
-            <input type="checkbox"
-              class="rounded border-(--mat-sys-outline) bg-transparent text-(--mat-sys-primary) focus:ring-(--mat-sys-primary) mr-2">
-            Recordarme
-          </label>
           <a routerLink="/forgot-password"
             class="text-(--mat-sys-primary) hover:underline transition-colors font-medium">¿Olvidaste tu contraseña?</a>
         </div>

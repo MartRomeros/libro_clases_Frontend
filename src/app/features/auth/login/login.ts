@@ -6,7 +6,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { RouterModule } from '@angular/router';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { RouterModule, Router } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -19,6 +21,7 @@ import { RouterModule } from '@angular/router';
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    MatSnackBarModule,
     RouterModule
   ],
   templateUrl: './login.html',
@@ -30,10 +33,15 @@ export class Login {
   isLoading = signal(false);
   errorMessage = signal<string | null>(null);
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private snackBar: MatSnackBar,
+    private router: Router
+  ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
+      password: ['', [Validators.required, Validators.minLength(3)]]
     });
   }
 
@@ -46,13 +54,29 @@ export class Login {
       this.isLoading.set(true);
       this.errorMessage.set(null);
 
-      // Simulating API call
-      setTimeout(() => {
-        this.isLoading.set(false);
-        // Success or failure simulation
-        console.log('Form Submitted', this.loginForm.value);
-        // For demonstration, let's just log it.
-      }, 2000);
+      this.authService.login(this.loginForm.value).subscribe({
+        next: (response) => {
+          console.log(response)
+          this.isLoading.set(false);
+          this.snackBar.open('¡Bienvenido de nuevo!', 'Cerrar', {
+            duration: 3000,
+            horizontalPosition: 'center',
+            verticalPosition: 'bottom',
+            panelClass: ['success-snackbar']
+          });
+          this.router.navigate(['/landing']);
+        },
+        error: (error) => {
+          this.isLoading.set(false);
+          this.errorMessage.set(error);
+          this.snackBar.open(error, 'Cerrar', {
+            duration: 5000,
+            horizontalPosition: 'center',
+            verticalPosition: 'bottom',
+            panelClass: ['error-snackbar']
+          });
+        }
+      });
     } else {
       this.loginForm.markAllAsTouched();
     }
