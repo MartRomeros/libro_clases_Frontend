@@ -8,5 +8,17 @@ export const routes: Routes = [
     {
         path: 'login',
         loadComponent: () => import('./features/auth/login/login').then(m => m.Login)
+    },
+    {
+        path: 'admin',
+        loadComponent: () => import('./features/home/admin-home/admin-home').then(m => m.AdminHome)
+    },
+    {
+        path: 'docente',
+        loadComponent: () => import('./features/home/docente-home/docente-home').then(m => m.DocenteHome)
+    },
+    {
+        path: 'estudiante',
+        loadComponent: () => import('./features/home/estudiante-home/estudiante-home').then(m => m.EstudianteHome)
     }
 ];

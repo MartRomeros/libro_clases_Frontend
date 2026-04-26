@@ -55,7 +55,7 @@ export class Login {
       this.errorMessage.set(null);
 
       this.authService.login(this.loginForm.value).subscribe({
-        next: (response) => {
+        next: (response: any) => {
           console.log(response)
           this.isLoading.set(false);
           this.snackBar.open('¡Bienvenido de nuevo!', 'Cerrar', {
@@ -64,7 +64,17 @@ export class Login {
             verticalPosition: 'bottom',
             panelClass: ['success-snackbar']
           });
-          this.router.navigate(['/landing']);
+
+          const role = response.role;
+          if (role === 'Administrador') {
+            this.router.navigate(['/admin']);
+          } else if (role === 'Docente') {
+            this.router.navigate(['/docente']);
+          } else if (role === 'Estudiante') {
+            this.router.navigate(['/estudiante']);
+          } else {
+            this.router.navigate(['/']);
+          }
         },
         error: (error) => {
           this.isLoading.set(false);

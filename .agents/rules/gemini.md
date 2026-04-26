@@ -28,3 +28,8 @@ MER de base de datos: `.agents/context/script.sql.md`
 - antes de cualquier implementacion revisar specs anteriores y el `contexto/`
 - al terminar un spec se debe dejar abajo de este los resultados y su justificacion.
 - utilizar prioritariamente componentes de angular material (angular material ya esta instalado).
+
+## Consideraciones
+
+- Utiliza las skills necesarias `skills/`
+- Al agregar una nueva funcionalidad crear una rama y al terminar la tarea no realizar un merge sino que abrir una pull requests
