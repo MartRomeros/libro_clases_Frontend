@@ -1,0 +1,143 @@
+/* ===================== ASISTENCIA ===================== */
+.contadores-row {
+    display: flex;
+    gap: 16px;
+    margin: 24px 0;
+    flex-wrap: wrap;
+}
+
+.contador-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.contador-presente {
+    background-color: #dcedc8;
+    color: #33691e;
+    border: 1px solid #c5e1a5;
+}
+
+.contador-ausente {
+    background-color: #ffcdd2;
+    color: #b71c1c;
+    border: 1px solid #ef9a9a;
+}
+
+.contador-tardanza {
+    background-color: #ffe0b2;
+    color: #e65100;
+    border: 1px solid #ffcc80;
+}
+
+.acciones-rapidas {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 8px 0 24px;
+    padding: 16px;
+    background-color: rgba(0, 0, 0, 0.02);
+    border-radius: 12px;
+    flex-wrap: wrap;
+}
+
+.acciones-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--mat-sys-on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.accion-btn {
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.tabla-card {
+    overflow: hidden;
+    margin-bottom: 24px;
+    border-radius: 12px;
+}
+
+.tabla-contenido {
+    padding: 0 !important;
+}
+
+.tabla-asistencia {
+    width: 100%;
+}
+
+.tabla-fila:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+.estado-buttons {
+    display: flex;
+    gap: 12px;
+    padding: 8px 0;
+}
+
+.estado-activo {
+    transform: scale(1.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
+    z-index: 2;
+}
+
+.estado-inactivo {
+    background-color: #f8f9fa !important;
+    color: #adb5bd !important;
+    box-shadow: none !important;
+    opacity: 0.6;
+}
+
+.estado-inactivo:hover {
+    opacity: 1;
+    background-color: #e9ecef !important;
+}
+
+.guardar-row {
+    padding: 16px 16px;
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 24px;
+}
+
+.btn-guardar {
+    padding: 0 32px;
+    height: 48px;
+    border-radius: 24px;
+    font-weight: 600;
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 900px) {
+    .conducta-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .asistencia-container {
+        padding: 16px 12px;
+    }
+
+    .filtros-content {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .estado-buttons {
+        flex-wrap: wrap;
+    }
+
+    .acciones-rapidas {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

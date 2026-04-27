@@ -1,0 +1,121 @@
+/* ===================== CONDUCTA ===================== */
+.conducta-layout {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 24px;
+    margin-top: 24px;
+}
+
+.form-anotacion-card {
+    height: fit-content;
+}
+
+.form-content {
+    padding: 24px !important;
+}
+
+.anotacion-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.form-field-full {
+    width: 100%;
+}
+
+.btn-registrar {
+    height: 48px;
+    border-radius: 8px;
+    font-weight: 600;
+    margin-top: 8px;
+}
+
+.lista-anotaciones-card {
+    display: flex;
+    flex-direction: column;
+}
+
+.lista-content {
+    padding: 16px !important;
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 0;
+    opacity: 0.7;
+    color: var(--mat-sys-on-surface-variant);
+}
+
+.empty-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    margin-bottom: 16px;
+    color: var(--mat-sys-outline-variant);
+}
+
+.anotacion-item {
+    padding: 16px 0;
+}
+
+.anotacion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.anotacion-estudiante {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.anotacion-descripcion {
+    margin: 0 0 8px;
+    line-height: 1.5;
+    color: rgba(0, 0, 0, 0.8);
+}
+
+.anotacion-fecha {
+    font-size: 0.8rem;
+    opacity: 0.5;
+    display: block;
+    text-align: right;
+}
+
+.anotacion-divider {
+    margin-top: 16px;
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 900px) {
+    .conducta-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .asistencia-container {
+        padding: 16px 12px;
+    }
+
+    .filtros-content {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .estado-buttons {
+        flex-wrap: wrap;
+    }
+
+    .acciones-rapidas {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

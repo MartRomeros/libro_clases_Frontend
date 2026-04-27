@@ -18,6 +18,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/home/docente-home/docente-home').then(m => m.DocenteHome)
     },
     {
+        path: 'asistencia',
+        loadComponent: () => import('./features/attendance-conduct/attendance-conduct').then(m => m.AttendanceConduct)
+    },
+    {
         path: 'estudiante',
         loadComponent: () => import('./features/home/estudiante-home/estudiante-home').then(m => m.EstudianteHome)
     }

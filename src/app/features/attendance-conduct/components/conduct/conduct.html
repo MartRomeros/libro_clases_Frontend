@@ -1,0 +1,94 @@
+<div class="conducta-layout">
+
+    <!-- Formulario nueva anotación -->
+    <mat-card appearance="outlined" class="form-anotacion-card">
+        <mat-card-header>
+            <mat-icon mat-card-avatar>add_circle</mat-icon>
+            <mat-card-title>Nueva Anotación</mat-card-title>
+            <mat-card-subtitle>Registra conducta de un estudiante</mat-card-subtitle>
+        </mat-card-header>
+        <mat-divider></mat-divider>
+        <mat-card-content class="form-content">
+            <form [formGroup]="anotacionForm" (ngSubmit)="registrarAnotacion()" class="anotacion-form">
+
+                <mat-form-field appearance="outline" class="form-field-full">
+                    <mat-label>Estudiante</mat-label>
+                    <mat-select formControlName="estudianteId">
+                        @for (est of estudiantes(); track est.id) {
+                        <mat-option [value]="est.id">{{ est.nombre }} {{ est.apellido }}</mat-option>
+                        }
+                    </mat-select>
+                    <mat-icon matPrefix>person</mat-icon>
+                    @if (anotacionForm.get('estudianteId')?.invalid && anotacionForm.get('estudianteId')?.touched) {
+                    <mat-error>Selecciona un estudiante</mat-error>
+                    }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="form-field-full">
+                    <mat-label>Tipo de Anotación</mat-label>
+                    <mat-select formControlName="tipo">
+                        @for (tipo of tiposAnotacion; track tipo) {
+                        <mat-option [value]="tipo">
+                            <mat-icon>{{ iconoTipo(tipo) }}</mat-icon>
+                            {{ tipo }}
+                        </mat-option>
+                        }
+                    </mat-select>
+                    <mat-icon matPrefix>label</mat-icon>
+                    @if (anotacionForm.get('tipo')?.invalid && anotacionForm.get('tipo')?.touched) {
+                    <mat-error>Selecciona el tipo</mat-error>
+                    }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="form-field-full">
+                    <mat-label>Descripción</mat-label>
+                    <textarea matInput formControlName="descripcion" rows="3"
+                        placeholder="Describe el comportamiento o situación..."></textarea>
+                    <mat-icon matPrefix>description</mat-icon>
+                    @if (anotacionForm.get('descripcion')?.invalid && anotacionForm.get('descripcion')?.touched) {
+                    <mat-error>Descripción debe tener al menos 10 caracteres</mat-error>
+                    }
+                </mat-form-field>
+
+                <button mat-raised-button color="accent" type="submit" class="btn-registrar">
+                    <mat-icon>send</mat-icon>
+                    Registrar Anotación
+                </button>
+            </form>
+        </mat-card-content>
+    </mat-card>
+
+    <!-- Lista de anotaciones registradas -->
+    <mat-card appearance="outlined" class="lista-anotaciones-card">
+        <mat-card-header>
+            <mat-icon mat-card-avatar>list_alt</mat-icon>
+            <mat-card-title>Anotaciones del Día</mat-card-title>
+            <mat-card-subtitle>{{ anotaciones().length }} registros</mat-card-subtitle>
+        </mat-card-header>
+        <mat-divider></mat-divider>
+        <mat-card-content class="lista-content">
+            @if (anotaciones().length === 0) {
+            <div class="empty-state">
+                <mat-icon class="empty-icon">inbox</mat-icon>
+                <p>No hay anotaciones registradas aún.</p>
+            </div>
+            } @else {
+            @for (anotacion of anotaciones(); track anotacion.fecha) {
+            <div class="anotacion-item">
+                <div class="anotacion-header">
+                    <span class="anotacion-estudiante">{{ anotacion.estudianteNombre }}</span>
+                    <mat-chip [color]="colorChipTipo(anotacion.tipo)" highlighted>
+                        <mat-icon matChipAvatar>{{ iconoTipo(anotacion.tipo) }}</mat-icon>
+                        {{ anotacion.tipo }}
+                    </mat-chip>
+                </div>
+                <p class="anotacion-descripcion">{{ anotacion.descripcion }}</p>
+                <span class="anotacion-fecha">{{ anotacion.fecha | date: 'HH:mm' }}</span>
+                <mat-divider class="anotacion-divider"></mat-divider>
+            </div>
+            }
+            }
+        </mat-card-content>
+    </mat-card>
+
+</div>
