@@ -1,0 +1,236 @@
+<mat-toolbar color="primary" class="toolbar">
+  <button mat-icon-button (click)="volverAlHome()" matTooltip="Volver al inicio">
+    <mat-icon>arrow_back</mat-icon>
+  </button>
+  <mat-icon class="toolbar-icon">fact_check</mat-icon>
+  <span class="toolbar-title">Asistencia y Conducta</span>
+  <span class="spacer"></span>
+  <span class="fecha-label">{{ fechaSeleccionada() | date: 'EEEE d MMM' : '' : 'es' }}</span>
+</mat-toolbar>
+
+<div class="asistencia-container">
+
+  <!-- Filtros de curso y fecha -->
+  <mat-card class="filtros-card" appearance="outlined">
+    <mat-card-content class="filtros-content">
+      <mat-form-field appearance="outline" class="filtro-field">
+        <mat-label>Curso</mat-label>
+        <mat-select [(value)]="cursoSeleccionado" (valueChange)="cursoSeleccionado.set($event)">
+          @for (curso of cursosDisponibles; track curso) {
+            <mat-option [value]="curso">{{ curso }}</mat-option>
+          }
+        </mat-select>
+        <mat-icon matPrefix>class</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filtro-field">
+        <mat-label>Fecha</mat-label>
+        <input matInput [matDatepicker]="picker"
+               [value]="fechaSeleccionada()"
+               (dateChange)="fechaSeleccionada.set($event.value!)">
+        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Tabs: Asistencia | Conducta -->
+  <mat-tab-group animationDuration="300ms" class="tabs-group">
+
+    <!-- TAB 1: ASISTENCIA -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon class="tab-icon">how_to_reg</mat-icon>
+        Asistencia
+      </ng-template>
+
+      <!-- Contadores de estado -->
+      <div class="contadores-row">
+        <div class="contador-chip contador-presente">
+          <mat-icon>check_circle</mat-icon>
+          <span>{{ totalPresentes() }} Presentes</span>
+        </div>
+        <div class="contador-chip contador-ausente">
+          <mat-icon>cancel</mat-icon>
+          <span>{{ totalAusentes() }} Ausentes</span>
+        </div>
+        <div class="contador-chip contador-tardanza">
+          <mat-icon>schedule</mat-icon>
+          <span>{{ totalTardanza() }} Tardanzas</span>
+        </div>
+      </div>
+
+      <!-- Acciones rápidas -->
+      <div class="acciones-rapidas">
+        <span class="acciones-label">Marcar todos como:</span>
+        @for (estado of estadosAsistencia; track estado) {
+          <button mat-stroked-button (click)="marcarTodos(estado)" class="accion-btn">
+            {{ estado }}
+          </button>
+        }
+      </div>
+
+      <!-- Tabla de estudiantes -->
+      <mat-card appearance="outlined" class="tabla-card">
+        <mat-card-content class="tabla-contenido">
+          <table mat-table [dataSource]="estudiantes()" class="tabla-asistencia">
+
+            <!-- Nombre -->
+            <ng-container matColumnDef="nombre">
+              <th mat-header-cell *matHeaderCellDef>Nombre</th>
+              <td mat-cell *matCellDef="let est">{{ est.nombre }}</td>
+            </ng-container>
+
+            <!-- Apellido -->
+            <ng-container matColumnDef="apellido">
+              <th mat-header-cell *matHeaderCellDef>Apellido</th>
+              <td mat-cell *matCellDef="let est">{{ est.apellido }}</td>
+            </ng-container>
+
+            <!-- Estado -->
+            <ng-container matColumnDef="estado">
+              <th mat-header-cell *matHeaderCellDef>Estado</th>
+              <td mat-cell *matCellDef="let est">
+                <div class="estado-buttons">
+                  @for (estado of estadosAsistencia; track estado) {
+                    <button mat-mini-fab
+                            [color]="est.estadoAsistencia === estado ? colorChipEstado(estado) || 'primary' : ''"
+                            [class.estado-activo]="est.estadoAsistencia === estado"
+                            [class.estado-inactivo]="est.estadoAsistencia !== estado"
+                            [matTooltip]="estado"
+                            (click)="marcarAsistencia(est, estado)">
+                      @switch (estado) {
+                        @case ('Presente') { <mat-icon>check</mat-icon> }
+                        @case ('Ausente') { <mat-icon>close</mat-icon> }
+                        @case ('Tardanza') { <mat-icon>schedule</mat-icon> }
+                        @case ('Justificado') { <mat-icon>verified</mat-icon> }
+                      }
+                    </button>
+                  }
+                </div>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="columnasAsistencia"></tr>
+            <tr mat-row *matRowDef="let row; columns: columnasAsistencia;" class="tabla-fila"></tr>
+          </table>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Botón guardar asistencia -->
+      <div class="guardar-row">
+        <button mat-raised-button color="primary" (click)="guardarAsistencia()" class="btn-guardar">
+          <mat-icon>save</mat-icon>
+          Guardar Asistencia
+        </button>
+      </div>
+    </mat-tab>
+
+    <!-- TAB 2: CONDUCTA / ANOTACIONES -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon class="tab-icon">edit_note</mat-icon>
+        Conducta
+        @if (anotaciones().length > 0) {
+          <span class="tab-badge">{{ anotaciones().length }}</span>
+        }
+      </ng-template>
+
+      <div class="conducta-layout">
+
+        <!-- Formulario nueva anotación -->
+        <mat-card appearance="outlined" class="form-anotacion-card">
+          <mat-card-header>
+            <mat-icon mat-card-avatar>add_circle</mat-icon>
+            <mat-card-title>Nueva Anotación</mat-card-title>
+            <mat-card-subtitle>Registra conducta de un estudiante</mat-card-subtitle>
+          </mat-card-header>
+          <mat-divider></mat-divider>
+          <mat-card-content class="form-content">
+            <form [formGroup]="anotacionForm" (ngSubmit)="registrarAnotacion()" class="anotacion-form">
+
+              <mat-form-field appearance="outline" class="form-field-full">
+                <mat-label>Estudiante</mat-label>
+                <mat-select formControlName="estudianteId">
+                  @for (est of estudiantes(); track est.id) {
+                    <mat-option [value]="est.id">{{ est.nombre }} {{ est.apellido }}</mat-option>
+                  }
+                </mat-select>
+                <mat-icon matPrefix>person</mat-icon>
+                @if (anotacionForm.get('estudianteId')?.invalid && anotacionForm.get('estudianteId')?.touched) {
+                  <mat-error>Selecciona un estudiante</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="form-field-full">
+                <mat-label>Tipo de Anotación</mat-label>
+                <mat-select formControlName="tipo">
+                  @for (tipo of tiposAnotacion; track tipo) {
+                    <mat-option [value]="tipo">
+                      <mat-icon>{{ iconoTipo(tipo) }}</mat-icon>
+                      {{ tipo }}
+                    </mat-option>
+                  }
+                </mat-select>
+                <mat-icon matPrefix>label</mat-icon>
+                @if (anotacionForm.get('tipo')?.invalid && anotacionForm.get('tipo')?.touched) {
+                  <mat-error>Selecciona el tipo</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="form-field-full">
+                <mat-label>Descripción</mat-label>
+                <textarea matInput formControlName="descripcion" rows="3"
+                          placeholder="Describe el comportamiento o situación..."></textarea>
+                <mat-icon matPrefix>description</mat-icon>
+                @if (anotacionForm.get('descripcion')?.invalid && anotacionForm.get('descripcion')?.touched) {
+                  <mat-error>Descripción debe tener al menos 10 caracteres</mat-error>
+                }
+              </mat-form-field>
+
+              <button mat-raised-button color="accent" type="submit" class="btn-registrar">
+                <mat-icon>send</mat-icon>
+                Registrar Anotación
+              </button>
+            </form>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Lista de anotaciones registradas -->
+        <mat-card appearance="outlined" class="lista-anotaciones-card">
+          <mat-card-header>
+            <mat-icon mat-card-avatar>list_alt</mat-icon>
+            <mat-card-title>Anotaciones del Día</mat-card-title>
+            <mat-card-subtitle>{{ anotaciones().length }} registros</mat-card-subtitle>
+          </mat-card-header>
+          <mat-divider></mat-divider>
+          <mat-card-content class="lista-content">
+            @if (anotaciones().length === 0) {
+              <div class="empty-state">
+                <mat-icon class="empty-icon">inbox</mat-icon>
+                <p>No hay anotaciones registradas aún.</p>
+              </div>
+            } @else {
+              @for (anotacion of anotaciones(); track anotacion.fecha) {
+                <div class="anotacion-item">
+                  <div class="anotacion-header">
+                    <span class="anotacion-estudiante">{{ anotacion.estudianteNombre }}</span>
+                    <mat-chip [color]="colorChipTipo(anotacion.tipo)" highlighted>
+                      <mat-icon matChipAvatar>{{ iconoTipo(anotacion.tipo) }}</mat-icon>
+                      {{ anotacion.tipo }}
+                    </mat-chip>
+                  </div>
+                  <p class="anotacion-descripcion">{{ anotacion.descripcion }}</p>
+                  <span class="anotacion-fecha">{{ anotacion.fecha | date: 'HH:mm' }}</span>
+                  <mat-divider class="anotacion-divider"></mat-divider>
+                </div>
+              }
+            }
+          </mat-card-content>
+        </mat-card>
+
+      </div>
+    </mat-tab>
+
+  </mat-tab-group>
+</div>
