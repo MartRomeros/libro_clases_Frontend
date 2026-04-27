@@ -51,7 +51,7 @@ export class DocenteHome {
       titulo: 'Asistencia y Conducta',
       descripcion: 'Registra asistencia diaria y anotaciones de conducta de los estudiantes.',
       icono: 'fact_check',
-      ruta: '/docente/asistencia',
+      ruta: '/asistencia',
       color: 'accent',
     },
     {
@@ -78,7 +78,7 @@ export class DocenteHome {
     { etiqueta: 'Mensajes sin leer', valor: '3', icono: 'mark_email_unread' },
   ];
 
-  constructor(private router: Router) {}
+  constructor(private router: Router) { }
 
   navegarA(ruta: string): void {
     this.router.navigate([ruta]);

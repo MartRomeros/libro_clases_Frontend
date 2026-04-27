@@ -1,0 +1,53 @@
+<mat-toolbar color="primary" class="toolbar">
+    <button mat-icon-button (click)="volverAlHome()" matTooltip="Volver al inicio">
+        <mat-icon>arrow_back</mat-icon>
+    </button>
+    <mat-icon class="toolbar-icon">fact_check</mat-icon>
+    <span class="toolbar-title">Asistencia y Conducta</span>
+    <span class="spacer"></span>
+    <span class="fecha-label">{{ fechaSeleccionada() | date: 'EEEE d MMM' : '' : 'es' }}</span>
+</mat-toolbar>
+
+<div class="asistencia-container">
+    <!-- Filtros de curso y fecha -->
+    <mat-card class="filtros-card" appearance="outlined">
+        <mat-card-content class="filtros-content">
+            <mat-form-field appearance="outline" class="filtro-field">
+                <mat-label>Curso</mat-label>
+                <mat-select [value]="cursoSeleccionado()" (valueChange)="cursoSeleccionado.set($event)">
+                    @for (curso of cursosDisponibles; track curso) {
+                    <mat-option [value]="curso">{{ curso }}</mat-option>
+                    }
+                </mat-select>
+                <mat-icon matPrefix>class</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="filtro-field">
+                <mat-label>Fecha</mat-label>
+                <input matInput [matDatepicker]="picker" [value]="fechaSeleccionada()"
+                    (dateChange)="fechaSeleccionada.set($event.value!)">
+                <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+        </mat-card-content>
+    </mat-card>
+
+    <mat-tab-group animationDuration="300ms" class="tabs-group">
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <mat-icon class="tab-icon">how_to_reg</mat-icon>
+                Asistencia
+            </ng-template>
+            <app-attendance></app-attendance>
+        </mat-tab>
+
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <mat-icon class="tab-icon">edit_note</mat-icon>
+                Conducta
+            </ng-template>
+            <app-conduct></app-conduct>
+        </mat-tab>
+    </mat-tab-group>
+
+</div>
