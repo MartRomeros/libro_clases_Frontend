@@ -7,4 +7,4 @@ description: Workflow que permite la revision y ejecucion de specs. Revisando sp
 - Utiliza las skills necesarias en `skills/`
 - Si el spec es muy ambiguo realiza un maximo de 3 preguntas al usuario para entender
 - Al terminar la tarea deja lo realizado a bajo del spec con su justificacion
-- al generar la tarea crear una rama y realizar la tarea
+- por cada nueva tarea genera una rama y al finalizar genera no hagas un merge sino que la subes para yo hacer un pr manualmente
