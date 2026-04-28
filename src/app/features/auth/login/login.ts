@@ -65,12 +65,18 @@ export class Login {
             panelClass: ['success-snackbar']
           });
 
-          const role = response.role;
-          if (role === 'Administrador') {
+          const role = response.user?.role || response.role;
+          if (!role) {
+            this.router.navigate(['/']);
+            return;
+          }
+
+          const roleLower = role.toLowerCase();
+          if (roleLower.includes('admin')) {
             this.router.navigate(['/admin']);
-          } else if (role === 'Docente') {
+          } else if (roleLower.includes('docente')) {
             this.router.navigate(['/docente']);
-          } else if (role === 'Estudiante') {
+          } else if (roleLower.includes('estudiante')) {
             this.router.navigate(['/estudiante']);
           } else {
             this.router.navigate(['/']);

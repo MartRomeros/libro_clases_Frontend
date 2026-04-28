@@ -1,25 +1,60 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, catchError, tap, throwError, map, of } from 'rxjs';
+import { Observable, catchError, tap, throwError, map, of, firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthResponse, LoginRequest, User } from '../models/auth.model';
+import { injectQuery, injectQueryClient } from '@tanstack/angular-query-experimental';
+import { UserProfile } from '../models/user-profile.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private http = inject(HttpClient);
+  private queryClient = injectQueryClient();
   private apiUrl = `${environment.apiUrl}/auth`;
-  
-  // Use signals for state management
-  currentUser = signal<User | null>(this.getUserFromStorage());
+
+  // Use signals for basic auth state
   token = signal<string | null>(localStorage.getItem('token'));
-  isAuthenticated = signal<boolean>(!!this.token());
+  isAuthenticated = computed(() => !!this.token());
+
+  // Query to validate token
+  validateTokenQuery = injectQuery(() => ({
+    queryKey: ['validateToken', this.token()],
+    queryFn: () => firstValueFrom(
+      this.http.get<{ valid: boolean }>(`${this.apiUrl}/validate`).pipe(
+        map(res => res.valid),
+        catchError(() => of(false))
+      )
+    ),
+    enabled: !!this.token(),
+    retry: false,
+  }));
+
+  // Query to get user profile
+  profileQuery = injectQuery(() => ({
+    queryKey: ['userProfile', this.token()],
+    queryFn: () => firstValueFrom(
+      this.http.get<UserProfile>(`${this.apiUrl}/profile`).pipe(
+        catchError(err => {
+          if (err.status === 401) {
+            this.logout();
+          }
+          return throwError(() => err);
+        })
+      )
+    ),
+    enabled: !!this.token(),
+    retry: false,
+  }));
 
   login(credentials: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials).pipe(
       tap(response => {
-        this.saveAuthData(response.token, response.user);
+        this.saveAuthData(response.token);
+        // Refresh queries after login
+        this.queryClient.invalidateQueries({ queryKey: ['validateToken'] });
+        this.queryClient.invalidateQueries({ queryKey: ['userProfile'] });
       }),
       catchError(this.handleError)
     );
@@ -27,27 +62,8 @@ export class AuthService {
 
   logout(): void {
     localStorage.removeItem('token');
-    localStorage.removeItem('user');
     this.token.set(null);
-    this.currentUser.set(null);
-    this.isAuthenticated.set(false);
-  }
-
-  validateToken(): Observable<boolean> {
-    const token = this.token();
-    if (!token) return of(false);
-
-    // In a real app, this would call an endpoint to verify the token
-    return this.http.get<{ valid: boolean }>(`${this.apiUrl}/validate-token`).pipe(
-      map(res => res.valid),
-      tap(isValid => {
-        if (!isValid) this.logout();
-      }),
-      catchError(() => {
-        this.logout();
-        return of(false);
-      })
-    );
+    this.queryClient.clear();
   }
 
   forgotPassword(email: string): Observable<any> {
@@ -56,34 +72,17 @@ export class AuthService {
     );
   }
 
-  private saveAuthData(token: string, user: User): void {
+  private saveAuthData(token: string): void {
     localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(user));
     this.token.set(token);
-    this.currentUser.set(user);
-    this.isAuthenticated.set(true);
-  }
-
-  private getUserFromStorage(): User | null {
-    const user = localStorage.getItem('user');
-    if (!user || user === 'undefined' || user === 'null') return null;
-    try {
-      return JSON.parse(user);
-    } catch (e) {
-      console.error('Error parsing user from storage', e);
-      localStorage.removeItem('user');
-      return null;
-    }
   }
 
   private handleError(error: HttpErrorResponse) {
     let errorMessage = 'Ocurrió un error inesperado';
-    
+
     if (error.error instanceof ErrorEvent) {
-      // Client-side error
       errorMessage = `Error: ${error.error.message}`;
     } else {
-      // Server-side error
       if (error.status === 401) {
         errorMessage = 'Credenciales inválidas. Por favor, intente de nuevo.';
       } else if (error.status === 403) {
@@ -94,7 +93,7 @@ export class AuthService {
         errorMessage = error.error.message;
       }
     }
-    
+
     return throwError(() => errorMessage);
   }
 }
