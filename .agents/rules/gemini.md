@@ -32,4 +32,4 @@ MER de base de datos: `.agents/context/script.sql.md`
 ## Consideraciones
 
 - Utiliza las skills necesarias `skills/`
-- Al agregar una nueva funcionalidad crear una rama y al terminar la tarea no realizar un merge sino que abrir una pull requests
+- Al agregar una nueva funcionalidad crear una rama y al terminar no hacer commits. dejar al usuario que lo haga

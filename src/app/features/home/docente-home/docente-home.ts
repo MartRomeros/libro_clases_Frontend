@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,6 +9,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { AuthService } from '../../../core/services/auth.service';
 
 interface OpcionDocente {
   titulo: string;
@@ -37,7 +38,16 @@ interface OpcionDocente {
   styleUrl: './docente-home.css',
 })
 export class DocenteHome {
-  docenteNombre = 'Docente';
+  private authService = inject(AuthService);
+  private router = inject(Router);
+
+  /** Query del perfil */
+  profileQuery = this.authService.profileQuery;
+
+  docenteNombre = computed(() => {
+    const p = this.profileQuery.data();
+    return p ? `${p.nombre} ${p.apellido_paterno}` : 'Docente';
+  });
 
   opciones: OpcionDocente[] = [
     {
@@ -78,13 +88,12 @@ export class DocenteHome {
     { etiqueta: 'Mensajes sin leer', valor: '3', icono: 'mark_email_unread' },
   ];
 
-  constructor(private router: Router) { }
-
   navegarA(ruta: string): void {
     this.router.navigate([ruta]);
   }
 
   cerrarSesion(): void {
+    this.authService.logout();
     this.router.navigate(['/login']);
   }
 }

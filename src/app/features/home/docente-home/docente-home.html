@@ -2,7 +2,7 @@
   <mat-icon class="toolbar-icon">school</mat-icon>
   <span class="toolbar-title">Libro de Clases</span>
   <span class="spacer"></span>
-  <span class="docente-nombre">{{ docenteNombre }}</span>
+  <span class="docente-nombre">{{ docenteNombre() }}</span>
   <button mat-icon-button matTooltip="Mi perfil" (click)="navegarA('/perfil')">
     <mat-icon>account_circle</mat-icon>
   </button>
@@ -21,7 +21,7 @@
         <mat-icon class="avatar-icon">person</mat-icon>
       </button>
       <div class="bienvenida-texto">
-        <h1 class="bienvenida-titulo">Bienvenido, {{ docenteNombre }}</h1>
+        <h1 class="bienvenida-titulo">Bienvenido, {{ docenteNombre() }}</h1>
         <p class="bienvenida-subtitulo">Panel de gestión docente — Colegio Bernardo O'Higgins</p>
         <button mat-button class="perfil-link" (click)="navegarA('/perfil')">
           <mat-icon>manage_accounts</mat-icon>

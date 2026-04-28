@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -10,13 +10,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { AuthService } from '../../../core/services/auth.service';
-import { environment } from '../../../../environments/environment';
 import {
-  ApoderadoPerfil,
-  CursoPerfil,
   DocentePerfil,
   EstudiantePerfil,
-  UserProfile,
 } from '../../../core/models/user-profile.model';
 
 @Component({
@@ -35,13 +31,16 @@ import {
   templateUrl: './user-profile.html',
   styleUrl: './user-profile.css',
 })
-export class UserProfileComponent implements OnInit {
+export class UserProfileComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
 
-  /** Signal con los datos del perfil */
-  profile = signal<UserProfile | null>(null);
-  loading = signal(true);
+  /** Query con los datos del perfil */
+  profileQuery = this.authService.profileQuery;
+
+  /** Alias para data del perfil */
+  profile = computed(() => this.profileQuery.data());
+  loading = computed(() => this.profileQuery.isLoading());
 
   /** Iniciales para el avatar */
   initials = computed(() => {
@@ -76,67 +75,6 @@ export class UserProfileComponent implements OnInit {
     if (rol.includes('apoderado')) return 'family_restroom';
     return 'account_circle';
   });
-
-  ngOnInit(): void {
-    // Obtener usuario del AuthService y construir el perfil enriquecido (mock)
-    const authUser = this.authService.currentUser();
-    if (!authUser) {
-      this.router.navigate(['/login']);
-      return;
-    }
-
-    // Construir datos de perfil a partir del usuario autenticado
-    // En producción, esto se obtendría del microservicio de autenticación/gestión escolar
-    this.profile.set(this.buildMockProfile(authUser));
-    this.loading.set(false);
-  }
-
-  /** Construye un perfil mock enriquecido basado en el usuario autenticado */
-  private buildMockProfile(authUser: { id: string; email: string; name: string; role: string }): UserProfile {
-    const rolNombre = authUser.role ?? 'Estudiante';
-    const rol = { rol_id: 1, nombre: rolNombre };
-
-    // Si bypassLogin está activo, usar todos los datos del mock del environment
-    const mock = (!environment.production && environment.bypassLogin)
-      ? environment.mockUser
-      : null;
-
-    const baseProfile: UserProfile = {
-      usuario_id: parseInt(authUser.id, 10) || 1,
-      rut:              mock?.rut              ?? '12.345.678-9',
-      nombre:           mock?.nombre           ?? (authUser.name?.split(' ')[0] ?? 'Usuario'),
-      apellido_paterno: mock?.apellido_paterno ?? (authUser.name?.split(' ')[1] ?? 'Apellido'),
-      apellido_materno: mock?.apellido_materno ?? authUser.name?.split(' ')[2],
-      email:            authUser.email,
-      activo:           mock?.activo           ?? true,
-      rol,
-    };
-
-    // Enriquecer según rol
-    const rolLower = rolNombre.toLowerCase();
-    if (rolLower.includes('docente')) {
-      const extra: DocentePerfil = { tipo: 'docente', especialidad: 'Matemáticas' };
-      return { ...baseProfile, datosEspecificos: extra };
-    }
-    if (rolLower.includes('estudiante')) {
-      const cursoMock = mock?.curso;
-      const curso: CursoPerfil = {
-        curso_id:       1,
-        nivel:          cursoMock?.nivel          ?? '1° Medio',
-        letra:          cursoMock?.letra          ?? 'A',
-        anio_academico: cursoMock?.anio_academico ?? 2025,
-      };
-      const extra: EstudiantePerfil = { tipo: 'estudiante', curso };
-      return { ...baseProfile, datosEspecificos: extra };
-    }
-    if (rolLower.includes('apoderado')) {
-      const extra: ApoderadoPerfil = { tipo: 'apoderado' };
-      return { ...baseProfile, datosEspecificos: extra };
-    }
-
-    return baseProfile;
-  }
-
 
   /** Casteos tipados para el template */
   asDocente(d: unknown): DocentePerfil { return d as DocentePerfil; }
