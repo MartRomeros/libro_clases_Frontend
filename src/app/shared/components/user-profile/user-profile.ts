@@ -10,6 +10,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { AuthService } from '../../../core/services/auth.service';
+import { environment } from '../../../../environments/environment';
 import {
   ApoderadoPerfil,
   CursoPerfil,
@@ -95,14 +96,19 @@ export class UserProfileComponent implements OnInit {
     const rolNombre = authUser.role ?? 'Estudiante';
     const rol = { rol_id: 1, nombre: rolNombre };
 
+    // Si bypassLogin está activo, usar todos los datos del mock del environment
+    const mock = (!environment.production && environment.bypassLogin)
+      ? environment.mockUser
+      : null;
+
     const baseProfile: UserProfile = {
       usuario_id: parseInt(authUser.id, 10) || 1,
-      rut: '12.345.678-9',
-      nombre: authUser.name?.split(' ')[0] ?? 'Usuario',
-      apellido_paterno: authUser.name?.split(' ')[1] ?? 'Apellido',
-      apellido_materno: authUser.name?.split(' ')[2],
-      email: authUser.email,
-      activo: true,
+      rut:              mock?.rut              ?? '12.345.678-9',
+      nombre:           mock?.nombre           ?? (authUser.name?.split(' ')[0] ?? 'Usuario'),
+      apellido_paterno: mock?.apellido_paterno ?? (authUser.name?.split(' ')[1] ?? 'Apellido'),
+      apellido_materno: mock?.apellido_materno ?? authUser.name?.split(' ')[2],
+      email:            authUser.email,
+      activo:           mock?.activo           ?? true,
       rol,
     };
 
@@ -113,7 +119,13 @@ export class UserProfileComponent implements OnInit {
       return { ...baseProfile, datosEspecificos: extra };
     }
     if (rolLower.includes('estudiante')) {
-      const curso: CursoPerfil = { curso_id: 1, nivel: '1° Medio', letra: 'A', anio_academico: 2025 };
+      const cursoMock = mock?.curso;
+      const curso: CursoPerfil = {
+        curso_id:       1,
+        nivel:          cursoMock?.nivel          ?? '1° Medio',
+        letra:          cursoMock?.letra          ?? 'A',
+        anio_academico: cursoMock?.anio_academico ?? 2025,
+      };
       const extra: EstudiantePerfil = { tipo: 'estudiante', curso };
       return { ...baseProfile, datosEspecificos: extra };
     }
@@ -124,6 +136,7 @@ export class UserProfileComponent implements OnInit {
 
     return baseProfile;
   }
+
 
   /** Casteos tipados para el template */
   asDocente(d: unknown): DocentePerfil { return d as DocentePerfil; }
