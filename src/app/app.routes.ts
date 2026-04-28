@@ -24,5 +24,9 @@ export const routes: Routes = [
     {
         path: 'estudiante',
         loadComponent: () => import('./features/home/estudiante-home/estudiante-home').then(m => m.EstudianteHome)
+    },
+    {
+        path: 'perfil',
+        loadComponent: () => import('./shared/components/user-profile/user-profile').then(m => m.UserProfileComponent)
     }
 ];

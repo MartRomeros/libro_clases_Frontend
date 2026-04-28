@@ -1,0 +1,5 @@
+- genera una vista para que los usuarios puedan ver sus datos personales
+- no debe incluir la contraseña
+- no se deben cambiar los datos
+- segun el `contexto` genera la vista con los datos que podrian visualizarse en el perfil de usuario
+- analizar si esta vista debe ir como `feature/` o como `shared/`

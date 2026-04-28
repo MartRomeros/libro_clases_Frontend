@@ -75,6 +75,38 @@
   opacity: 0.65;
 }
 
+.avatar-btn {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background-color: var(--mat-sys-primary-container, #dce8ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.avatar-btn:hover {
+  transform: scale(1.07);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.16);
+}
+
+.perfil-link {
+  margin-top: 10px;
+  color: var(--mat-sys-primary, #1565c0);
+  font-size: 0.85rem;
+  font-weight: 500;
+  gap: 4px;
+}
+.perfil-link mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  vertical-align: middle;
+}
+
+
 /* ===================== TÍTULOS DE SECCIÓN ===================== */
 .section-title {
   font-size: 1rem;
