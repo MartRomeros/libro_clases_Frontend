@@ -7,7 +7,7 @@ import { injectQuery, injectQueryClient } from '@tanstack/angular-query-experime
 import { UserProfile } from '../models/user-profile.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   private http = inject(HttpClient);
@@ -21,12 +21,13 @@ export class AuthService {
   // Query to validate token
   validateTokenQuery = injectQuery(() => ({
     queryKey: ['validateToken', this.token()],
-    queryFn: () => firstValueFrom(
-      this.http.get<{ valid: boolean }>(`${this.apiUrl}/validate`).pipe(
-        map(res => res.valid),
-        catchError(() => of(false))
-      )
-    ),
+    queryFn: () =>
+      firstValueFrom(
+        this.http.get<{ valid: boolean }>(`${this.apiUrl}/validate`).pipe(
+          map((res) => res.valid),
+          catchError(() => of(false)),
+        ),
+      ),
     enabled: !!this.token(),
     retry: false,
   }));
@@ -34,42 +35,44 @@ export class AuthService {
   // Query to get user profile
   profileQuery = injectQuery(() => ({
     queryKey: ['userProfile', this.token()],
-    queryFn: () => firstValueFrom(
-      this.http.get<UserProfile>(`${this.apiUrl}/profile`).pipe(
-        catchError(err => {
-          if (err.status === 401) {
-            this.logout();
-          }
-          return throwError(() => err);
-        })
-      )
-    ),
+    queryFn: () =>
+      firstValueFrom(
+        this.http.get<UserProfile>(`${this.apiUrl}/profile`).pipe(
+          catchError((err) => {
+            if (err.status === 401) {
+              this.logout();
+            }
+            return throwError(() => err);
+          }),
+        ),
+      ),
     enabled: !!this.token(),
     retry: false,
   }));
 
   login(credentials: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials).pipe(
-      tap(response => {
+      tap((response) => {
         this.saveAuthData(response.token);
         // Refresh queries after login
         this.queryClient.invalidateQueries({ queryKey: ['validateToken'] });
         this.queryClient.invalidateQueries({ queryKey: ['userProfile'] });
       }),
-      catchError(this.handleError)
+      catchError(this.handleError),
     );
   }
 
   logout(): void {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     this.token.set(null);
     this.queryClient.clear();
   }
 
   forgotPassword(email: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/forgot-password`, { email }).pipe(
-      catchError(this.handleError)
-    );
+    return this.http
+      .post(`${this.apiUrl}/forgot-password`, { email })
+      .pipe(catchError(this.handleError));
   }
 
   private saveAuthData(token: string): void {

@@ -15,8 +15,8 @@
             <mat-form-field appearance="outline" class="filtro-field">
                 <mat-label>Curso</mat-label>
                 <mat-select [value]="cursoSeleccionado()" (valueChange)="cursoSeleccionado.set($event)">
-                    @for (curso of cursosDisponibles; track curso) {
-                    <mat-option [value]="curso">{{ curso }}</mat-option>
+                    @for (curso of cursosDisponibles(); track curso.curso_id) {
+                    <mat-option [value]="curso.curso_id">{{ curso.nivel }} {{ curso.letra }} - {{ curso.asignatura_nombre }}</mat-option>
                     }
                 </mat-select>
                 <mat-icon matPrefix>class</mat-icon>

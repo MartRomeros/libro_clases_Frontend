@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -14,6 +14,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatInputModule } from '@angular/material/input';
 import { Attendance } from './components/attendance/attendance';
 import { Conduct } from './components/conduct/conduct';
+import { AttendanceConductService, Course } from './services/attendance-conduct.service';
 
 @Component({
   standalone: true,
@@ -37,13 +38,30 @@ import { Conduct } from './components/conduct/conduct';
   templateUrl: './attendance-conduct.html',
   styleUrl: './attendance-conduct.css',
 })
-export class AttendanceConduct {
+export class AttendanceConduct implements OnInit {
 
   private router = inject(Router);
-  fechaSeleccionada = signal<Date>(new Date());
-  cursoSeleccionado = signal<string>('');
-  cursosDisponibles = ['1°A', '1°B', '2°A', '2°B', '3°A'];
+  private attendanceConductService = inject(AttendanceConductService);
 
+  fechaSeleccionada = signal<Date>(new Date());
+  cursoSeleccionado = signal<number | string>('');
+  cursosDisponibles = signal<Course[]>([]);
+
+  ngOnInit(): void {
+    this.attendanceConductService.getCursosDocente().subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          this.cursosDisponibles.set(response.data);
+          if (response.data.length > 0) {
+            this.cursoSeleccionado.set(response.data[0].curso_id);
+          }
+        }
+      },
+      error: (error) => {
+        console.error('Error al obtener cursos del docente', error);
+      }
+    });
+  }
 
   volverAlHome(): void {
     this.router.navigate(['/docente']);
