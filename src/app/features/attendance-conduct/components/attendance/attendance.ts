@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, effect, Input } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -11,7 +11,9 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CommonModule } from '@angular/common';
+import { AttendanceConductService, Alumno } from '../../services/attendance-conduct.service';
 
 @Component({
   standalone: true,
@@ -29,6 +31,7 @@ import { CommonModule } from '@angular/common';
     MatChipsModule,
     MatTooltipModule,
     MatSnackBarModule,
+    MatProgressSpinnerModule,
     CommonModule
   ],
   templateUrl: './attendance.html',
@@ -37,18 +40,49 @@ import { CommonModule } from '@angular/common';
 export class Attendance {
 
   private snackBar = inject(MatSnackBar);
+  private attendanceService = inject(AttendanceConductService);
 
-  // Estudiantes mock para la vista
-  estudiantes = signal<any[]>([
-    { id: 1, nombre: 'Ana', apellido: 'González', estadoAsistencia: null },
-    { id: 2, nombre: 'Carlos', apellido: 'Muñoz', estadoAsistencia: null },
-    { id: 3, nombre: 'Sofía', apellido: 'Pérez', estadoAsistencia: null },
-    { id: 4, nombre: 'Matías', apellido: 'Rodríguez', estadoAsistencia: null },
-    { id: 5, nombre: 'Valentina', apellido: 'López', estadoAsistencia: null },
-  ]);
+  // Inputs
+  private _cursoId: number | string | null = null;
+  @Input() set cursoId(value: number | string | null) {
+    this._cursoId = value;
+    if (value && value !== '') {
+      this.cargarAlumnos(Number(value));
+    } else {
+      this.estudiantes.set([]);
+    }
+  }
+  get cursoId() { return this._cursoId; }
 
-  cursoSeleccionado = signal<string>('');
-  cursosDisponibles = ['1°A', '1°B', '2°A', '2°B', '3°A'];
+  @Input() fecha: Date | null = null;
+
+  // Estudiantes cargados desde el servicio
+  estudiantes = signal<Alumno[]>([]);
+  isLoading = signal<boolean>(false);
+
+  constructor() { }
+
+  cargarAlumnos(id: number): void {
+    this.isLoading.set(true);
+    this.attendanceService.getAlumnosCurso(id).subscribe({
+      next: (response) => {
+        if (response.success) {
+          // Inicializamos estadoAsistencia como null para cada alumno
+          const alumnosConEstado = response.data.map(a => ({
+            ...a,
+            estadoAsistencia: null
+          }));
+          this.estudiantes.set(alumnosConEstado);
+        }
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        console.error('Error al cargar alumnos:', err);
+        this.snackBar.open('Error al cargar la lista de alumnos', 'Cerrar', { duration: 3000 });
+        this.isLoading.set(false);
+      }
+    });
+  }
 
   // Contadores computed
   totalPresentes = computed(() =>
@@ -79,32 +113,14 @@ export class Attendance {
     return estado ? mapa[estado] : '';
   }
 
-  colorChipTipo(tipo: any): string {
-    const mapa: Record<any, string> = {
-      Positiva: 'primary',
-      Negativa: 'warn',
-      Informativa: 'accent',
-    };
-    return mapa[tipo];
-  }
-
-  iconoTipo(tipo: any): string {
-    const mapa: Record<any, string> = {
-      Positiva: 'thumb_up',
-      Negativa: 'warning',
-      Informativa: 'info',
-    };
-    return mapa[tipo];
-  }
-
-  marcarAsistencia(estudiante: any, estado: any): void {
+  marcarAsistencia(estudiante: Alumno, estado: any): void {
     this.estudiantes.update(lista =>
-      lista.map(e => e.id === estudiante.id ? { ...e, estadoAsistencia: estado } : e)
+      lista.map(e => e.estudiante_id === estudiante.estudiante_id ? { ...e, estadoAsistencia: estado } : e)
     );
   }
 
   // Columnas de la tabla de asistencia
-  columnasAsistencia: string[] = ['nombre', 'apellido', 'estado'];
+  columnasAsistencia: string[] = ['rut', 'nombre', 'apellido', 'estado'];
 
   guardarAsistencia(): void {
     const sinMarcar = this.estudiantes().filter(e => e.estadoAsistencia === null).length;

@@ -47,14 +47,44 @@ export class AttendanceConduct implements OnInit {
   cursoSeleccionado = signal<number | string>('');
   cursosDisponibles = signal<Course[]>([]);
 
+  // Listado de feriados en Chile 2026 (año actual según contexto)
+  private feriadosChile = [
+    '2026-01-01', // Año Nuevo
+    '2026-04-03', // Viernes Santo
+    '2026-04-04', // Sábado Santo
+    '2026-05-01', // Día del Trabajo
+    '2026-05-21', // Día de las Glorias Navales
+    '2026-06-29', // San Pedro y San Pablo
+    '2026-07-16', // Día de la Virgen del Carmen
+    '2026-08-15', // Asunción de la Virgen
+    '2026-09-18', // Fiestas Patrias
+    '2026-09-19', // Glorias del Ejército
+    '2026-10-12', // Encuentro de Dos Mundos
+    '2026-10-31', // Día de las Iglesias Evangélicas
+    '2026-11-01', // Día de Todos los Santos
+    '2026-12-08', // Inmaculada Concepción
+    '2026-12-25', // Navidad
+  ];
+
+  dateFilter = (d: Date | null): boolean => {
+    const date = d || new Date();
+    const day = date.getDay();
+    const dateString = date.toISOString().split('T')[0];
+
+    // 0 = Domingo, 6 = Sábado. Solo permitimos 1-5 (Lunes-Viernes)
+    const esFinDeSemana = day === 0 || day === 6;
+
+    // Verificar si es feriado
+    const esFeriado = this.feriadosChile.includes(dateString);
+
+    return !esFinDeSemana && !esFeriado;
+  };
+
   ngOnInit(): void {
     this.attendanceConductService.getCursosDocente().subscribe({
       next: (response) => {
         if (response.success && response.data) {
           this.cursosDisponibles.set(response.data);
-          if (response.data.length > 0) {
-            this.cursoSeleccionado.set(response.data[0].curso_id);
-          }
         }
       },
       error: (error) => {

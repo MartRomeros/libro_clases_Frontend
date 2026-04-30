@@ -15,6 +15,7 @@
             <mat-form-field appearance="outline" class="filtro-field">
                 <mat-label>Curso</mat-label>
                 <mat-select [value]="cursoSeleccionado()" (valueChange)="cursoSeleccionado.set($event)">
+                    <mat-option [value]="''">Seleccione un curso</mat-option>
                     @for (curso of cursosDisponibles(); track curso.curso_id) {
                     <mat-option [value]="curso.curso_id">{{ curso.nivel }} {{ curso.letra }} - {{ curso.asignatura_nombre }}</mat-option>
                     }
@@ -25,6 +26,7 @@
             <mat-form-field appearance="outline" class="filtro-field">
                 <mat-label>Fecha</mat-label>
                 <input matInput [matDatepicker]="picker" [value]="fechaSeleccionada()"
+                    [matDatepickerFilter]="dateFilter"
                     (dateChange)="fechaSeleccionada.set($event.value!)">
                 <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
                 <mat-datepicker #picker></mat-datepicker>
@@ -38,7 +40,7 @@
                 <mat-icon class="tab-icon">how_to_reg</mat-icon>
                 Asistencia
             </ng-template>
-            <app-attendance></app-attendance>
+            <app-attendance [cursoId]="cursoSeleccionado()" [fecha]="fechaSeleccionada()"></app-attendance>
         </mat-tab>
 
         <mat-tab>
@@ -46,7 +48,7 @@
                 <mat-icon class="tab-icon">edit_note</mat-icon>
                 Conducta
             </ng-template>
-            <app-conduct></app-conduct>
+            <app-conduct [cursoId]="cursoSeleccionado()" [fecha]="fechaSeleccionada()"></app-conduct>
         </mat-tab>
     </mat-tab-group>
 

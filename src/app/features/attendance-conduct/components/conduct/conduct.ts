@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, effect, inject, Input } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -10,9 +10,9 @@ import { MatChipsModule } from '@angular/material/chips';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CommonModule, DatePipe } from '@angular/common';
-
-
+import { AttendanceConductService, Alumno } from '../../services/attendance-conduct.service';
 
 @Component({
   standalone: true,
@@ -28,6 +28,7 @@ import { CommonModule, DatePipe } from '@angular/common';
     MatChipsModule,
     ReactiveFormsModule,
     MatSnackBarModule,
+    MatProgressSpinnerModule,
     DatePipe,
     CommonModule
   ],
@@ -36,33 +37,56 @@ import { CommonModule, DatePipe } from '@angular/common';
 })
 export class Conduct {
 
+  private fb = inject(FormBuilder);
+  private snackBar = inject(MatSnackBar);
+  private attendanceService = inject(AttendanceConductService);
+
+  // Inputs
+  private _cursoId: number | string | null = null;
+  @Input() set cursoId(value: number | string | null) {
+    this._cursoId = value;
+    if (value && value !== '') {
+      this.cargarAlumnos(Number(value));
+    } else {
+      this.estudiantes.set([]);
+    }
+  }
+  get cursoId() { return this._cursoId; }
+
+  @Input() fecha: Date | null = null;
 
   tiposAnotacion: string[] = ['Positiva', 'Negativa', 'Informativa'];
-
-
   anotacionForm: FormGroup;
 
   // Anotaciones registradas
   anotaciones = signal<any[]>([]);
 
-  // Estudiantes mock para la vista
-  estudiantes = signal<any[]>([
-    { id: 1, nombre: 'Ana', apellido: 'González', estadoAsistencia: null },
-    { id: 2, nombre: 'Carlos', apellido: 'Muñoz', estadoAsistencia: null },
-    { id: 3, nombre: 'Sofía', apellido: 'Pérez', estadoAsistencia: null },
-    { id: 4, nombre: 'Matías', apellido: 'Rodríguez', estadoAsistencia: null },
-    { id: 5, nombre: 'Valentina', apellido: 'López', estadoAsistencia: null },
-  ]);
+  // Estudiantes cargados desde el servicio
+  estudiantes = signal<Alumno[]>([]);
+  isLoading = signal<boolean>(false);
 
-  constructor(
-    private router: Router,
-    private fb: FormBuilder,
-    private snackBar: MatSnackBar
-  ) {
+  constructor() {
     this.anotacionForm = this.fb.group({
       estudianteId: [null, Validators.required],
       tipo: ['', Validators.required],
       descripcion: ['', [Validators.required, Validators.minLength(10)]],
+    });
+  }
+
+  cargarAlumnos(id: number): void {
+    this.isLoading.set(true);
+    this.attendanceService.getAlumnosCurso(id).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.estudiantes.set(response.data);
+        }
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        console.error('Error al cargar alumnos:', err);
+        this.snackBar.open('Error al cargar la lista de alumnos', 'Cerrar', { duration: 3000 });
+        this.isLoading.set(false);
+      }
     });
   }
 
@@ -73,12 +97,12 @@ export class Conduct {
     }
 
     const { estudianteId, tipo, descripcion } = this.anotacionForm.value;
-    const est = this.estudiantes().find(e => e.id === estudianteId);
+    const est = this.estudiantes().find(e => e.estudiante_id === estudianteId);
     if (!est) return;
 
     const nueva: any = {
       estudianteId,
-      estudianteNombre: `${est.nombre} ${est.apellido}`,
+      estudianteNombre: `${est.nombre} ${est.apellido_paterno} ${est.apellido_materno}`,
       tipo,
       descripcion,
       fecha: new Date(),

@@ -20,6 +20,22 @@ export interface CoursesResponse {
   data: Course[];
 }
 
+export interface Alumno {
+  estudiante_id: number;
+  rut: string;
+  nombre: string;
+  apellido_paterno: string;
+  apellido_materno: string;
+  email: string;
+  estadoAsistencia?: string | null; // Added for UI state
+}
+
+export interface AlumnosResponse {
+  success: boolean;
+  curso_id: number;
+  data: Alumno[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -29,5 +45,9 @@ export class AttendanceConductService {
 
   getCursosDocente(): Observable<CoursesResponse> {
     return this.http.get<CoursesResponse>(`${this.apiUrl}/docentes/cursos`);
+  }
+
+  getAlumnosCurso(cursoId: number): Observable<AlumnosResponse> {
+    return this.http.get<AlumnosResponse>(`${this.apiUrl}/cursos/${cursoId}/alumnos`);
   }
 }
