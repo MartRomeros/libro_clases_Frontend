@@ -50,4 +50,25 @@ export class AttendanceConductService {
   getAlumnosCurso(cursoId: number): Observable<AlumnosResponse> {
     return this.http.get<AlumnosResponse>(`${this.apiUrl}/cursos/${cursoId}/alumnos`);
   }
+
+  registrarAsistencia(payload: AsistenciaPayload): Observable<RegistroAsistenciaResponse> {
+    return this.http.post<RegistroAsistenciaResponse>(`${this.apiUrl}/asistencia`, payload);
+  }
+}
+
+export interface AsistenciaDetalle {
+  estudiante_id: number;
+  estado: string;
+  tipo_asistencia: string;
+}
+
+export interface AsistenciaPayload {
+  cad_id: number;
+  fecha: string;
+  asistencias: AsistenciaDetalle[];
+}
+
+export interface RegistroAsistenciaResponse {
+  success: boolean;
+  message: string;
 }

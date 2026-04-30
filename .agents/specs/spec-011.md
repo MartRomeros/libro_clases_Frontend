@@ -28,3 +28,27 @@ Este spec se dividira en 2 partes:
 20   ]
 21 }
 ```
+**Segunda Parte**
+- Crear el servicio para que registre la asistencia a la base de datos
+- El endpoint es POST el json a enviar es el mismo esquema que se dejo en este spec. /asistencia
+- Antes de registrarla con un mat dialog o un mat alert indicar si realmente desea registrar la asistencia.
+este es el mensaje que se envia tras la creacion de la asistencia:
+
+{
+  "success": true,
+  "message": "Asistencia registrada correctamente"
+}
+
+
+## Resultados
+- Se implementó la lógica en el componente `app-attendance`.
+- Se generó el formato de JSON requerido, extrayendo los IDs de estudiantes y el estado de la asistencia.
+- La fecha fue formateada al estándar ISO `YYYY-MM-DD` extrayéndola del `@Input() fecha`.
+- No fue necesario usar `ReactiveFormsModule` ya que el estado se estaba manejando óptimamente con Angular Signals, lo que hace el código más reactivo y sin la verbosidad de los formularios reactivos para este caso particular.
+- Se creó la rama `spec-011`.
+
+## Resultados (Segunda Parte)
+- Se añadieron las interfaces `AsistenciaPayload`, `AsistenciaDetalle` y `RegistroAsistenciaResponse` en `AttendanceConductService`.
+- Se implementó el método `registrarAsistencia` en el servicio que hace la petición POST a `/asistencia`.
+- Se integró `MatDialog` y se creó un componente inline `ConfirmDialogComponent` para pedir confirmación antes de enviar los datos al backend.
+- Se actualizó el método `guardarAsistencia` en `app-attendance` para que muestre el diálogo de confirmación, y si el usuario acepta, llama al servicio y muestra el mensaje de éxito usando el `MatSnackBar`.

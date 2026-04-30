@@ -12,8 +12,24 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
-import { AttendanceConductService, Alumno } from '../../services/attendance-conduct.service';
+import { AttendanceConductService, Alumno, AsistenciaPayload } from '../../services/attendance-conduct.service';
+
+@Component({
+  selector: 'app-confirm-dialog',
+  standalone: true,
+  imports: [MatDialogModule, MatButtonModule],
+  template: `
+    <h2 mat-dialog-title>Confirmar registro</h2>
+    <mat-dialog-content>¿Realmente desea registrar la asistencia para esta fecha?</mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button mat-dialog-close>Cancelar</button>
+      <button mat-raised-button color="primary" [mat-dialog-close]="true">Registrar</button>
+    </mat-dialog-actions>
+  `
+})
+export class ConfirmDialogComponent {}
 
 @Component({
   standalone: true,
@@ -32,6 +48,7 @@ import { AttendanceConductService, Alumno } from '../../services/attendance-cond
     MatTooltipModule,
     MatSnackBarModule,
     MatProgressSpinnerModule,
+    MatDialogModule,
     CommonModule
   ],
   templateUrl: './attendance.html',
@@ -41,6 +58,7 @@ export class Attendance {
 
   private snackBar = inject(MatSnackBar);
   private attendanceService = inject(AttendanceConductService);
+  private dialog = inject(MatDialog);
 
   // Inputs
   private _cursoId: number | string | null = null;
@@ -131,9 +149,48 @@ export class Attendance {
       });
       return;
     }
-    this.snackBar.open('✓ Asistencia guardada correctamente', 'Cerrar', {
-      duration: 3000,
-      panelClass: ['success-snackbar'],
+
+    const dialogRef = this.dialog.open(ConfirmDialogComponent);
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.enviarAsistencia();
+      }
+    });
+  }
+
+  private enviarAsistencia(): void {
+    this.isLoading.set(true);
+    const isoDate = this.fecha ? this.fecha.toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+
+    // Asumimos cad_id: 1 (según el spec), o si estuviéramos usando this.cursoId()
+    const payload: AsistenciaPayload = {
+      cad_id: 1, 
+      fecha: isoDate,
+      asistencias: this.estudiantes().map(e => ({
+        estudiante_id: e.estudiante_id,
+        estado: e.estadoAsistencia as string,
+        tipo_asistencia: 'Presencial'
+      }))
+    };
+
+    console.log('Enviando payload:', JSON.stringify(payload, null, 2));
+
+    this.attendanceService.registrarAsistencia(payload).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.snackBar.open(`✓ ${response.message}`, 'Cerrar', {
+            duration: 3000,
+            panelClass: ['success-snackbar'],
+          });
+        }
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        console.error('Error al registrar asistencia:', err);
+        this.snackBar.open('Error al registrar la asistencia', 'Cerrar', { duration: 3000 });
+        this.isLoading.set(false);
+      }
     });
   }
 
