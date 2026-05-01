@@ -1,0 +1,58 @@
+package com.example.BackGestion.Services;
+
+import com.example.BackGestion.Model.Usuario;
+import com.example.BackGestion.Repository.UsuarioRepository;
+import org.springframework.stereotype.Service;
+
+import com.example.BackGestion.dto.LoginProjection;
+
+import java.util.List;
+
+@Service
+public class UsuarioService {
+
+    private final UsuarioRepository usuarioRepository;
+
+    public UsuarioService(UsuarioRepository usuarioRepository) {
+        this.usuarioRepository = usuarioRepository;
+    }
+
+    public List<Usuario> obtenerTodos() {
+        return usuarioRepository.findAll();
+    }
+
+    public Usuario obtenerPorId(Integer id) {
+        return usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con id: " + id));
+    }
+
+    public LoginProjection autenticar(String email, String password) {
+        return usuarioRepository.autenticarUsuario(email, password)
+                .orElseThrow(() -> new RuntimeException("Credenciales incorrectas o usuario no encontrado"));
+    }
+
+    public Usuario guardar(Usuario usuario) {
+        return usuarioRepository.save(usuario);
+    }
+
+    public Usuario actualizar(Integer id, Usuario usuarioDetalles) {
+        Usuario usuario = obtenerPorId(id);
+        usuario.setRut(usuarioDetalles.getRut());
+        usuario.setNombre(usuarioDetalles.getNombre());
+        usuario.setApellidoPaterno(usuarioDetalles.getApellidoPaterno());
+        usuario.setApellidoMaterno(usuarioDetalles.getApellidoMaterno());
+        usuario.setEmail(usuarioDetalles.getEmail());
+        if (usuarioDetalles.getPassword() != null && !usuarioDetalles.getPassword().isEmpty()) {
+            usuario.setPassword(usuarioDetalles.getPassword());
+        }
+        usuario.setRolId(usuarioDetalles.getRolId());
+        usuario.setActivo(usuarioDetalles.getActivo());
+        return usuarioRepository.save(usuario);
+    }
+
+    public void eliminar(Integer id) {
+        Usuario usuario = obtenerPorId(id);
+        usuarioRepository.delete(usuario);
+    }
+}
+
