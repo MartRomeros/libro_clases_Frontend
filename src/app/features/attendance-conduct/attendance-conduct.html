@@ -1,11 +1,16 @@
 <mat-toolbar color="primary" class="toolbar">
-    <button mat-icon-button (click)="volverAlHome()" matTooltip="Volver al inicio">
+    <button mat-icon-button (click)="volverAlHome()" matTooltip="Volver al Panel">
         <mat-icon>arrow_back</mat-icon>
     </button>
     <mat-icon class="toolbar-icon">fact_check</mat-icon>
     <span class="toolbar-title">Asistencia y Conducta</span>
     <span class="spacer"></span>
-    <span class="fecha-label">{{ fechaSeleccionada() | date: 'EEEE d MMM' : '' : 'es' }}</span>
+    <!-- Restauramos la fecha que se había borrado -->
+    <span class="fecha-label" style="margin-right: 20px;">{{ fechaSeleccionada() | date: 'EEEE d MMM' : '' : 'es' }}</span>
+    <span class="user-profile-text">{{ userProfile }}</span>
+    <button mat-icon-button matTooltip="Cerrar sesión" (click)="cerrarSesion()">
+        <mat-icon>logout</mat-icon>
+    </button>
 </mat-toolbar>
 
 <div class="asistencia-container">
@@ -15,8 +20,10 @@
             <mat-form-field appearance="outline" class="filtro-field">
                 <mat-label>Curso</mat-label>
                 <mat-select [value]="cursoSeleccionado()" (valueChange)="cursoSeleccionado.set($event)">
-                    @for (curso of cursosDisponibles; track curso) {
-                    <mat-option [value]="curso">{{ curso }}</mat-option>
+                    @for (curso of cursosDisponibles(); track curso.cursoId) {
+                    <mat-option [value]="curso.cursoId">
+                        {{ curso.curso }} - {{ curso.asignaturaNombre }}
+                    </mat-option>
                     }
                 </mat-select>
                 <mat-icon matPrefix>class</mat-icon>
@@ -38,7 +45,7 @@
                 <mat-icon class="tab-icon">how_to_reg</mat-icon>
                 Asistencia
             </ng-template>
-            <app-attendance></app-attendance>
+            <app-attendance [cursoId]="cursoSeleccionado()" [fecha]="fechaSeleccionada()"></app-attendance>
         </mat-tab>
 
         <mat-tab>
@@ -46,7 +53,7 @@
                 <mat-icon class="tab-icon">edit_note</mat-icon>
                 Conducta
             </ng-template>
-            <app-conduct></app-conduct>
+            <app-conduct [cursoId]="cursoSeleccionado()"></app-conduct>
         </mat-tab>
     </mat-tab-group>
 

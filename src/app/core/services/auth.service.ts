@@ -10,6 +10,7 @@ import { AuthResponse, LoginRequest, User } from '../models/auth.model';
 export class AuthService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/auth`;
+  private backGestionUrl = environment.backGestionUrl;
   
   // Use signals for state management
   currentUser = signal<User | null>(this.getUserFromStorage());
@@ -56,11 +57,59 @@ export class AuthService {
     );
   }
 
-  private saveAuthData(token: string, user: User): void {
+  fetchUserDetails(id: number, role: string): Observable<any> {
+    // Lógica para determinar el endpoint según el rol
+    const cleanRole = role?.toLowerCase().trim();
+    let endpoint = `${this.backGestionUrl}/usuarios/${id}`;
+    
+    if (cleanRole === 'docente') {
+      endpoint = `${this.backGestionUrl}/docentes/${id}`;
+    } else if (cleanRole === 'estudiante') {
+      endpoint = `${this.backGestionUrl}/estudiantes/${id}`;
+    }
+    
+    console.log(`Consumiendo BackGestion (${role}): ${endpoint}`);
+
+    return this.http.get<any>(endpoint).pipe(
+      tap(data => {
+        let user = this.currentUser();
+        
+        if (!user) {
+          user = { id: id.toString(), email: '', name: '', role: role };
+        }
+
+        if (data) {
+          const userData = data.usuario || data;
+          const fullName = `${userData.nombre || ''} ${userData.apellidoPaterno || ''} ${userData.apellidoMaterno || ''}`.trim();
+          
+          const updatedUser = {
+            ...user,
+            id: data.estudianteId?.toString() || data.docenteId?.toString() || data.id?.toString() || user.id,
+            name: fullName || user.name,
+            email: userData.email || user.email
+          };
+          
+          this.currentUser.set(updatedUser);
+          localStorage.setItem('user', JSON.stringify(updatedUser));
+          console.log('DATOS CARGADOS DESDE BACKGESTION:', updatedUser);
+        }
+      }),
+      catchError(err => {
+        console.error('Error al obtener detalles desde BackGestion:', err);
+        return of(null);
+      })
+    );
+  }
+
+  private saveAuthData(token: string, user?: User): void {
     localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(user));
+    
+    // Si el backend no envió usuario, creamos uno temporal que se llenará con fetchUserDetails
+    const userData = user || { id: '', email: '', name: '', role: '' };
+    
+    localStorage.setItem('user', JSON.stringify(userData));
     this.token.set(token);
-    this.currentUser.set(user);
+    this.currentUser.set(userData);
     this.isAuthenticated.set(true);
   }
 

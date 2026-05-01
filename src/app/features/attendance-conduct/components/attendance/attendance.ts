@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, input, effect } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -12,6 +12,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { CommonModule } from '@angular/common';
+import { DocenteService } from '../../../../core/services/docente.service';
 
 @Component({
   standalone: true,
@@ -37,18 +38,46 @@ import { CommonModule } from '@angular/common';
 export class Attendance {
 
   private snackBar = inject(MatSnackBar);
+  private docenteService = inject(DocenteService);
 
-  // Estudiantes mock para la vista
-  estudiantes = signal<any[]>([
-    { id: 1, nombre: 'Ana', apellido: 'González', estadoAsistencia: null },
-    { id: 2, nombre: 'Carlos', apellido: 'Muñoz', estadoAsistencia: null },
-    { id: 3, nombre: 'Sofía', apellido: 'Pérez', estadoAsistencia: null },
-    { id: 4, nombre: 'Matías', apellido: 'Rodríguez', estadoAsistencia: null },
-    { id: 5, nombre: 'Valentina', apellido: 'López', estadoAsistencia: null },
-  ]);
+  // Recibe el cursoId y fecha desde el padre
+  cursoId = input<number | null>(null);
+  fecha = input<Date>(new Date());
 
-  cursoSeleccionado = signal<string>('');
-  cursosDisponibles = ['1°A', '1°B', '2°A', '2°B', '3°A'];
+  // Estudiantes reales desde el back
+  estudiantes = signal<any[]>([]);
+  isLoading = signal<boolean>(false);
+
+  constructor() {
+    // Cada vez que el cursoId cambie, recargamos
+    effect(() => {
+      const id = this.cursoId();
+      if (id) {
+        this.cargarEstudiantes(id);
+      } else {
+        this.estudiantes.set([]);
+      }
+    }, { allowSignalWrites: true });
+  }
+
+  cargarEstudiantes(cursoId: number): void {
+    this.isLoading.set(true);
+    this.docenteService.getEstudiantesPorCurso(cursoId).subscribe({
+      next: (data) => {
+        this.estudiantes.set(data.map(est => ({
+          id: est.estudianteId,
+          nombre: est.estudianteFullName.split(', ')[1] || est.estudianteFullName,
+          apellido: est.estudianteFullName.split(', ')[0] || '',
+          estadoAsistencia: null
+        })));
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        console.error('Error cargando estudiantes para asistencia:', err);
+        this.isLoading.set(false);
+      }
+    });
+  }
 
   // Contadores computed
   totalPresentes = computed(() =>
@@ -79,24 +108,6 @@ export class Attendance {
     return estado ? mapa[estado] : '';
   }
 
-  colorChipTipo(tipo: any): string {
-    const mapa: Record<any, string> = {
-      Positiva: 'primary',
-      Negativa: 'warn',
-      Informativa: 'accent',
-    };
-    return mapa[tipo];
-  }
-
-  iconoTipo(tipo: any): string {
-    const mapa: Record<any, string> = {
-      Positiva: 'thumb_up',
-      Negativa: 'warning',
-      Informativa: 'info',
-    };
-    return mapa[tipo];
-  }
-
   marcarAsistencia(estudiante: any, estado: any): void {
     this.estudiantes.update(lista =>
       lista.map(e => e.id === estudiante.id ? { ...e, estadoAsistencia: estado } : e)
@@ -107,18 +118,49 @@ export class Attendance {
   columnasAsistencia: string[] = ['nombre', 'apellido', 'estado'];
 
   guardarAsistencia(): void {
-    const sinMarcar = this.estudiantes().filter(e => e.estadoAsistencia === null).length;
-    if (sinMarcar > 0) {
-      this.snackBar.open(`Hay ${sinMarcar} estudiantes sin marcar.`, 'Entendido', {
-        duration: 4000,
-        panelClass: ['warn-snackbar'],
-      });
+    const cursoIdActual = this.cursoId();
+    if (!cursoIdActual) {
+      this.snackBar.open('Debes seleccionar un curso primero.', 'Cerrar', { duration: 3000 });
       return;
     }
-    this.snackBar.open('✓ Asistencia guardada correctamente', 'Cerrar', {
-      duration: 3000,
-      panelClass: ['success-snackbar'],
+
+    const sinMarcar = this.estudiantes().filter(e => e.estadoAsistencia === null).length;
+    if (this.estudiantes().length === 0) {
+      this.snackBar.open('No hay estudiantes cargados.', 'Cerrar', { duration: 3000 });
+      return;
+    }
+
+    if (sinMarcar > 0) {
+      this.snackBar.open(`Hay ${sinMarcar} estudiantes sin marcar.`, 'Entendido', { duration: 4000 });
+      return;
+    }
+
+    // Formateamos la fecha a YYYY-MM-DD
+    const fechaStr = this.fecha().toISOString().split('T')[0];
+
+    // Preparamos el array de objetos para el bulk save
+    const asistenciasAPostear = this.estudiantes().map(est => ({
+      estudianteId: est.id,
+      cursoId: cursoIdActual,
+      fecha: fechaStr,
+      estado: est.estadoAsistencia,
+      tipoAsistencia: 'Presencial' // Valor por defecto según tu tabla
+    }));
+
+    this.isLoading.set(true);
+    this.docenteService.guardarAsistencias(asistenciasAPostear).subscribe({
+      next: () => {
+        this.snackBar.open('✓ Asistencia guardada correctamente en la base de datos', 'Cerrar', {
+          duration: 3000,
+          panelClass: ['success-snackbar'],
+        });
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        console.error('Error al guardar asistencia:', err);
+        this.snackBar.open('Error al conectar con el servidor.', 'Cerrar', { duration: 5000 });
+        this.isLoading.set(false);
+      }
     });
   }
-
 }

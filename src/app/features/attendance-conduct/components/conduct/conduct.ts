@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, input, effect, inject } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -11,8 +11,8 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { CommonModule, DatePipe } from '@angular/common';
-
-
+import { DocenteService } from '../../../../core/services/docente.service';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   standalone: true,
@@ -36,33 +36,75 @@ import { CommonModule, DatePipe } from '@angular/common';
 })
 export class Conduct {
 
+  private fb = inject(FormBuilder);
+  private snackBar = inject(MatSnackBar);
+  private docenteService = inject(DocenteService);
+  private authService = inject(AuthService);
+
+  // Recibe el cursoId desde el padre
+  cursoId = input<number | null>(null);
 
   tiposAnotacion: string[] = ['Positiva', 'Negativa', 'Informativa'];
-
-
   anotacionForm: FormGroup;
 
-  // Anotaciones registradas
+  // Anotaciones registradas (para mostrar en la lista de abajo)
   anotaciones = signal<any[]>([]);
 
-  // Estudiantes mock para la vista
-  estudiantes = signal<any[]>([
-    { id: 1, nombre: 'Ana', apellido: 'González', estadoAsistencia: null },
-    { id: 2, nombre: 'Carlos', apellido: 'Muñoz', estadoAsistencia: null },
-    { id: 3, nombre: 'Sofía', apellido: 'Pérez', estadoAsistencia: null },
-    { id: 4, nombre: 'Matías', apellido: 'Rodríguez', estadoAsistencia: null },
-    { id: 5, nombre: 'Valentina', apellido: 'López', estadoAsistencia: null },
-  ]);
+  // Estudiantes reales del curso
+  estudiantes = signal<any[]>([]);
 
-  constructor(
-    private router: Router,
-    private fb: FormBuilder,
-    private snackBar: MatSnackBar
-  ) {
+  constructor() {
     this.anotacionForm = this.fb.group({
       estudianteId: [null, Validators.required],
       tipo: ['', Validators.required],
       descripcion: ['', [Validators.required, Validators.minLength(10)]],
+    });
+
+    // Escuchar cambios en la selección del estudiante para cargar su historial
+    this.anotacionForm.get('estudianteId')?.valueChanges.subscribe(id => {
+      if (id) {
+        this.cargarHistorialEstudiante(id);
+      } else {
+        this.anotaciones.set([]);
+      }
+    });
+
+    // Efecto para cargar alumnos cuando cambie el cursoId
+    effect(() => {
+      const id = this.cursoId();
+      if (id) {
+        this.cargarEstudiantes(id);
+      } else {
+        this.estudiantes.set([]);
+      }
+    }, { allowSignalWrites: true });
+  }
+
+  cargarHistorialEstudiante(estudianteId: number): void {
+    this.docenteService.getAnotacionesPorEstudiante(estudianteId).subscribe({
+      next: (data) => {
+        const est = this.estudiantes().find(e => e.id === estudianteId);
+        const historial = data.map(a => ({
+          estudianteNombre: est?.nombreCompleto || 'Estudiante',
+          tipo: a.tipo,
+          descripcion: a.descripcion,
+          fecha: a.fechaRegistro
+        }));
+        this.anotaciones.set(historial);
+      },
+      error: (err) => console.error('Error cargando historial:', err)
+    });
+  }
+
+  cargarEstudiantes(cursoId: number): void {
+    this.docenteService.getEstudiantesPorCurso(cursoId).subscribe({
+      next: (data) => {
+        this.estudiantes.set(data.map(est => ({
+          id: est.estudianteId,
+          nombreCompleto: est.estudianteFullName
+        })));
+      },
+      error: (err) => console.error('Error cargando alumnos para conducta:', err)
     });
   }
 
@@ -72,23 +114,43 @@ export class Conduct {
       return;
     }
 
-    const { estudianteId, tipo, descripcion } = this.anotacionForm.value;
-    const est = this.estudiantes().find(e => e.id === estudianteId);
-    if (!est) return;
+    const user = this.authService.currentUser();
+    const docenteId = user?.id ? Number(user.id) : 2;
 
-    const nueva: any = {
+    const { estudianteId, tipo, descripcion } = this.anotacionForm.value;
+    
+    const payload = {
       estudianteId,
-      estudianteNombre: `${est.nombre} ${est.apellido}`,
+      docenteId,
       tipo,
       descripcion,
-      fecha: new Date(),
+      fechaRegistro: new Date().toISOString()
     };
 
-    this.anotaciones.update(lista => [nueva, ...lista]);
-    this.anotacionForm.reset();
-    this.snackBar.open('✓ Anotación registrada', 'Cerrar', {
-      duration: 3000,
-      panelClass: ['success-snackbar'],
+    this.docenteService.guardarAnotacion(payload).subscribe({
+      next: (res) => {
+        const est = this.estudiantes().find(e => e.id === estudianteId);
+        
+        // Agregar a la lista visual
+        const nuevaVisual: any = {
+          estudianteNombre: est?.nombreCompleto || 'Estudiante',
+          tipo,
+          descripcion,
+          fecha: new Date(),
+        };
+
+        this.anotaciones.update(lista => [nuevaVisual, ...lista]);
+        this.anotacionForm.reset();
+        
+        this.snackBar.open('✓ Anotación registrada con éxito', 'Cerrar', {
+          duration: 3000,
+          panelClass: ['success-snackbar'],
+        });
+      },
+      error: (err) => {
+        console.error('Error al guardar anotación:', err);
+        this.snackBar.open('Error al guardar en el servidor', 'Cerrar', { duration: 3000 });
+      }
     });
   }
 
@@ -109,5 +171,4 @@ export class Conduct {
     };
     return mapa[tipo];
   }
-
 }

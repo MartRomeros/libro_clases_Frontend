@@ -7,3 +7,14 @@
     --mdc-snackbar-supporting-text-color: #ffffff;
     --mat-snack-bar-button-color: #ffffff;
 }
+
+/* Estilo estandarizado para la información del usuario en las barras superiores */
+.user-profile-text {
+    font-size: 14px;
+    font-weight: 500;
+    margin-right: 16px;
+    /* Usamos el color de texto por defecto (o heredado) en lugar de blanco fijo */
+    color: inherit;
+    opacity: 0.85;
+    letter-spacing: 0.5px;
+}

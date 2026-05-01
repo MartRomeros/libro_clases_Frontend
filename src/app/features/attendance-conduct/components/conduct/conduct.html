@@ -15,7 +15,7 @@
                     <mat-label>Estudiante</mat-label>
                     <mat-select formControlName="estudianteId">
                         @for (est of estudiantes(); track est.id) {
-                        <mat-option [value]="est.id">{{ est.nombre }} {{ est.apellido }}</mat-option>
+                        <mat-option [value]="est.id">{{ est.nombreCompleto }}</mat-option>
                         }
                     </mat-select>
                     <mat-icon matPrefix>person</mat-icon>
@@ -62,7 +62,7 @@
     <mat-card appearance="outlined" class="lista-anotaciones-card">
         <mat-card-header>
             <mat-icon mat-card-avatar>list_alt</mat-icon>
-            <mat-card-title>Anotaciones del Día</mat-card-title>
+            <mat-card-title>Historial de Anotaciones</mat-card-title>
             <mat-card-subtitle>{{ anotaciones().length }} registros</mat-card-subtitle>
         </mat-card-header>
         <mat-divider></mat-divider>
@@ -83,7 +83,7 @@
                     </mat-chip>
                 </div>
                 <p class="anotacion-descripcion">{{ anotacion.descripcion }}</p>
-                <span class="anotacion-fecha">{{ anotacion.fecha | date: 'HH:mm' }}</span>
+                <span class="anotacion-fecha">{{ anotacion.fecha | date: 'dd/MM/yyyy HH:mm' }}</span>
                 <mat-divider class="anotacion-divider"></mat-divider>
             </div>
             }
