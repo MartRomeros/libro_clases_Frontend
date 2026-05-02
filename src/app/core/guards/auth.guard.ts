@@ -1,6 +1,7 @@
-import { inject, computed } from '@angular/core';
+import { inject } from '@angular/core';
 import { Router, CanActivateFn } from '@angular/router';
 import { AuthService } from '../services/auth.service';
+import { injectQuery } from '@tanstack/angular-query-experimental';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { filter, map, take } from 'rxjs';
 
@@ -8,23 +9,18 @@ export const authGuard: CanActivateFn = () => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  // If no token, go to login
   if (!authService.token()) {
     router.navigate(['/login']);
     return false;
   }
 
-  // Use the validateTokenQuery status
-  const query = authService.validateTokenQuery;
+  const query = injectQuery(() => authService.validateTokenOptions());
 
-  return toObservable(computed(() => ({
-    isLoading: query.isLoading(),
-    isValid: query.data()
-  }))).pipe(
-    filter(state => !state.isLoading),
+  return toObservable(query.isLoading).pipe(
+    filter(isLoading => !isLoading),
     take(1),
-    map(state => {
-      if (state.isValid) return true;
+    map(() => {
+      if (query.data()) return true;
       router.navigate(['/login']);
       return false;
     })

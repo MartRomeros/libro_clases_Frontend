@@ -9,7 +9,8 @@ import { authInterceptor } from './core/interceptors/auth.interceptor';
 registerLocaleData(localeEs);
 
 import { routes } from './app.routes';
-import { provideAngularQuery, QueryClient } from '@tanstack/angular-query-experimental';
+import { provideTanStackQuery, QueryClient } from '@tanstack/angular-query-experimental';
+import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -17,7 +18,22 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideAnimations(),
     provideHttpClient(withInterceptors([authInterceptor])),
-    provideAngularQuery(new QueryClient()),
-    { provide: LOCALE_ID, useValue: 'es' }
+    provideTanStackQuery(
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            staleTime: 5 * 60 * 1000,
+            gcTime: 10 * 60 * 1000,
+            retry: 1,
+            refetchOnWindowFocus: false,
+          },
+          mutations: {
+            retry: 0,
+          },
+        },
+      })
+    ),
+    { provide: LOCALE_ID, useValue: 'es' },
+    provideCharts(withDefaultRegisterables())
   ]
 };

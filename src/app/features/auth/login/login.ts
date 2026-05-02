@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, effect, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterModule, Router } from '@angular/router';
+import { injectMutation } from '@tanstack/angular-query-experimental';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
@@ -28,20 +29,56 @@ import { AuthService } from '../../../core/services/auth.service';
   styleUrl: './login.css'
 })
 export class Login {
+  private fb = inject(FormBuilder);
+  private authService = inject(AuthService);
+  private snackBar = inject(MatSnackBar);
+  private router = inject(Router);
+
   loginForm: FormGroup;
   hidePassword = signal(true);
-  isLoading = signal(false);
-  errorMessage = signal<string | null>(null);
+  loginMutation = injectMutation(() => this.authService.loginOptions());
 
-  constructor(
-    private fb: FormBuilder,
-    private authService: AuthService,
-    private snackBar: MatSnackBar,
-    private router: Router
-  ) {
+  constructor() {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(3)]]
+    });
+
+    effect(() => {
+      const data = this.loginMutation.data();
+      if (data) {
+        const role = data.user?.role ?? data.role ?? '';
+        const roleLower = role.toLowerCase();
+        if (roleLower.includes('admin')) {
+          this.router.navigate(['/admin']);
+        } else if (roleLower.includes('docente')) {
+          this.router.navigate(['/docente']);
+        } else if (roleLower.includes('estudiante')) {
+          this.router.navigate(['/estudiante']);
+        } else {
+          this.router.navigate(['/']);
+        }
+
+        this.snackBar.open('¡Bienvenido de nuevo!', 'Cerrar', {
+          duration: 3000,
+          horizontalPosition: 'center',
+          verticalPosition: 'bottom',
+          panelClass: ['success-snackbar']
+        });
+      }
+    });
+
+    effect(() => {
+      const error = this.loginMutation.error();
+      if (error) {
+        const message = typeof error === 'string' ? error : 'Ocurrió un error inesperado';
+        this.snackBar.open(message, 'Cerrar', {
+          duration: 5000,
+          horizontalPosition: 'center',
+          verticalPosition: 'bottom',
+          panelClass: ['error-snackbar']
+        });
+      }
     });
   }
 
@@ -50,49 +87,8 @@ export class Login {
   }
 
   onSubmit() {
-    if (this.loginForm.valid) {
-      this.isLoading.set(true);
-      this.errorMessage.set(null);
-
-      this.authService.login(this.loginForm.value).subscribe({
-        next: (response: any) => {
-          console.log(response)
-          this.isLoading.set(false);
-          this.snackBar.open('¡Bienvenido de nuevo!', 'Cerrar', {
-            duration: 3000,
-            horizontalPosition: 'center',
-            verticalPosition: 'bottom',
-            panelClass: ['success-snackbar']
-          });
-
-          const role = response.user?.role || response.role;
-          if (!role) {
-            this.router.navigate(['/']);
-            return;
-          }
-
-          const roleLower = role.toLowerCase();
-          if (roleLower.includes('admin')) {
-            this.router.navigate(['/admin']);
-          } else if (roleLower.includes('docente')) {
-            this.router.navigate(['/docente']);
-          } else if (roleLower.includes('estudiante')) {
-            this.router.navigate(['/estudiante']);
-          } else {
-            this.router.navigate(['/']);
-          }
-        },
-        error: (error) => {
-          this.isLoading.set(false);
-          this.errorMessage.set(error);
-          this.snackBar.open(error, 'Cerrar', {
-            duration: 5000,
-            horizontalPosition: 'center',
-            verticalPosition: 'bottom',
-            panelClass: ['error-snackbar']
-          });
-        }
-      });
+    if (this.loginForm.valid && !this.loginMutation.isPending()) {
+      this.loginMutation.mutate(this.loginForm.value);
     } else {
       this.loginForm.markAllAsTouched();
     }

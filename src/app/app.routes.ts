@@ -20,12 +20,32 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'docente/notas',
+    loadComponent: () => import('./features/evaluations/evaluations').then(m => m.Evaluations)
+  },
+  {
     path: 'asistencia',
     loadComponent: () => import('./features/attendance-conduct/attendance-conduct').then(m => m.AttendanceConduct)
   },
   {
     path: 'estudiante',
     loadComponent: () => import('./features/home/estudiante-home/estudiante-home').then(m => m.EstudianteHome)
+  },
+  {
+    path: 'estudiante/notas',
+    loadComponent: () => import('./features/student-grades/student-grades').then(m => m.StudentGrades)
+  },
+  {
+    path: 'estudiante/asistencia',
+    loadComponent: () => import('./features/student-attendance/student-attendance').then(m => m.StudentAttendance)
+  },
+  {
+    path: 'estudiante/recursos',
+    loadComponent: () => import('./features/student-resources/student-resources').then(m => m.StudentResources)
+  },
+  {
+    path: 'admin/usuarios',
+    loadComponent: () => import('./features/admin-user-management/admin-user-management').then(m => m.AdminUserManagement)
   },
   {
     path: 'perfil',

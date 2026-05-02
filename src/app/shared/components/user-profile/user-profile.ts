@@ -8,6 +8,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { injectQuery } from '@tanstack/angular-query-experimental';
 
 import { AuthService } from '../../../core/services/auth.service';
 import {
@@ -35,21 +36,17 @@ export class UserProfileComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
 
-  /** Query con los datos del perfil */
-  profileQuery = this.authService.profileQuery;
+  profileQuery = injectQuery(() => this.authService.profileOptions());
 
-  /** Alias para data del perfil */
   profile = computed(() => this.profileQuery.data());
   loading = computed(() => this.profileQuery.isLoading());
 
-  /** Iniciales para el avatar */
   initials = computed(() => {
     const p = this.profile();
     if (!p) return '?';
     return `${p.nombre.charAt(0)}${p.apellido_paterno.charAt(0)}`.toUpperCase();
   });
 
-  /** Nombre completo */
   fullName = computed(() => {
     const p = this.profile();
     if (!p) return '';
@@ -57,7 +54,6 @@ export class UserProfileComponent {
     return parts.join(' ');
   });
 
-  /** Color de chip de rol */
   rolColor = computed(() => {
     const rol = this.profile()?.rol?.nombre?.toLowerCase() ?? '';
     if (rol.includes('admin')) return 'warn';
@@ -66,7 +62,6 @@ export class UserProfileComponent {
     return undefined;
   });
 
-  /** Icono principal según el rol */
   rolIcon = computed(() => {
     const rol = this.profile()?.rol?.nombre?.toLowerCase() ?? '';
     if (rol.includes('admin')) return 'admin_panel_settings';
@@ -76,7 +71,6 @@ export class UserProfileComponent {
     return 'account_circle';
   });
 
-  /** Casteos tipados para el template */
   asDocente(d: unknown): DocentePerfil { return d as DocentePerfil; }
   asEstudiante(d: unknown): EstudiantePerfil { return d as EstudiantePerfil; }
 

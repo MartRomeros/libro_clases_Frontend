@@ -9,6 +9,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { injectQuery } from '@tanstack/angular-query-experimental';
 import { AuthService } from '../../../core/services/auth.service';
 
 interface OpcionDocente {
@@ -41,8 +42,7 @@ export class DocenteHome {
   private authService = inject(AuthService);
   private router = inject(Router);
 
-  /** Query del perfil */
-  profileQuery = this.authService.profileQuery;
+  profileQuery = injectQuery(() => this.authService.profileOptions());
 
   docenteNombre = computed(() => {
     const p = this.profileQuery.data();

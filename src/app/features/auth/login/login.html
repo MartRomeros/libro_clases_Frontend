@@ -1,35 +1,30 @@
 <div class="min-h-screen flex items-center justify-center bg-(--mat-sys-surface-container-low) p-4">
   <div class="w-full max-w-md">
-    <!-- Card Container -->
     <div
       class="w-full max-w-md bg-(--mat-sys-surface) border border-(--mat-sys-outline-variant) rounded-3xl shadow-xl overflow-hidden p-8 space-y-8 animate-in">
 
-      <!-- Header -->
       <div class="text-center space-y-2">
         <h1 class="text-4xl font-bold text-(--mat-sys-on-surface) tracking-tight">Bienvenido</h1>
         <p class="text-(--mat-sys-on-surface-variant) font-medium">Inicia sesión para continuar</p>
       </div>
 
-      <!-- Form -->
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="flex flex-col space-y-4">
 
-        <!-- Error Alert -->
-        @if (errorMessage()) {
+        @if (loginMutation.error() && !loginMutation.isPending()) {
         <div
           class="p-4 rounded-2xl bg-red-50 border border-red-200 flex items-start space-x-3 animate-in fade-in slide-in-from-top-4">
           <mat-icon class="text-red-500">error_outline</mat-icon>
           <div class="flex-1">
             <h3 class="text-sm font-bold text-red-800">Error de inicio de sesión</h3>
-            <p class="text-xs text-red-600 mt-1">{{ errorMessage() }}</p>
+            <p class="text-xs text-red-600 mt-1">{{ loginMutation.error() }}</p>
           </div>
-          <button type="button" (click)="errorMessage.set(null)"
+          <button type="button" (click)="$event.preventDefault()"
             class="text-red-400 hover:text-red-600 transition-colors">
             <mat-icon class="text-sm">close</mat-icon>
           </button>
         </div>
         }
 
-        <!-- Email Field -->
         <mat-form-field appearance="outline" class="w-full custom-field">
           <mat-label>Correo Electrónico</mat-label>
           <input matInput type="email" formControlName="email" placeholder="ejemplo@correo.com" autocomplete="email">
@@ -38,7 +33,6 @@
           <mat-error *ngIf="loginForm.get('email')?.hasError('email')">Ingresa un correo válido</mat-error>
         </mat-form-field>
 
-        <!-- Password Field -->
         <mat-form-field appearance="outline" class="w-full custom-field">
           <mat-label>Contraseña</mat-label>
           <input matInput [type]="hidePassword() ? 'password' : 'text'" formControlName="password"
@@ -52,29 +46,25 @@
           <mat-error *ngIf="loginForm.get('password')?.hasError('minlength')">Mínimo 6 caracteres</mat-error>
         </mat-form-field>
 
-        <!-- Options -->
         <div class="flex items-center justify-between text-sm">
           <a routerLink="/forgot-password"
             class="text-(--mat-sys-primary) hover:underline transition-colors font-medium">¿Olvidaste tu contraseña?</a>
         </div>
 
-        <!-- Submit Button -->
         <button mat-flat-button
           class="w-full h-14 rounded-2xl! text-lg! font-bold! transition-all hover:opacity-90 active:scale-[0.98] shadow-md"
-          [disabled]="isLoading()" type="submit">
-          <span *ngIf="!isLoading()">Ingresar</span>
-          <mat-spinner *ngIf="isLoading()" diameter="24" color="accent" class="mx-auto"></mat-spinner>
+          [disabled]="loginMutation.isPending() || loginForm.invalid" type="submit">
+          <span *ngIf="!loginMutation.isPending()">Ingresar</span>
+          <mat-spinner *ngIf="loginMutation.isPending()" diameter="24" color="accent" class="mx-auto"></mat-spinner>
         </button>
 
       </form>
 
-      <!-- Footer -->
       <p class="text-center text-(--mat-sys-on-surface-variant) text-sm">
         <a routerLink="/" class="text-(--mat-sys-primary) hover:underline font-bold">Volver al inicio</a>
       </p>
     </div>
 
-    <!-- Background decorative elements (Using theme colors) -->
     <div
       class="fixed -top-24 -left-24 w-96 h-96 bg-(--mat-sys-primary-container) rounded-full blur-3xl -z-10 opacity-20">
     </div>
