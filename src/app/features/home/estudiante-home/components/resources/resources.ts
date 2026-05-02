@@ -1,15 +1,16 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { MatToolbarModule } from '@angular/material/toolbar';
+import { Component, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
-import { MatTableModule } from '@angular/material/table';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
-import { AuthService } from '../../core/services/auth.service';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTableModule } from '@angular/material/table';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { Router } from '@angular/router';
+import { AuthService } from '../../../../../core/services/auth.service';
+import { Navbar } from '../../../../../layout/navbar/navbar';
 
 interface Recurso {
   id: number;
@@ -21,8 +22,7 @@ interface Recurso {
 }
 
 @Component({
-  selector: 'app-student-resources',
-  standalone: true,
+  selector: 'app-resources',
   imports: [
     CommonModule,
     MatToolbarModule,
@@ -32,12 +32,14 @@ interface Recurso {
     MatTableModule,
     MatDividerModule,
     MatTooltipModule,
-    MatChipsModule
+    MatChipsModule,
+    Navbar 
   ],
-  templateUrl: './student-resources.html',
-  styleUrl: './student-resources.css'
+  templateUrl: './resources.html',
+  styleUrl: './resources.css',
 })
-export class StudentResources implements OnInit {
+export class Resources {
+
   private router = inject(Router);
   public authService = inject(AuthService);
 
@@ -91,12 +93,4 @@ export class StudentResources implements OnInit {
     alert(`Preparando la descarga de: ${recurso.titulo} (${recurso.tamano}).`);
   }
 
-  volverAlHome(): void {
-    this.router.navigate(['/estudiante']);
-  }
-
-  cerrarSesion(): void {
-    this.authService.logout();
-    this.router.navigate(['/login']);
-  }
 }

@@ -11,6 +11,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { injectQuery } from '@tanstack/angular-query-experimental';
 import { AuthService } from '../../../core/services/auth.service';
+import { Navbar } from '../../../layout/navbar/navbar';
 
 interface OpcionDocente {
   titulo: string;
@@ -34,6 +35,7 @@ interface OpcionDocente {
     MatBadgeModule,
     MatChipsModule,
     MatTooltipModule,
+    Navbar 
   ],
   templateUrl: './docente-home.html',
   styleUrl: './docente-home.css',
@@ -42,12 +44,12 @@ export class DocenteHome {
   private authService = inject(AuthService);
   private router = inject(Router);
 
-  profileQuery = injectQuery(() => this.authService.profileOptions());
+    profileQuery = injectQuery(() => this.authService.profileOptions());
 
-  docenteNombre = computed(() => {
-    const p = this.profileQuery.data();
-    return p ? `${p.nombre} ${p.apellido_paterno}` : 'Docente';
-  });
+    docenteNombre = computed(() => {
+      const p = this.profileQuery.data();
+      return p ? `${p.nombre} ${p.apellido_paterno}` : 'Docente';
+    });
 
   opciones: OpcionDocente[] = [
     {
@@ -68,7 +70,7 @@ export class DocenteHome {
       titulo: 'Evaluaciones y Notas',
       descripcion: 'Crea evaluaciones y registra las calificaciones de tus estudiantes.',
       icono: 'grading',
-      ruta: '/docente/notas',
+      ruta: '/gestion-notas',
       color: 'primary',
     },
     {

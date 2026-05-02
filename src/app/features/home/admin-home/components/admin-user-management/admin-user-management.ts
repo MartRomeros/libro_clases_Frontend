@@ -16,8 +16,10 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { AdminService, Usuario, Docente, Estudiante, Evaluacion } from '../../core/services/admin.service';
-import { AuthService } from '../../core/services/auth.service';
+import { AdminService, Docente, Estudiante, Usuario } from '../../../../../core/services/admin.service';
+import { AuthService } from '../../../../../core/services/auth.service';
+import { Evaluacion } from '../../../../../core/services/docente.service';
+
 
 @Component({
   selector: 'app-admin-user-management',

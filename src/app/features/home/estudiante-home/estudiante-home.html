@@ -1,1 +1,66 @@
-<p>estudiante-home works!</p>
+<app-navbar/>
+
+<div class="estudiante-container">
+
+  <!-- Header de bienvenida -->
+  <section class="bienvenida">
+    <div class="bienvenida-content">
+      <div class="avatar-circle">
+        <mat-icon class="avatar-icon">face</mat-icon>
+      </div>
+      <div class="bienvenida-texto">
+        <h1 class="bienvenida-titulo">Bienvenido</h1>
+        <p class="bienvenida-subtitulo">Portal del Estudiante — Colegio Bernardo O'Higgins</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Resumen rápido -->
+  <section class="resumen-section">
+    <h2 class="section-title">Mi Resumen Escolar</h2>
+    <div class="resumen-grid">
+      @for (item of resumenRapido; track item.etiqueta) {
+        <mat-card class="resumen-card" appearance="outlined">
+          <mat-card-content class="resumen-card-content">
+            <mat-icon class="resumen-icono" color="primary">{{ item.icono }}</mat-icon>
+            <div class="resumen-info">
+              <span class="resumen-valor">{{ item.valor }}</span>
+              <span class="resumen-etiqueta">{{ item.etiqueta }}</span>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  </section>
+
+  <mat-divider></mat-divider>
+
+  <!-- Opciones principales -->
+  <section class="opciones-section">
+    <h2 class="section-title">Mis Herramientas de Estudio</h2>
+    <div class="opciones-grid">
+      @for (opcion of opciones; track opcion.titulo) {
+        <mat-card class="opcion-card" (click)="navegarA(opcion.ruta)" tabindex="0"
+                  (keydown.enter)="navegarA(opcion.ruta)">
+          <mat-card-content class="opcion-card-content">
+            <div class="opcion-icon-wrapper" [class]="'icon-' + opcion.color">
+              @if (opcion.badge) {
+                <mat-icon [matBadge]="opcion.badge" matBadgeColor="warn" class="opcion-icono">
+                  {{ opcion.icono }}
+                </mat-icon>
+              } @else {
+                <mat-icon class="opcion-icono">{{ opcion.icono }}</mat-icon>
+              }
+            </div>
+            <div class="opcion-texto">
+              <h3 class="opcion-titulo">{{ opcion.titulo }}</h3>
+              <p class="opcion-descripcion">{{ opcion.descripcion }}</p>
+            </div>
+            <mat-icon class="opcion-chevron">chevron_right</mat-icon>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  </section>
+
+</div>

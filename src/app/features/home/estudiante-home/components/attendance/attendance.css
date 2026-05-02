@@ -1,25 +1,3 @@
-.toolbar {
-  display: flex;
-  align-items: center;
-  padding: 0 16px;
-  background-color: #f8fafc;
-  color: #1e293b;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.toolbar-icon {
-  margin: 0 12px;
-}
-
-.toolbar-title {
-  font-size: 20px;
-  font-weight: 500;
-}
-
-.spacer {
-  flex: 1 1 auto;
-}
-
 .attendance-container {
   padding: 24px;
   max-width: 1400px;

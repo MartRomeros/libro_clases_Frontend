@@ -1,15 +1,4 @@
-<mat-toolbar color="primary" class="toolbar">
-  <mat-icon class="toolbar-icon">school</mat-icon>
-  <span class="toolbar-title">Libro de Clases</span>
-  <span class="spacer"></span>
-  <span class="docente-nombre">{{ docenteNombre() }}</span>
-  <button mat-icon-button matTooltip="Mi perfil" (click)="navegarA('/perfil')">
-    <mat-icon>account_circle</mat-icon>
-  </button>
-  <button mat-icon-button matTooltip="Cerrar sesión" (click)="cerrarSesion()">
-    <mat-icon>logout</mat-icon>
-  </button>
-</mat-toolbar>
+<app-navbar/>
 
 <div class="docente-container">
 

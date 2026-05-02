@@ -1,4 +1,4 @@
-import { Component, signal, inject, ChangeDetectorRef, OnInit } from '@angular/core';
+import { Component, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -16,10 +16,12 @@ import { MatListModule } from '@angular/material/list';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { DocenteService, DocenteCurso, EstudianteCurso, Evaluacion } from '../../core/services/docente.service';
+import { DocenteService, DocenteCurso, Evaluacion } from '../../core/services/docente.service';
 import { AuthService } from '../../core/services/auth.service';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { injectQuery } from '@tanstack/angular-query-experimental';
+import { Navbar } from '../../layout/navbar/navbar';
 
 @Component({
   selector: 'app-evaluations',
@@ -41,7 +43,8 @@ import { catchError } from 'rxjs/operators';
     MatListModule,
     MatToolbarModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    Navbar 
   ],
   templateUrl: './evaluations.html',
   styleUrl: './evaluations.css'
@@ -51,8 +54,10 @@ export class Evaluations {
   private authService = inject(AuthService);
   private snackBar = inject(MatSnackBar);
   private fb = inject(FormBuilder);
-  private cdr = inject(ChangeDetectorRef);
   private router = inject(Router);
+
+  profileQuery = injectQuery(() => this.authService.profileOptions());
+  profile = computed(() => this.profileQuery.data());
 
   cursos = signal<DocenteCurso[]>([]);
   cursoSeleccionado = signal<DocenteCurso | null>(null);
@@ -64,7 +69,7 @@ export class Evaluations {
 
   evaluacionForm: FormGroup;
   mostrarFormNuevaEv = signal<boolean>(false);
-  
+
   // Fecha mínima para el calendario (hoy)
   hoy = new Date();
 
@@ -79,7 +84,7 @@ export class Evaluations {
     this.cargarCursos();
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void { }
 
   irAHome(): void {
     this.router.navigate(['/docente']);
@@ -136,7 +141,7 @@ export class Evaluations {
     }).subscribe({
       next: (resp) => {
         this.evaluaciones.set(resp.evaluaciones);
-        
+
         // Configurar columnas dinámicas
         const columns = ['nombre'];
         resp.evaluaciones.forEach(ev => {
@@ -147,26 +152,26 @@ export class Evaluations {
 
         // Mapear datos para la tabla
         const tabla = resp.estudiantes.map(est => {
-          const row: any = { 
+          const row: any = {
             id: est.estudianteId,
             nombre: est.estudianteFullName,
             promedio: 0
           };
-          
+
           let suma = 0;
           let cont = 0;
 
           resp.evaluaciones.forEach(ev => {
-            const nota = resp.notas.find(n => n.estudianteId === est.estudianteId && 
+            const nota = resp.notas.find(n => n.estudianteId === est.estudianteId &&
               (n.ev1Id === ev.evaluacionId || n.ev2Id === ev.evaluacionId || n.ev3Id === ev.evaluacionId));
-            
+
             let valor = null;
             if (nota) {
               if (nota.ev1Id === ev.evaluacionId) valor = nota.notaEv1;
               else if (nota.ev2Id === ev.evaluacionId) valor = nota.notaEv2;
               else if (nota.ev3Id === ev.evaluacionId) valor = nota.notaEv3;
             }
-            
+
             row[`ev_${ev.evaluacionId}`] = valor;
             if (valor) {
               suma += valor;
@@ -194,7 +199,7 @@ export class Evaluations {
     // Formatear fecha a YYYY-MM-DD
     const fechaRaw = this.evaluacionForm.value.fechaEvaluacion;
     let fechaStr = '';
-    
+
     if (fechaRaw instanceof Date) {
       fechaStr = fechaRaw.toISOString().split('T')[0];
     } else {
@@ -220,4 +225,13 @@ export class Evaluations {
       }
     });
   }
+
+  volver(): void {
+    const rol = this.profile()?.rol?.nombre?.toLowerCase() ?? '';
+    if (rol.includes('admin')) this.router.navigate(['/admin']);
+    else if (rol.includes('docente')) this.router.navigate(['/docente']);
+    else if (rol.includes('estudiante')) this.router.navigate(['/estudiante']);
+    else this.router.navigate(['/login']);
+  }
+
 }

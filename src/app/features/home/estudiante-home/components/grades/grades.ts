@@ -1,36 +1,31 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, signal } from '@angular/core';
+import { Navbar } from '../../../../../layout/navbar/navbar';
+import { DocenteService } from '../../../../../core/services/docente.service';
+import { AuthService } from '../../../../../core/services/auth.service';
+import { Router } from '@angular/router';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
-import { MatTableModule, MatTableDataSource } from '@angular/material/table';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
-import { Router } from '@angular/router';
-import { DocenteService } from '../../core/services/docente.service';
-import { AuthService } from '../../core/services/auth.service';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
-  selector: 'app-student-grades',
-  standalone: true,
-  imports: [
-    CommonModule,
+  selector: 'app-grades',
+  imports: [Navbar,
     MatCardModule,
-    MatTableModule,
-    MatIconModule,
-    MatButtonModule,
-    MatToolbarModule,
     MatProgressSpinnerModule,
-    MatDividerModule
-  ],
-  templateUrl: './student-grades.html',
-  styleUrl: './student-grades.css'
+    MatDividerModule,
+    MatIconModule,
+    MatTableModule
+   ],
+  templateUrl: './grades.html',
+  styleUrl: './grades.css',
 })
-export class StudentGrades implements OnInit {
+export class Grades {
+
   private docenteService = inject(DocenteService);
   private authService = inject(AuthService);
-  private router = inject(Router);
+
 
   isLoading = signal<boolean>(true);
   dataSource = new MatTableDataSource<any>([]);
@@ -85,19 +80,5 @@ export class StudentGrades implements OnInit {
     });
   }
 
-  volverAlHome(): void {
-    this.router.navigate(['/estudiante']);
-  }
 
-  get userProfile(): string {
-    const user = this.authService.currentUser();
-    const nombre = user?.name || 'Usuario';
-    const role = user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1).toLowerCase() : 'Estudiante';
-    return `${nombre} | ${role}`;
-  }
-
-  cerrarSesion(): void {
-    this.authService.logout();
-    this.router.navigate(['/login']);
-  }
 }

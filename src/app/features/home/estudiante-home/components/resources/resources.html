@@ -1,15 +1,4 @@
-<mat-toolbar color="primary" class="toolbar">
-    <button mat-icon-button (click)="volverAlHome()" matTooltip="Volver al inicio">
-        <mat-icon>arrow_back</mat-icon>
-    </button>
-    <mat-icon class="toolbar-icon">library_books</mat-icon>
-    <span class="toolbar-title">Material de Estudio</span>
-    <span class="spacer"></span>
-    <span class="user-profile-text">{{ userProfile }}</span>
-    <button mat-icon-button matTooltip="Cerrar sesión" (click)="cerrarSesion()">
-        <mat-icon>logout</mat-icon>
-    </button>
-</mat-toolbar>
+<app-navbar />
 
 <div class="resources-container fade-in">
     <div class="page-header">
@@ -31,7 +20,7 @@
         <mat-card-content>
             <div class="table-responsive">
                 <table mat-table [dataSource]="dataSource()" class="resources-table">
-                    
+
                     <!-- Tipo Icon Column -->
                     <ng-container matColumnDef="tipo">
                         <th mat-header-cell *matHeaderCellDef class="icon-col"></th>
@@ -55,7 +44,7 @@
                     <!-- Titulo Column -->
                     <ng-container matColumnDef="titulo">
                         <th mat-header-cell *matHeaderCellDef> Título del Recurso </th>
-                        <td mat-cell *matCellDef="let element" class="title-cell"> 
+                        <td mat-cell *matCellDef="let element" class="title-cell">
                             <div class="title-wrapper">
                                 <strong>{{element.titulo}}</strong>
                                 <span class="file-type-badge">{{ element.tipo }}</span>

@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, firstValueFrom } from 'rxjs';
+import { queryOptions, QueryClient } from '@tanstack/angular-query-experimental';
 import { environment } from '../../../environments/environment';
 
 export interface Usuario {
@@ -33,12 +34,27 @@ export interface Evaluacion {
   fechaEvaluacion: string;
 }
 
+export interface AttendanceByStudent {
+  asignaturaNombre: string;
+  clasesAsistidas: number;
+  clasesAusentes: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class AdminService {
   private http = inject(HttpClient);
+  private queryClient = inject(QueryClient);
   private apiUrl = environment.backGestionUrl;
+
+  // --- Asistencias ---
+  getAsistenciasEstudianteOptions(estudianteId: number) {
+    return queryOptions({
+      queryKey: ['asistencias-estudiante', estudianteId],
+      queryFn: () => firstValueFrom(this.http.get<any[]>(`${this.apiUrl}/asistencias/estudiante/${estudianteId}`)),
+    });
+  }
 
   // Usuarios
   getUsuarios(): Observable<Usuario[]> {

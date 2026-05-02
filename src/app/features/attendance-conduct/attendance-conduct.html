@@ -1,12 +1,14 @@
-<mat-toolbar color="primary" class="toolbar">
-    <button mat-icon-button (click)="volverAlHome()" matTooltip="Volver al inicio">
-        <mat-icon>arrow_back</mat-icon>
-    </button>
-    <mat-icon class="toolbar-icon">fact_check</mat-icon>
-    <span class="toolbar-title">Asistencia y Conducta</span>
-    <span class="spacer"></span>
-    <span class="fecha-label">{{ fechaSeleccionada() | date: 'EEEE d MMM' : '' : 'es' }}</span>
-</mat-toolbar>
+<app-navbar/>
+
+<div class="p-4 flex gap-3">
+    <button mat-icon-button
+          class="back-btn"
+          matTooltip="Volver al inicio"
+          (click)="volver()">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+    <h2 class="text-4xl bold" >Asistencia y Conducta</h2>
+</div>
 
 <div class="asistencia-container">
     <!-- Filtros de curso y fecha -->

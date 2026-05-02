@@ -15,6 +15,7 @@ import {
   DocentePerfil,
   EstudiantePerfil,
 } from '../../../core/models/user-profile.model';
+import { Navbar } from '../../../layout/navbar/navbar';
 
 @Component({
   selector: 'app-user-profile',
@@ -28,6 +29,7 @@ import {
     MatDividerModule,
     MatTooltipModule,
     MatProgressSpinnerModule,
+    Navbar 
   ],
   templateUrl: './user-profile.html',
   styleUrl: './user-profile.css',

@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -15,6 +15,9 @@ import { MatInputModule } from '@angular/material/input';
 import { Attendance } from './components/attendance/attendance';
 import { Conduct } from './components/conduct/conduct';
 import { AttendanceConductService, Course } from './services/attendance-conduct.service';
+import { AuthService } from '../../core/services/auth.service';
+import { injectQuery } from '@tanstack/angular-query-experimental';
+import { Navbar } from '../../layout/navbar/navbar';
 
 @Component({
   standalone: true,
@@ -24,7 +27,6 @@ import { AttendanceConductService, Course } from './services/attendance-conduct.
     MatIconModule,
     MatButtonModule,
     MatInputModule,
-    DatePipe,
     MatFormFieldModule,
     MatSelectModule,
     MatDatepickerModule,
@@ -33,15 +35,20 @@ import { AttendanceConductService, Course } from './services/attendance-conduct.
     MatTabsModule,
     CommonModule,
     Attendance,
-    Conduct
+    Conduct,
+    Navbar 
   ],
   templateUrl: './attendance-conduct.html',
   styleUrl: './attendance-conduct.css',
 })
 export class AttendanceConduct implements OnInit {
 
+  private authService = inject(AuthService);  
   private router = inject(Router);
   private attendanceConductService = inject(AttendanceConductService);
+
+  profileQuery = injectQuery(() => this.authService.profileOptions());
+  profile = computed(() => this.profileQuery.data());
 
   fechaSeleccionada = signal<Date>(new Date());
   cursoSeleccionado = signal<number | string>('');
@@ -93,7 +100,11 @@ export class AttendanceConduct implements OnInit {
     });
   }
 
-  volverAlHome(): void {
-    this.router.navigate(['/docente']);
+  volver(): void {
+    const rol = this.profile()?.rol?.nombre?.toLowerCase() ?? '';
+    if (rol.includes('admin')) this.router.navigate(['/admin']);
+    else if (rol.includes('docente')) this.router.navigate(['/docente']);
+    else if (rol.includes('estudiante')) this.router.navigate(['/estudiante']);
+    else this.router.navigate(['/login']);
   }
 }

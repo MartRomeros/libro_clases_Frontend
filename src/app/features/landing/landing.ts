@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
-import { Navbar } from '../../layout/navbar/navbar';
+import { Navbar } from './components/navbar/navbar';
 import { Hero } from './components/hero/hero';
 import { About } from './components/about/about';
 import { Department } from './components/department/department';
 import { Admision } from './components/admision/admision';
 import { Utiles } from './components/utiles/utiles';
 import { Contact } from './components/contact/contact';
-import { Footer } from '../../layout/footer/footer';
+import { Footer } from './components/footer/footer';
 
 @Component({
   selector: 'app-landing',

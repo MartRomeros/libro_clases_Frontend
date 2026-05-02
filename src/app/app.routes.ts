@@ -15,12 +15,16 @@ export const routes: Routes = [
     loadComponent: () => import('./features/home/admin-home/admin-home').then(m => m.AdminHome)
   },
   {
+    path: 'admin/usuarios',
+    loadComponent: () => import('./features/home/admin-home/components/admin-user-management/admin-user-management').then(m => m.AdminUserManagement)
+  },
+  {
     path: 'docente',
     loadComponent: () => import('./features/home/docente-home/docente-home').then(m => m.DocenteHome),
     canActivate: [authGuard]
   },
   {
-    path: 'docente/notas',
+    path: 'gestion-notas',
     loadComponent: () => import('./features/evaluations/evaluations').then(m => m.Evaluations)
   },
   {
@@ -33,19 +37,15 @@ export const routes: Routes = [
   },
   {
     path: 'estudiante/notas',
-    loadComponent: () => import('./features/student-grades/student-grades').then(m => m.StudentGrades)
+    loadComponent: () => import('./features/home/estudiante-home/components/grades/grades').then(m=> m.Grades)
   },
   {
     path: 'estudiante/asistencia',
-    loadComponent: () => import('./features/student-attendance/student-attendance').then(m => m.StudentAttendance)
+    loadComponent: () => import('./features/home/estudiante-home/components/attendance/attendance').then(m=>m.Attendance)
   },
   {
     path: 'estudiante/recursos',
-    loadComponent: () => import('./features/student-resources/student-resources').then(m => m.StudentResources)
-  },
-  {
-    path: 'admin/usuarios',
-    loadComponent: () => import('./features/admin-user-management/admin-user-management').then(m => m.AdminUserManagement)
+    loadComponent: () => import('./features/home/estudiante-home/components/resources/resources').then(m => m.Resources)
   },
   {
     path: 'perfil',
