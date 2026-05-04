@@ -240,3 +240,236 @@ mat-divider {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+
+/* ===================== SECCIÓN CURSOS (DINÁMICA) ===================== */
+.cursos-section {
+  margin-top: 48px;
+  animation: slideUp 0.4s ease-out;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.cursos-card {
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.loading-cursos {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px;
+  gap: 16px;
+  color: #666;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.tabla-premium {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabla-premium th.mat-mdc-header-cell {
+  background-color: #fcfcfc;
+  font-weight: 600;
+  color: #222;
+  font-size: 0.9rem;
+  padding: 16px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.tabla-premium td.mat-mdc-cell {
+  padding: 16px;
+  font-size: 0.9rem;
+  color: #444;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.tabla-premium tr.mat-mdc-row:hover {
+  background-color: #fafafa;
+}
+
+.badge-curso {
+  background-color: #eef2ff;
+  color: #3730a3;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-weight: 500;
+  font-size: 0.85rem;
+  border: 1px solid #e0e7ff;
+}
+
+.no-cursos {
+  text-align: center;
+  padding: 40px;
+  color: #888;
+}
+
+.no-cursos mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 8px;
+  opacity: 0.4;
+}
+
+/* Estilos para Notas */
+.nota-input {
+  width: 60px;
+  padding: 6px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  text-align: center;
+  font-weight: 600;
+  color: #333;
+  transition: all 0.3s ease;
+}
+
+.nota-input:focus {
+  outline: none;
+  border-color: #1976d2;
+  box-shadow: 0 0 5px rgba(25, 118, 210, 0.2);
+  background-color: #f0f7ff;
+}
+
+/* Chrome, Safari, Edge, Opera */
+.nota-input::-webkit-outer-spin-button,
+.nota-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+.nota-input[type=number] {
+  -moz-appearance: textfield;
+}
+
+.promedio-badge {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: inline-block;
+  min-width: 50px;
+}
+
+.promedio-badge.reprobado {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.estudiantes-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #eee;
+}
+
+.debug-hint {
+  font-size: 0.75rem;
+  opacity: 0.7;
+  margin-top: 4px;
+  color: #d32f2f;
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 600px) {
+  .bienvenida-titulo {
+    font-size: 1.4rem;
+  }
+
+  .docente-container {
+    padding: 20px 12px 40px;
+  }
+
+  .resumen-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.text-center {
+  text-align: center !important;
+}
+
+.tabla-premium button[mat-icon-button] {
+  transition: transform 0.2s ease;
+}
+
+.tabla-premium button[mat-icon-button]:hover {
+  transform: scale(1.1);
+  background-color: rgba(63, 81, 181, 0.05);
+}
+
+/* ===================== SECCIÓN ESTUDIANTES ===================== */
+.estudiantes-section {
+  margin-top: 32px;
+  margin-bottom: 64px;
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.header-with-subtitle {
+  display: flex;
+  flex-direction: column;
+}
+
+.section-subtitle {
+  font-size: 0.9rem;
+  color: var(--mat-sys-primary, #1565c0);
+  font-weight: 500;
+  margin-top: -4px;
+}
+
+.estudiantes-card {
+  border-radius: 12px;
+  border-left: 4px solid var(--mat-sys-primary, #1565c0);
+  background-color: #fff;
+}
+
+/* ===================== NOTIFICACIONES (SNACKBAR) ===================== */
+::ng-deep .success-snackbar {
+  --mdc-snackbar-container-color: #1565c0;
+  --mdc-snackbar-label-text-color: #ffffff;
+  --mat-snack-bar-button-color: #ffffff;
+}
+
+::ng-deep .error-snackbar {
+  --mdc-snackbar-container-color: #d32f2f;
+  --mdc-snackbar-label-text-color: #ffffff;
+  --mat-snack-bar-button-color: #ffffff;
+}
+
+::ng-deep .mat-mdc-snack-bar-container .mdc-snackbar__label {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 500 !important;
+  font-size: 0.95rem !important;
+}
+
+::ng-deep .mat-mdc-snack-bar-container {
+  margin-top: 20px !important;
+}
+

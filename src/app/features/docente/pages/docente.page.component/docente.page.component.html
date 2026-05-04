@@ -10,7 +10,7 @@
                 <mat-icon class="avatar-icon">person</mat-icon>
             </button>
             <div class="bienvenida-texto">
-                <h1 class="bienvenida-titulo">Bienvenido, 
+                <h1 class="bienvenida-titulo">Bienvenido,
                     {{loading() ? "cargando" : fullName()}}
                 </h1>
                 <p class="bienvenida-subtitulo">Panel de gestión docente — Colegio Bernardo O'Higgins</p>
@@ -69,5 +69,165 @@
             }
         </div>
     </section>
+
+    <!-- Sección Dinámica: Mis Cursos -->
+    <section id="seccion-cursos" class="cursos-section" [style.display]="mostrarCursos() ? 'block' : 'none'">
+        <div class="section-header">
+            <h2 class="section-title">Mis Cursos Asignados</h2>
+            <button mat-icon-button (click)="mostrarCursos.set(false)" matTooltip="Cerrar">
+                <mat-icon>close</mat-icon>
+            </button>
+        </div>
+
+        <mat-card class="cursos-card" appearance="outlined">
+            <mat-card-content>
+                <!-- Loader -->
+                <div class="loading-cursos" [hidden]="!isLoadingCursos()">
+                    <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
+                    <p>Obteniendo cursos desde BackGestion...</p>
+                </div>
+
+                <!-- Tabla (Siempre en el DOM, pero oculta si carga o no hay datos) -->
+                <div class="table-container" [hidden]="isLoadingCursos() || dataSource.data.length === 0">
+                    <table mat-table [dataSource]="dataSource" class="tabla-premium">
+
+                        <!-- Columna Curso -->
+                        <ng-container matColumnDef="curso">
+                            <th mat-header-cell *matHeaderCellDef> Curso </th>
+                            <td mat-cell *matCellDef="let element">
+                                <span class="badge-curso">{{ element.curso }}</span>
+                            </td>
+                        </ng-container>
+
+                        <!-- Columna Asignatura -->
+                        <ng-container matColumnDef="asignatura">
+                            <th mat-header-cell *matHeaderCellDef> Asignatura </th>
+                            <td mat-cell *matCellDef="let element"> {{ element.asignaturaNombre }} </td>
+                        </ng-container>
+
+                        <!-- Columna Año -->
+                        <ng-container matColumnDef="anioAcademico">
+                            <th mat-header-cell *matHeaderCellDef> Año Académico </th>
+                            <td mat-cell *matCellDef="let element"> {{ element.anioAcademico }} </td>
+                        </ng-container>
+
+                        <!-- Columna Ver Curso (Alumnos) -->
+                        <ng-container matColumnDef="acciones">
+                            <th mat-header-cell *matHeaderCellDef class="text-center"> Ver Curso </th>
+                            <td mat-cell *matCellDef="let element" class="text-center">
+                                <button mat-icon-button color="primary" (click)="verDetalleCurso(element)"
+                                    matTooltip="Ver lista de alumnos">
+                                    <mat-icon (click)="verDetalleCurso(element)">visibility</mat-icon>
+                                </button>
+                            </td>
+                        </ng-container>
+
+                        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+                    </table>
+                </div>
+
+                <!-- Mensaje de no datos -->
+                <div class="no-cursos" [hidden]="isLoadingCursos() || dataSource.data.length > 0">
+                    <mat-icon>event_busy</mat-icon>
+                    <p>No se encontraron cursos asignados para este docente</p>
+                    <p class="debug-hint">Verifica que este ID sea el correcto en la base de datos de docentes.</p>
+                </div>
+            </mat-card-content>
+        </mat-card>
+    </section>
+
+    <!-- SECCIÓN ESTUDIANTES (Segunda Inteligencia) -->
+    <section id="seccion-estudiantes" class="estudiantes-section"
+        [style.display]="mostrarEstudiantes() ? 'block' : 'none'">
+        <div class="section-header">
+            <div class="header-with-subtitle">
+                <h2 class="section-title">Lista de Alumnos</h2>
+                <span class="section-subtitle">{{ cursoSeleccionado() }}</span>
+            </div>
+            <button mat-icon-button (click)="mostrarEstudiantes.set(false)" matTooltip="Cerrar">
+                <mat-icon>close</mat-icon>
+            </button>
+        </div>
+
+        <mat-card class="estudiantes-card" appearance="outlined">
+            <mat-card-content>
+                @if (isLoadingEstudiantes()) {
+                <div class="loading-cursos">
+                    <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
+                    <p>Obteniendo lista de estudiantes...</p>
+                </div>
+                } @else {
+                <div class="table-container">
+                    <table mat-table [dataSource]="estudiantesDataSource" class="tabla-premium">
+
+                        <ng-container matColumnDef="rut">
+                            <th mat-header-cell *matHeaderCellDef> RUT </th>
+                            <td mat-cell *matCellDef="let element"> {{ element.rut }} </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="nombre">
+                            <th mat-header-cell *matHeaderCellDef> Nombre Completo </th>
+                            <td mat-cell *matCellDef="let element"> {{ element.estudianteFullName }} </td>
+                        </ng-container>
+
+                        <!-- Nota 1 -->
+                        <ng-container matColumnDef="nota1">
+                            <th mat-header-cell *matHeaderCellDef class="text-center"> EV 1 </th>
+                            <td mat-cell *matCellDef="let element" class="text-center">
+                                <input type="number" [(ngModel)]="element.nota1" (input)="actualizarPromedio(element)"
+                                    min="1" max="7" step="0.1" class="nota-input">
+                            </td>
+                        </ng-container>
+
+                        <!-- Nota 2 -->
+                        <ng-container matColumnDef="nota2">
+                            <th mat-header-cell *matHeaderCellDef class="text-center"> EV 2 </th>
+                            <td mat-cell *matCellDef="let element" class="text-center">
+                                <input type="number" [(ngModel)]="element.nota2" (input)="actualizarPromedio(element)"
+                                    min="1" max="7" step="0.1" class="nota-input">
+                            </td>
+                        </ng-container>
+
+                        <!-- Nota 3 -->
+                        <ng-container matColumnDef="nota3">
+                            <th mat-header-cell *matHeaderCellDef class="text-center"> EV 3 </th>
+                            <td mat-cell *matCellDef="let element" class="text-center">
+                                <input type="number" [(ngModel)]="element.nota3" (input)="actualizarPromedio(element)"
+                                    min="1" max="7" step="0.1" class="nota-input">
+                            </td>
+                        </ng-container>
+
+                        <!-- Promedio -->
+                        <ng-container matColumnDef="promedio">
+                            <th mat-header-cell *matHeaderCellDef class="text-center"> Promedio </th>
+                            <td mat-cell *matCellDef="let element" class="text-center">
+                                <span class="promedio-badge" [class.reprobado]="(element.promedio || 0) < 4">
+                                    {{ element.promedio || '0.0' }}
+                                </span>
+                            </td>
+                        </ng-container>
+
+                        <tr mat-header-row *matHeaderRowDef="estudiantesColumns"></tr>
+                        <tr mat-row *matRowDef="let row; columns: estudiantesColumns"></tr>
+                    </table>
+                </div>
+
+                <!-- Botones de Acción -->
+                <div class="estudiantes-actions">
+                    <button mat-button color="warn" (click)="cancelarEdicion()">
+                        <mat-icon>close</mat-icon>
+                        Cancelar
+                    </button>
+                    <button mat-flat-button color="primary" (click)="guardarNotas()">
+                        <mat-icon>save</mat-icon>
+                        Guardar Cambios
+                    </button>
+                </div>
+                }
+            </mat-card-content>
+        </mat-card>
+    </section>
+
 
 </div>
