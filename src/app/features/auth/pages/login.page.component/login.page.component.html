@@ -1,0 +1,73 @@
+<div class="min-h-screen flex items-center justify-center bg-(--mat-sys-surface-container-low) p-4">
+    <div class="w-full max-w-md">
+        <div
+            class="w-full max-w-md bg-(--mat-sys-surface) border border-(--mat-sys-outline-variant) rounded-3xl shadow-xl overflow-hidden p-8 space-y-8 animate-in">
+
+            <div class="text-center space-y-2">
+                <h1 class="text-4xl font-bold text-(--mat-sys-on-surface) tracking-tight">Bienvenido</h1>
+                <p class="text-(--mat-sys-on-surface-variant) font-medium">Inicia sesión para continuar</p>
+            </div>
+
+            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="flex flex-col space-y-4">
+
+                @if (loginMutation.error() && !loginMutation.isPending()) {
+                <div
+                    class="p-4 rounded-2xl bg-red-50 border border-red-200 flex items-start space-x-3 animate-in fade-in slide-in-from-top-4">
+                    <mat-icon class="text-red-500">error_outline</mat-icon>
+                    <div class="flex-1">
+                        <h3 class="text-sm font-bold text-red-800">Error de inicio de sesión</h3>
+                        <p class="text-xs text-red-600 mt-1">{{ loginMutation.error() }}</p>
+                    </div>
+                    <button type="button" (click)="$event.preventDefault()"
+                        class="text-red-400 hover:text-red-600 transition-colors">
+                        <mat-icon class="text-sm">close</mat-icon>
+                    </button>
+                </div>
+                }
+
+                <mat-form-field appearance="outline" class="w-full custom-field">
+                    <mat-label>Correo Electrónico</mat-label>
+                    <input matInput type="email" formControlName="email" placeholder="ejemplo@correo.com"
+                        autocomplete="email">
+                    <mat-icon matPrefix class="mr-2 text-(--mat-sys-primary)">mail</mat-icon>
+                    <mat-error *ngIf="loginForm.get('email')?.hasError('required')">El correo es obligatorio</mat-error>
+                    <mat-error *ngIf="loginForm.get('email')?.hasError('email')">Ingresa un correo válido</mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="w-full custom-field">
+                    <mat-label>Contraseña</mat-label>
+                    <input matInput [type]="hidePassword() ? 'password' : 'text'" formControlName="password"
+                        autocomplete="current-password">
+                    <mat-icon matPrefix class="mr-2 text-(--mat-sys-primary)">lock</mat-icon>
+                    <button mat-icon-button matSuffix (click)="togglePasswordVisibility(); $event.preventDefault()"
+                        type="button" class="text-(--mat-sys-on-surface-variant)">
+                        <mat-icon>{{hidePassword() ? 'visibility_off' : 'visibility'}}</mat-icon>
+                    </button>
+                    <mat-error *ngIf="loginForm.get('password')?.hasError('required')">La contraseña es
+                        obligatoria</mat-error>
+                    <mat-error *ngIf="loginForm.get('password')?.hasError('minlength')">Mínimo 6 caracteres</mat-error>
+                </mat-form-field>
+
+                <button mat-flat-button
+                    class="w-full h-14 rounded-2xl! text-lg! font-bold! transition-all hover:opacity-90 active:scale-[0.98] shadow-md"
+                    [disabled]="loginMutation.isPending() || loginForm.invalid" type="submit">
+                    @if (!loginMutation.isPending()) {
+                    <span>Ingresar</span>
+                    }
+                    @if(loginMutation.isPending()){
+                    <mat-spinner diameter="24" color="accent" class="mx-auto"></mat-spinner>
+                    }
+
+                </button>
+
+            </form>
+        </div>
+
+        <div
+            class="fixed -top-24 -left-24 w-96 h-96 bg-(--mat-sys-primary-container) rounded-full blur-3xl -z-10 opacity-20">
+        </div>
+        <div
+            class="fixed -bottom-24 -right-24 w-96 h-96 bg-(--mat-sys-tertiary-container) rounded-full blur-3xl -z-10 opacity-20">
+        </div>
+    </div>
+</div>

@@ -1,0 +1,189 @@
+<app-navbar />
+
+<div class="p-4 flex gap-3">
+    <button mat-icon-button class="back-btn" matTooltip="Volver al inicio" (click)="volver()">
+        <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h2 class="text-4xl bold">Evaluaciones y Calificaciones</h2>
+</div>
+
+<div class="evaluations-container">
+
+    <div class="main-layout">
+        <div class="left-column">
+            <!-- Selector de Curso -->
+            <mat-card class="selector-card" appearance="outlined">
+                <mat-card-content>
+                    <div class="selector-row">
+                        <mat-form-field appearance="outline" class="curso-select">
+                            <mat-label>Seleccionar Curso / Asignatura</mat-label>
+                            @if (cursosQuery.isPending()) {
+                                <mat-select disabled placeholder="Cargando cursos..."></mat-select>
+                            } @else {
+                                <mat-select (selectionChange)="onCursoChange($event.value)">
+                                    @for (curso of cursos(); track curso.cadId) {
+                                    <mat-option [value]="curso">
+                                        {{ curso.curso }} - {{ curso.asignaturaNombre }}
+                                    </mat-option>
+                                    }
+                                </mat-select>
+                            }
+                            <mat-icon matPrefix>class</mat-icon>
+                        </mat-form-field>
+
+                        @if (cursoSeleccionado()) {
+                        <button mat-raised-button color="primary" (click)="mostrarFormNuevaEv.set(!mostrarFormNuevaEv())">
+                            <mat-icon>{{ mostrarFormNuevaEv() ? 'close' : 'add' }}</mat-icon>
+                            {{ mostrarFormNuevaEv() ? 'Cancelar' : 'Nueva Evaluación' }}
+                        </button>
+                        }
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Formulario Nueva Evaluación -->
+            @if (mostrarFormNuevaEv()) {
+            <mat-card class="form-card animate-fade-in" appearance="outlined">
+                <mat-card-header>
+                    <mat-card-title>Crear Nueva Evaluación</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                    <form [formGroup]="evaluacionForm" (ngSubmit)="crearEvaluacion()" class="eval-form">
+                        <mat-form-field appearance="outline">
+                            <mat-label>Nombre de la Evaluación</mat-label>
+                            <input matInput formControlName="nombre" placeholder="Ej: Prueba Parcial 1">
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline">
+                            <mat-label>Fecha</mat-label>
+                            <input matInput [matDatepicker]="picker" formControlName="fechaEvaluacion" [min]="hoy">
+                            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                            <mat-datepicker #picker></mat-datepicker>
+                        </mat-form-field>
+
+                        <button mat-raised-button color="accent" type="submit" 
+                                [disabled]="evaluacionForm.invalid || crearEvaluacionMutation.isPending()">
+                            <mat-icon>{{ crearEvaluacionMutation.isPending() ? 'hourglass_empty' : 'save' }}</mat-icon> 
+                            {{ crearEvaluacionMutation.isPending() ? 'Guardando...' : 'Guardar' }}
+                        </button>
+                    </form>
+                </mat-card-content>
+            </mat-card>
+            }
+
+            <!-- Tabla de Notas Editable -->
+            @if (mostrarEstudiantes()) {
+            <mat-card class="table-card" appearance="outlined">
+                <mat-card-header>
+                    <mat-card-title>Matriz de Calificaciones</mat-card-title>
+                    <mat-card-subtitle>{{ cursoSeleccionadoLabel() }}</mat-card-subtitle>
+                </mat-card-header>
+                <mat-divider></mat-divider>
+                <mat-card-content>
+                    @if (isLoadingEstudiantes()) {
+                    <div class="loading-overlay"><mat-progress-spinner mode="indeterminate"></mat-progress-spinner></div>
+                    } @else {
+                    <div class="table-container">
+                        <table mat-table [dataSource]="dataSource" class="grades-table">
+                            <ng-container matColumnDef="nombre" sticky>
+                                <th mat-header-cell *matHeaderCellDef> Estudiante </th>
+                                <td mat-cell *matCellDef="let element"> {{element.estudianteFullName}} </td>
+                            </ng-container>
+
+                            <!-- Nota 1 -->
+                            <ng-container matColumnDef="nota1">
+                                <th mat-header-cell *matHeaderCellDef class="center-header"> EV 1 </th>
+                                <td mat-cell *matCellDef="let element" class="center-cell">
+                                    <input type="number" [(ngModel)]="element.nota1" 
+                                           (input)="actualizarPromedio(element)" 
+                                           min="1" max="7" step="0.1" class="nota-input">
+                                </td>
+                            </ng-container>
+
+                            <!-- Nota 2 -->
+                            <ng-container matColumnDef="nota2">
+                                <th mat-header-cell *matHeaderCellDef class="center-header"> EV 2 </th>
+                                <td mat-cell *matCellDef="let element" class="center-cell">
+                                    <input type="number" [(ngModel)]="element.nota2" 
+                                           (input)="actualizarPromedio(element)" 
+                                           min="1" max="7" step="0.1" class="nota-input">
+                                </td>
+                            </ng-container>
+
+                            <!-- Nota 3 -->
+                            <ng-container matColumnDef="nota3">
+                                <th mat-header-cell *matHeaderCellDef class="center-header"> EV 3 </th>
+                                <td mat-cell *matCellDef="let element" class="center-cell">
+                                    <input type="number" [(ngModel)]="element.nota3" 
+                                           (input)="actualizarPromedio(element)" 
+                                           min="1" max="7" step="0.1" class="nota-input">
+                                </td>
+                            </ng-container>
+
+                            <!-- Promedio -->
+                            <ng-container matColumnDef="promedio" stickyEnd>
+                                <th mat-header-cell *matHeaderCellDef class="center-header"> Promedio </th>
+                                <td mat-cell *matCellDef="let element" class="center-cell">
+                                    <span class="promedio-badge" [class.reprobado]="(element.promedio || 0) < 4">
+                                        {{ element.promedio || '0.0' }}
+                                    </span>
+                                </td>
+                            </ng-container>
+
+                            <tr mat-header-row *matHeaderRowDef="['nombre', 'nota1', 'nota2', 'nota3', 'promedio']"></tr>
+                            <tr mat-row *matRowDef="let row; columns: ['nombre', 'nota1', 'nota2', 'nota3', 'promedio'];"></tr>
+                        </table>
+                    </div>
+
+                    <!-- Botones de Acción -->
+                    <div class="estudiantes-actions">
+                        <button mat-button color="warn" (click)="cancelarEdicion()">
+                            <mat-icon>close</mat-icon>
+                            Cancelar
+                        </button>
+                        <button mat-flat-button color="primary" (click)="guardarNotas()">
+                            <mat-icon>save</mat-icon>
+                            Guardar Cambios
+                        </button>
+                    </div>
+                    }
+                </mat-card-content>
+            </mat-card>
+            }
+        </div>
+
+        <div class="right-column">
+            @if (cursoSeleccionado()) {
+            <mat-card class="history-card" appearance="outlined">
+                <mat-card-header>
+                    <mat-icon mat-card-avatar>event_note</mat-icon>
+                    <mat-card-title>Evaluaciones Creadas</mat-card-title>
+                    <mat-card-subtitle>{{ evaluaciones().length }} planificadas</mat-card-subtitle>
+                </mat-card-header>
+                <mat-divider></mat-divider>
+                <mat-card-content>
+                    <mat-list>
+                        @for (ev of evaluaciones(); track ev.evaluacionId) {
+                        <mat-list-item>
+                            <mat-icon matListItemIcon [color]="esFutura(ev.fechaEvaluacion) ? 'primary' : 'disabled'">
+                                {{ esFutura(ev.fechaEvaluacion) ? 'schedule' : 'check_circle' }}
+                            </mat-icon>
+                            <div matListItemTitle>{{ ev.nombre }}</div>
+                            <div matListItemLine>
+                                {{ ev.fechaEvaluacion | date:'dd/MM/yyyy' }} • 
+                                <span [class.status-pending]="esFutura(ev.fechaEvaluacion)" 
+                                      [class.status-done]="!esFutura(ev.fechaEvaluacion)">
+                                    {{ esFutura(ev.fechaEvaluacion) ? 'Pendiente' : 'Realizada' }}
+                                </span>
+                            </div>
+                        </mat-list-item>
+                        } @empty {
+                            <div class="empty-list">No hay evaluaciones creadas.</div>
+                        }
+                    </mat-list>
+                </mat-card-content>
+            </mat-card>
+            }
+        </div>
+    </div>
+</div>

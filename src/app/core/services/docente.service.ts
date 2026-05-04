@@ -1,58 +1,12 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
+import {
+  queryOptions,
+  mutationOptions,
+  injectQueryClient,
+} from '@tanstack/angular-query-experimental';
 import { environment } from '../../../environments/environment';
-
-export interface DocenteCurso {
-  docente: string;
-  asignaturaNombre: string;
-  curso: string;
-  anioAcademico: number;
-  cursoId: number;
-  asignaturaId: number;
-  cadId: number;
-}
-
-export interface EstudianteCurso {
-  cursoNombre: string;
-  anioAcademico: number;
-  asignatura: string;
-  rut: string;
-  estudianteFullName: string;
-  docenteACargo: string;
-  estudianteId: number;
-  // IDs de evaluaciones y notas para poder guardar
-  ev1?: string;
-  ev1Id?: number;
-  nota1?: number;
-  nota1Id?: number;
-  ev2?: string;
-  ev2Id?: number;
-  nota2?: number;
-  nota2Id?: number;
-  ev3?: string;
-  ev3Id?: number;
-  nota3?: number;
-  nota3Id?: number;
-  promedio?: number;
-}
-
-export interface NotaRespuesta {
-  estudianteId: number;
-  ev1?: string;
-  ev1Id?: number;
-  notaEv1?: number;
-  nota1Id?: number;
-  ev2?: string;
-  ev2Id?: number;
-  notaEv2?: number;
-  nota2Id?: number;
-  ev3?: string;
-  ev3Id?: number;
-  notaEv3?: number;
-  nota3Id?: number;
-  promedio?: number;
-}
 
 export interface NotaPost {
   notaId?: number;
@@ -64,24 +18,17 @@ export interface NotaPost {
 export interface AsistenciaPost {
   estudianteId: number;
   cursoId: number;
-  fecha: string; // Formato YYYY-MM-DD
-  estado: string; // Presente, Ausente, etc.
-  tipoAsistencia: string; // Presencial, etc.
+  fecha: string;
+  estado: string;
+  tipoAsistencia: string;
 }
 
 export interface AnotacionPost {
   estudianteId: number;
   docenteId: number;
-  tipo: string; // Positiva, Negativa, Informativa
+  tipo: string;
   descripcion: string;
-  fechaRegistro: string; // Formato ISO o YYYY-MM-DD
-}
-
-export interface Evaluacion {
-  evaluacionId?: number;
-  cadId: number;
-  nombre: string;
-  fechaEvaluacion: string;
+  fechaRegistro: string;
 }
 
 @Injectable({
@@ -89,60 +36,81 @@ export interface Evaluacion {
 })
 export class DocenteService {
   private http = inject(HttpClient);
+  private queryClient = injectQueryClient();
   private apiUrl = `${environment.backGestionUrl}`;
 
-  getCursos(docenteId: number): Observable<DocenteCurso[]> {
-    const url = `${this.apiUrl}/docentes/${docenteId}/cursos`;
-    console.log('LLAMANDO A API DOCENTE:', url);
-    return this.http.get<DocenteCurso[]>(url);
+  getAnotacionesPorEstudianteOptions(estudianteId: number) {
+    return queryOptions({
+      queryKey: ['anotaciones-estudiante', estudianteId],
+      queryFn: () =>
+        firstValueFrom(
+          this.http.get<any[]>(`${this.apiUrl}/anotaciones/estudiante/${estudianteId}`)
+        ),
+    });
   }
 
-  getEstudiantesPorCurso(cursoId: number): Observable<EstudianteCurso[]> {
-    const url = `${this.apiUrl}/estudiantes/curso/${cursoId}`;
-    console.log('LLAMANDO A API ESTUDIANTES:', url);
-    return this.http.get<EstudianteCurso[]>(url);
+  getNotasEstudianteOptions(estudianteId: number) {
+    return queryOptions({
+      queryKey: ['notas-estudiante', estudianteId],
+      queryFn: () =>
+        firstValueFrom(
+          this.http.get<any[]>(`${this.apiUrl}/notas/estudiante/${estudianteId}`)
+        ),
+    });
   }
 
-  getNotasPorCursoAsignatura(cursoId: number, asignaturaId: number): Observable<NotaRespuesta[]> {
-    const url = `${this.apiUrl}/notas/curso/${cursoId}/asignatura/${asignaturaId}`;
-    console.log('LLAMANDO A API NOTAS:', url);
-    return this.http.get<NotaRespuesta[]>(url);
+  guardarNotaOptions() {
+    return mutationOptions({
+      mutationKey: ['guardar-nota'],
+      mutationFn: (nota: NotaPost) =>
+        firstValueFrom(
+          this.http.post(`${this.apiUrl}/notas`, nota)
+        ),
+      onSuccess: () => {
+        this.queryClient.invalidateQueries({ queryKey: ['notas-curso-asignatura'] });
+        this.queryClient.invalidateQueries({ queryKey: ['notas-estudiante'] });
+      },
+    });
   }
 
-  guardarNota(nota: NotaPost): Observable<any> {
-    const url = `${this.apiUrl}/notas`;
-    return this.http.post(url, nota);
+  guardarNotasBulkOptions() {
+    return mutationOptions({
+      mutationKey: ['guardar-notas-bulk'],
+      mutationFn: (notas: NotaPost[]) =>
+        firstValueFrom(
+          this.http.post<any[]>(`${this.apiUrl}/notas/bulk`, notas)
+        ),
+      onSuccess: () => {
+        this.queryClient.invalidateQueries({ queryKey: ['notas-curso-asignatura'] });
+        this.queryClient.invalidateQueries({ queryKey: ['notas-estudiante'] });
+      },
+    });
   }
 
-  guardarNotasBulk(notas: NotaPost[]): Observable<any[]> {
-    const url = `${this.apiUrl}/notas/bulk`;
-    return this.http.post<any[]>(url, notas);
+  guardarAsistenciasOptions() {
+    return mutationOptions({
+      mutationKey: ['guardar-asistencias'],
+      mutationFn: (asistencias: AsistenciaPost[]) =>
+        firstValueFrom(
+          this.http.post(`${this.apiUrl}/asistencias/bulk`, asistencias)
+        ),
+      onSuccess: () => {
+        this.queryClient.invalidateQueries({ queryKey: ['asistencias-curso'] });
+        this.queryClient.invalidateQueries({ queryKey: ['asistencia-estudiante'] });
+      },
+    });
   }
 
-  guardarAsistencias(asistencias: AsistenciaPost[]): Observable<any> {
-    const url = `${this.apiUrl}/asistencias/bulk`; // Ajustado para guardado masivo
-    return this.http.post(url, asistencias);
-  }
-
-  guardarAnotacion(anotacion: AnotacionPost): Observable<any> {
-    const url = `${this.apiUrl}/anotaciones`;
-    return this.http.post(url, anotacion);
-  }
-
-  getAnotacionesPorEstudiante(estudianteId: number): Observable<any[]> {
-    const url = `${this.apiUrl}/anotaciones/estudiante/${estudianteId}`;
-    return this.http.get<any[]>(url);
-  }
-
-  getEvaluacionesPorCad(cadId: number): Observable<Evaluacion[]> {
-    return this.http.get<Evaluacion[]>(`${this.apiUrl}/evaluaciones/cad/${cadId}`);
-  }
-
-  getNotasEstudiante(estudianteId: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/notas/estudiante/${estudianteId}`);
-  }
-
-  guardarEvaluacion(evaluacion: Evaluacion): Observable<Evaluacion> {
-    return this.http.post<Evaluacion>(`${this.apiUrl}/evaluaciones`, evaluacion);
+  guardarAnotacionOptions() {
+    return mutationOptions({
+      mutationKey: ['guardar-anotacion'],
+      mutationFn: (anotacion: AnotacionPost) =>
+        firstValueFrom(
+          this.http.post(`${this.apiUrl}/anotaciones`, anotacion)
+        ),
+      onSuccess: () => {
+        this.queryClient.invalidateQueries({ queryKey: ['anotaciones-estudiante'] });
+      },
+    });
   }
 }

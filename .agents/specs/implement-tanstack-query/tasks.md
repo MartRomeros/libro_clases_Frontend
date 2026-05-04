@@ -111,7 +111,7 @@ Reemplazar el login basado en `Observable.subscribe()` por una mutation de TanSt
 - `onSuccess` guarda sesión e invalida `['validateToken']` y `['userProfile']`.
 - La UI usa estado de la mutation para loading/error.
 
-- [ ]
+- [x]
 ## Task 5: Migrar AdminService a queryOptions y mutationOptions
 
 ### Objetivo
@@ -136,6 +136,7 @@ Convertir todas las operaciones HTTP de administración al patrón de TanStack Q
 - Operaciones encadenadas quedan modeladas como una sola mutation async cuando aplique.
 - `HttpClient` se mantiene y se convierte con `firstValueFrom`.
 
+- [x]
 ## Task 6: Migrar componente de administración de usuarios
 
 ### Objetivo
@@ -144,8 +145,8 @@ Reemplazar los `.subscribe()` HTTP del módulo de administración por queries y 
 
 ### Archivos esperados
 
-- `src/app/features/admin-user-management/admin-user-management.ts`
-- `src/app/features/admin-user-management/admin-user-management.html`
+- `src/app/features/home/admin-home/components/admin-user-management/admin-user-management.ts`
+- `src/app/features/home/admin-home/components/admin-user-management/admin-user-management.html`
 
 ### Tests requeridos
 
@@ -167,6 +168,7 @@ Reemplazar los `.subscribe()` HTTP del módulo de administración por queries y 
 - Los errores de mutations muestran snackbar.
 - La UI refleja carga/error de queries.
 
+- [x]
 ## Task 7: Migrar DocenteService a queryOptions y mutationOptions
 
 ### Objetivo
@@ -188,7 +190,7 @@ Convertir las operaciones HTTP docentes al patrón de TanStack Query.
 - Guardados de notas, asistencias, anotaciones y evaluaciones exponen `mutationOptions`.
 - Las mutations invalidan keys relacionadas reales.
 - `HttpClient` se mantiene y se convierte con `firstValueFrom`.
-
+- [x]
 ## Task 8: Migrar evaluaciones y desagrupar forkJoin
 
 ### Objetivo
@@ -218,7 +220,7 @@ Reemplazar el flujo de evaluaciones basado en `subscribe()` y `forkJoin` por que
 - La tabla se deriva desde `data()` de las queries.
 - La creación de evaluación usa `injectMutation`.
 - Loading/error provienen de TanStack Query.
-
+- [x]
 ## Task 9: Migrar StudentGrades
 
 ### Objetivo
@@ -244,7 +246,7 @@ Migrar la carga de notas del estudiante a TanStack Query.
 - No queda `.subscribe()` HTTP.
 - Query dependiente de estudiante usa `enabled` si el ID no está disponible.
 - La UI consume `data`, loading y error desde la query.
-
+- [x]
 ## Task 10: Migrar StudentAttendance y eliminar HTTP directo en componente
 
 ### Objetivo
@@ -271,7 +273,7 @@ Eliminar la llamada directa a `HttpClient` desde el componente de asistencia de 
 - La petición se expone como `queryOptions` desde un servicio.
 - El componente usa `injectQuery`.
 - Totales y gráfico derivan de `data()` de la query.
-
+- [x]
 ## Task 11: Migrar AttendanceConductService
 
 ### Objetivo
@@ -293,7 +295,7 @@ Convertir operaciones HTTP de asistencia/conducta a `queryOptions` y `mutationOp
 - Registro de asistencia se expone como `mutationOptions`.
 - La mutation invalida queries relacionadas.
 - `HttpClient` se mantiene y se convierte con `firstValueFrom`.
-
+- [x]
 ## Task 12: Migrar componentes de asistencia/conducta
 
 ### Objetivo
@@ -326,7 +328,7 @@ Reemplazar suscripciones HTTP en componentes de asistencia/conducta por queries 
 - `dialogRef.afterClosed().subscribe(...)` se mantiene porque no es HTTP.
 - Loading/error provienen de TanStack Query.
 - Mutations muestran errores con snackbar.
-
+- [x]
 ## Task 13: Revisar consumidores de perfil y home
 
 ### Objetivo
@@ -353,7 +355,7 @@ Asegurar que componentes que consumen perfil o sesión sigan funcionando con el 
 - No hay referencias rotas a `authService.profileQuery` si se reemplazó por `profileOptions()`.
 - Los componentes usan `injectQuery` donde corresponda.
 - UI muestra loading/error de perfil correctamente.
-
+- [x]
 ## Task 14: Limpieza técnica de llamadas HTTP restantes
 
 ### Objetivo
@@ -377,7 +379,7 @@ Detectar y corregir cualquier llamada HTTP o `.subscribe()` HTTP que haya quedad
 - No quedan `.subscribe()` asociados a llamadas HTTP.
 - Los `subscribe()` restantes son de UI o no HTTP.
 - Los métodos HTTP en servicios están encapsulados en `queryFn` o `mutationFn`.
-
+- [x]
 ## Task 15: Validación final
 
 ### Objetivo

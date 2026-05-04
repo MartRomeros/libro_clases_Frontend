@@ -1,0 +1,167 @@
+/* ===================== CONTENEDOR PRINCIPAL ===================== */
+.docente-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 28px 20px 60px;
+}
+
+/* ===================== BIENVENIDA ===================== */
+.bienvenida {
+    margin-bottom: 36px;
+}
+
+.bienvenida-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.avatar-circle {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background-color: var(--mat-sys-primary-container, #dce8ff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.avatar-btn {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background-color: var(--mat-sys-primary-container, #dce8ff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.avatar-icon {
+    font-size: 40px;
+    width: 40px;
+    height: 40px;
+    color: var(--mat-sys-on-primary-container, #001d36);
+}
+
+.bienvenida-titulo {
+    margin: 0 0 6px;
+    font-size: 1.8rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.bienvenida-subtitulo {
+    margin: 0;
+    font-size: 0.95rem;
+    opacity: 0.65;
+}
+
+/* ===================== TÍTULOS DE SECCIÓN ===================== */
+.section-title {
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    opacity: 0.55;
+    margin: 0 0 16px;
+}
+
+/* ===================== SECCIÓN CURSOS ===================== */
+.cursos-section {
+    margin-top: 36px;
+}
+
+.cursos-card {
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.loading-cursos {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px;
+    gap: 16px;
+    color: #666;
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+.tabla-premium {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tabla-premium th.mat-mdc-header-cell {
+    background-color: #fcfcfc;
+    font-weight: 600;
+    color: #222;
+    font-size: 0.9rem;
+    padding: 16px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.tabla-premium td.mat-mdc-cell {
+    padding: 16px;
+    font-size: 0.9rem;
+    color: #444;
+    border-bottom: 1px solid #f5f5f5;
+}
+
+.tabla-premium tr.mat-mdc-row:hover {
+    background-color: #fafafa;
+}
+
+.badge-curso {
+    background-color: #eef2ff;
+    color: #3730a3;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 0.85rem;
+    border: 1px solid #e0e7ff;
+}
+
+.no-cursos {
+    text-align: center;
+    padding: 40px;
+    color: #888;
+}
+
+.no-cursos mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 8px;
+    opacity: 0.4;
+}
+
+.debug-hint {
+    font-size: 0.75rem;
+    opacity: 0.7;
+    margin-top: 4px;
+    color: #d32f2f;
+}
+
+.text-center {
+    text-align: center !important;
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 600px) {
+    .bienvenida-titulo {
+        font-size: 1.4rem;
+    }
+
+    .docente-container {
+        padding: 20px 12px 40px;
+    }
+}

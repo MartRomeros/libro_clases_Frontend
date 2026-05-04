@@ -1,0 +1,247 @@
+.toolbar {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  background-color: #f8fafc;
+  color: #1e293b;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.toolbar-icon {
+  margin: 0 12px;
+}
+
+.toolbar-title {
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.admin-container {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.tab-icon {
+  margin-right: 8px;
+}
+
+.tab-content {
+  padding-top: 24px;
+}
+
+.split-layout {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: 24px;
+}
+
+.user-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+}
+
+.row mat-form-field {
+  flex: 1;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.table-card {
+  overflow: hidden;
+}
+
+.user-table {
+  width: 100%;
+}
+
+.role-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.role-1 { background-color: #fef3c7; color: #92400e; } /* Admin */
+.role-2 { background-color: #dcfce7; color: #166534; } /* Docente */
+.role-3 { background-color: #dbeafe; color: #1e40af; } /* Estudiante */
+
+.actions-cell {
+  text-align: right;
+}
+
+.eval-search-bar {
+  max-width: 500px;
+  margin-bottom: 24px;
+}
+
+.fade-in {
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 1024px) {
+  .split-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.w-100 {
+  width: 100%;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  color: #64748b;
+}
+
+.empty-state mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+}
+
+.academic-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.academic-section {
+  background: white;
+}
+
+.academic-section.large {
+  grid-column: 1 / -1;
+}
+
+.mini-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.mini-form.horizontal {
+  flex-direction: row;
+  align-items: center;
+}
+
+.academic-list {
+  max-height: 250px;
+  overflow-y: auto;
+  margin-top: 16px;
+}
+
+.item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.item-row:last-child {
+  border-bottom: none;
+}
+
+.item-row span {
+  font-size: 14px;
+  color: #334155;
+}
+
+.assignment-table {
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+.assignment-table th {
+  text-align: left;
+  padding: 12px;
+  background: #f8fafc;
+  font-size: 13px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.assignment-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 14px;
+}
+
+.current-course {
+  background: #f1f5f9;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+  color: #475569;
+}
+
+.mini-select {
+  width: 100%;
+  max-width: 200px;
+}
+
+.mini-select ::ng-deep .mat-mdc-text-field-wrapper {
+  height: 48px !important;
+}
+
+.loading-shade {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px;
+  color: #64748b;
+}
+
+.spinner {
+  animation: rotate 2s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.error-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px;
+  color: #ef4444;
+}
+
+.user-profile-text {
+  font-size: 14px;
+  color: #64748b;
+  margin-right: 16px;
+}

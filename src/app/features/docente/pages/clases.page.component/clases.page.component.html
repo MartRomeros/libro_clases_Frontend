@@ -1,0 +1,78 @@
+<app-navbar />
+
+<div class="docente-container">
+
+    <!-- Header de bienvenida -->
+    <section class="bienvenida">
+        <div class="bienvenida-content">
+            <button class="avatar-circle avatar-btn" mat-icon-button matTooltip="Ver mi perfil"
+                (click)="volver()">
+                <mat-icon class="avatar-icon">person</mat-icon>
+            </button>
+            <div class="bienvenida-texto">
+                <h1 class="bienvenida-titulo">Mis Clases</h1>
+                <p class="bienvenida-subtitulo">Gestiona tus cursos, asignaturas y evaluaciones asignadas</p>
+            </div>
+        </div>
+    </section>
+
+    <mat-divider></mat-divider>
+
+    <!-- Lista de Cursos -->
+    <section class="cursos-section">
+        <h2 class="section-title">Cursos Asignados</h2>
+
+        @if (cursosQuery.isPending()) {
+        <div class="loading-cursos">
+            <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
+            <p>Obteniendo cursos desde BackGestion...</p>
+        </div>
+        } @else {
+        <mat-card class="cursos-card" appearance="outlined">
+            <mat-card-content>
+                <div class="table-container">
+                    <table mat-table [dataSource]="dataSource" class="tabla-premium">
+                        <ng-container matColumnDef="curso">
+                            <th mat-header-cell *matHeaderCellDef> Curso </th>
+                            <td mat-cell *matCellDef="let element">
+                                <span class="badge-curso">{{ element.curso }}</span>
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="asignatura">
+                            <th mat-header-cell *matHeaderCellDef> Asignatura </th>
+                            <td mat-cell *matCellDef="let element"> {{ element.asignaturaNombre }} </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="anioAcademico">
+                            <th mat-header-cell *matHeaderCellDef> Año Académico </th>
+                            <td mat-cell *matCellDef="let element"> {{ element.anioAcademico }} </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="acciones">
+                            <th mat-header-cell *matHeaderCellDef class="text-center"> Ver Curso </th>
+                            <td mat-cell *matCellDef="let element" class="text-center">
+                                <button mat-icon-button color="primary" (click)="verDetalleCurso(element)"
+                                    matTooltip="Ver detalles y evaluaciones">
+                                    <mat-icon>visibility</mat-icon>
+                                </button>
+                            </td>
+                        </ng-container>
+
+                        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+                    </table>
+                </div>
+
+                @if (!cursos().length && !cursosQuery.isPending()) {
+                <div class="no-cursos">
+                    <mat-icon>event_busy</mat-icon>
+                    <p>No se encontraron cursos asignados para el ID: {{ profile()?.usuario_id || 'Desconocido' }}</p>
+                    <p class="debug-hint">Verifica que este ID sea el correcto en la base de datos de docentes.</p>
+                </div>
+                }
+            </mat-card-content>
+        </mat-card>
+        }
+    </section>
+</div>

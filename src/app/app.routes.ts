@@ -3,49 +3,28 @@ import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
-    path: '',
-    loadComponent: () => import('./features/landing/landing').then(m => m.Landing)
+    path:'',
+    redirectTo:'login',
+    pathMatch:'full'
   },
   {
-    path: 'login',
-    loadComponent: () => import('./features/auth/login/login').then(m => m.Login)
+    path: 'auth',
+    loadChildren: ()=> import('./features/auth/auth.routes').then(m => m.AUTH_ROUTES)
   },
   {
     path: 'admin',
-    loadComponent: () => import('./features/home/admin-home/admin-home').then(m => m.AdminHome)
-  },
-  {
-    path: 'admin/usuarios',
-    loadComponent: () => import('./features/home/admin-home/components/admin-user-management/admin-user-management').then(m => m.AdminUserManagement)
-  },
-  {
-    path: 'docente',
-    loadComponent: () => import('./features/home/docente-home/docente-home').then(m => m.DocenteHome),
+    loadChildren: () => import('./features/admin/admin.routes').then(m => m.ADMIN_ROUTES),
     canActivate: [authGuard]
   },
   {
-    path: 'gestion-notas',
-    loadComponent: () => import('./features/evaluations/evaluations').then(m => m.Evaluations)
-  },
-  {
-    path: 'asistencia',
-    loadComponent: () => import('./features/attendance-conduct/attendance-conduct').then(m => m.AttendanceConduct)
+    path: 'docente',
+    loadChildren: ()=> import('./features/docente/docente.routes').then(m=> m.AUTH_ROUTES),
+    canActivate: [authGuard]
   },
   {
     path: 'estudiante',
-    loadComponent: () => import('./features/home/estudiante-home/estudiante-home').then(m => m.EstudianteHome)
-  },
-  {
-    path: 'estudiante/notas',
-    loadComponent: () => import('./features/home/estudiante-home/components/grades/grades').then(m=> m.Grades)
-  },
-  {
-    path: 'estudiante/asistencia',
-    loadComponent: () => import('./features/home/estudiante-home/components/attendance/attendance').then(m=>m.Attendance)
-  },
-  {
-    path: 'estudiante/recursos',
-    loadComponent: () => import('./features/home/estudiante-home/components/resources/resources').then(m => m.Resources)
+    loadChildren: () => import('./features/estudiante/estudiante.routes').then(m => m.ESTUDIANTE_ROUTES),
+    canActivate: [authGuard]
   },
   {
     path: 'perfil',

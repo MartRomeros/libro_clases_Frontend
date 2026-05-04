@@ -30,7 +30,7 @@
   display: flex;
   align-items: center;
   gap: 1.5rem;
-  background: linear-gradient(135deg, var(--mat-sys-primary) 0%, var(--mat-sys-primary-fixed-dim) 100%);
+  background: var(--mat-sys-primary);
   border-radius: 20px;
   padding: 2.5rem;
   color: var(--mat-sys-on-primary);

@@ -10,12 +10,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { injectQuery } from '@tanstack/angular-query-experimental';
 
-import { AuthService } from '../../../core/services/auth.service';
-import {
-  DocentePerfil,
-  EstudiantePerfil,
-} from '../../../core/models/user-profile.model';
 import { Navbar } from '../../../layout/navbar/navbar';
+import { AuthQueries } from '../../../features/auth/data-access/auth.queries';
+import { DocentePerfil, EstudiantePerfil } from '../../../features/auth/models/profile.response.model';
 
 @Component({
   selector: 'app-user-profile',
@@ -35,10 +32,12 @@ import { Navbar } from '../../../layout/navbar/navbar';
   styleUrl: './user-profile.css',
 })
 export class UserProfileComponent {
-  private authService = inject(AuthService);
+
+  private authQuery = inject(AuthQueries)
+
   private router = inject(Router);
 
-  profileQuery = injectQuery(() => this.authService.profileOptions());
+  private profileQuery = injectQuery(() => this.authQuery.me());
 
   profile = computed(() => this.profileQuery.data());
   loading = computed(() => this.profileQuery.isLoading());
