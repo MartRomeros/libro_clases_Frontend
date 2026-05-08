@@ -217,7 +217,7 @@ export class EvaluationsPageComponent {
     if (rol.includes('admin')) this.router.navigate(['/admin']);
     else if (rol.includes('docente')) this.router.navigate(['/docente']);
     else if (rol.includes('estudiante')) this.router.navigate(['/estudiante']);
-    else this.router.navigate(['/login']);
+    else this.router.navigate(['/auth/login']);
   }
 
   // Construir la matriz de datos combinando estudiantes, evaluaciones y notas

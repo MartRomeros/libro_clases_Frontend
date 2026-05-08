@@ -21,7 +21,7 @@ interface CursoPerfil {
 
 interface Rol {
     rol_id: number,
-    nombre: "Administrador" | "Alumno" | "Docente"
+    nombre: "Administrador" | "Estudiante" | "Docente" | "Apoderado"
 }
 
 export interface User {

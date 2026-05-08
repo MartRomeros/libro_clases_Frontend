@@ -95,7 +95,7 @@ export class AttendancePageComponent {
     if (rol.includes('admin')) this.router.navigate(['/admin']);
     else if (rol.includes('docente')) this.router.navigate(['/docente']);
     else if (rol.includes('estudiante')) this.router.navigate(['/estudiante']);
-    else this.router.navigate(['/login']);
+    else this.router.navigate(['/auth/login']);
   }
 
 

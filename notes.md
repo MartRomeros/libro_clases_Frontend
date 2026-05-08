@@ -1,77 +1,20 @@
-# Prompts para el SDD
+# Checklist De Mejoras
 
-## Validacion de spec:
-
-```md
-Lee /specs/login-with-google/spec.md y revisa si falta información antes de implementar.
-
-No escribas código todavía.
-
-Devuélveme:
-1. Preguntas abiertas
-2. Riesgos técnicos
-3. Supuestos que estás haciendo
-4. Casos borde faltantes
-5. Cambios sugeridos a la spec
-```
-
-## Creacion del design.md:
-
-```
-A partir de /specs/login-with-google/spec.md, crea /specs/login-with-google/design.md.
-
-Incluye:
-- Archivos que probablemente se modificarán
-- Arquitectura propuesta
-- Flujo de datos
-- Cambios en base de datos, si aplica
-- Dependencias nuevas, si aplica
-- Riesgos
-- Estrategia de testing
-
-No implementes código todavía.
-```
-# Generar tareas pequenas:
-
-```md
-A partir de spec.md y design.md, crea /specs/login-with-google/tasks.md.
-
-Divide la implementación en tareas pequeñas, revisables y en orden.
-
-Cada tarea debe incluir:
-- Objetivo
-- Archivos esperados
-- Tests requeridos
-- Criterio de finalización
-```
-
-Ejemplo de task.md:
-
-```md
-# Tasks: Login with Google
-
-## Task 1: Configurar variables de entorno
-- Agregar GOOGLE_CLIENT_ID
-- Agregar GOOGLE_CLIENT_SECRET
-- Documentar en .env.example
-
-## Task 2: Crear servicio OAuth
-- Crear servicio para validar respuesta de Google
-- Manejar email no verificado
-- Agregar tests unitarios
-
-## Task 3: Crear endpoint callback
-- Procesar respuesta OAuth
-- Crear o vincular usuario
-- Crear sesión
-
-## Task 4: Agregar botón en frontend
-- Mostrar botón en login
-- Redirigir a flujo OAuth
-
-## Task 5: Validación final
-- Ejecutar npm run build
-- Ejecutar npm test
-- Revisar que no haya cambios fuera de alcance
-```
-
+- [x] Corregir AuthStore.clearSession() usando localStorage.clear() o removiendo solo token y user.
+- [x] Unificar la estrategia de autenticación: dejar una sola fuente de verdad entre AuthService y AuthStore.
+- [x] Proteger rutas por rol: admin, docente, estudiante no deberían depender solo de que exista token.
+- [x] Cambiar navegación de logout inconsistente: actualmente unas partes usan /login y otras /auth.
+- [x] Evitar JSON.parse(localStorage.getItem('user') || ""); usar parse seguro o el AuthStore.
+- [ ] Definir un BFF real o documentar explícitamente si el frontend consumirá API Gateway directo.
+- [ ] Agregar OpenAPI/Swagger para los microservicios y versionar contratos.
+- [ ] Documentar ADRs: autenticación JWT custom, BFF/API Gateway, separación de microservicios, cache frontend.
+- [ ] Agregar lint script, porque el README menciona npm run lint pero package.json no lo define.
+- [ ] Eliminar any en APIs y componentes críticos; crear DTOs para requests/responses.
+- [ ] Agregar manejo uniforme de errores HTTP y estados vacíos en todas las features.
+- [ ] Agregar interceptores para errores 401/403 globales, no solo header de autorización.
+- [ ] Revisar seguridad del token en localStorage; para producción sería preferible cookie HttpOnly si el backend lo permite.
+- [ ] Reemplazar float para notas por numeric(3,1) o equivalente para evitar errores de precisión.
+- [ ] Corregir nombre sala_evaluacione_asistencia; parece typo y dificulta mantenibilidad.
+- [ ] Agregar módulo real de comunicaciones/mensajería, requerido por el contexto pero no visible en frontend.
+- [ ] Agregar pipeline CI con build, tests, lint y validación de formato.
+- [ ] Definir estrategia Git Flow o GitHub Flow documentada, como exige el caso.

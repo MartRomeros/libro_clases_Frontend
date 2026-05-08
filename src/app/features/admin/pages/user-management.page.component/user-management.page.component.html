@@ -1,15 +1,4 @@
-<mat-toolbar color="primary" class="toolbar">
-  <button mat-icon-button (click)="volverAlHome()" matTooltip="Volver al panel principal">
-    <mat-icon>arrow_back</mat-icon>
-  </button>
-  <mat-icon class="toolbar-icon">admin_panel_settings</mat-icon>
-  <span class="toolbar-title">Gestión de Usuarios y Evaluaciones</span>
-  <span class="spacer"></span>
-  <span class="user-profile-text">{{ userProfile }}</span>
-  <button mat-icon-button (click)="cerrarSesion()" matTooltip="Cerrar sesión">
-    <mat-icon>logout</mat-icon>
-  </button>
-</mat-toolbar>
+<app-navbar/>
 
 <div class="admin-container fade-in">
   <mat-tab-group animationDuration="500ms">

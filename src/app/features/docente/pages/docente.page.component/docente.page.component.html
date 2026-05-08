@@ -10,8 +10,12 @@
                 <mat-icon class="avatar-icon">person</mat-icon>
             </button>
             <div class="bienvenida-texto">
-                <h1 class="bienvenida-titulo">Bienvenido,
-                    {{loading() ? "cargando" : fullName()}}
+                <h1 class="bienvenida-titulo">
+                    @if(loading()){
+                        cargando...
+                    }@else {
+                        Bienvenido,
+                    {{ fullName()}}}
                 </h1>
                 <p class="bienvenida-subtitulo">Panel de gestión docente — Colegio Bernardo O'Higgins</p>
                 <button mat-button class="perfil-link" (click)="navegarA('/perfil')">

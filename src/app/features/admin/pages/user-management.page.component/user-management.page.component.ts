@@ -22,7 +22,7 @@ import { AuthQueries } from '../../../auth/data-access/auth.queries';
 import { AdminQueries } from '../../data-access/admin.queries';
 import { AdminMutations } from '../../data-access/admin.mutations';
 import { Usuario, Evaluacion } from '../../models/admin.model';
-import { AuthService } from '../../../../core/services/auth.service';
+import { Navbar } from '../../../../layout/navbar/navbar';
 
 @Component({
   selector: 'app-user-management-page',
@@ -44,7 +44,8 @@ import { AuthService } from '../../../../core/services/auth.service';
     MatDividerModule,
     MatTooltipModule,
     MatDatepickerModule,
-    MatNativeDateModule
+    MatNativeDateModule,
+    Navbar 
   ],
   templateUrl: './user-management.page.component.html',
   styleUrl: './user-management.page.component.css'
@@ -57,7 +58,6 @@ export class UserManagementPageComponent {
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
 
-  private readonly authService = inject(AuthService);
 
   profileQuery = injectQuery(() => this.authQueries.me());
   profile = computed(() => this.profileQuery.data());
@@ -377,8 +377,7 @@ export class UserManagementPageComponent {
   }
 
   cerrarSesion(): void {
-    this.authService.logout();
-    this.router.navigate(['/login']);
+    this.router.navigate(['/auth/login']);
   }
 
   get userProfile(): string {

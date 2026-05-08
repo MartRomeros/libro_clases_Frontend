@@ -5,7 +5,6 @@ import { Navbar } from '../../../../layout/navbar/navbar';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
-import { AuthStore } from '../../../auth/data-access/auth.store';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -40,18 +39,21 @@ import { FormsModule } from '@angular/forms';
 export class DocentePageComponent {
 
   private readonly router = inject(Router)
-  readonly authStore = inject(AuthStore)
   private readonly authQueries = inject(AuthQueries)
   private readonly evaluationsApi = inject(EvaluationsApi)
   private readonly snackBar = inject(MatSnackBar)
-  private queryProfile = injectQuery(() => this.authQueries.me())
+  
 
-  profile = computed(() => this.queryProfile.data())
+  private userQuery = injectQuery(() => this.authQueries.me())
 
-  loading = computed(() => this.queryProfile.isPending())
+  user = computed(()=>this.userQuery.data() || null);
+  loading = computed(()=> this.userQuery.isLoading())
+
+
+  
 
   fullName = computed(() => {
-    const p = this.profile();
+    const p = this.user();
     if (!p) return '';
     const parts = [p.nombre, p.apellido_paterno, p.apellido_materno].filter(Boolean);
     return parts.join(' ');
@@ -124,7 +126,7 @@ export class DocentePageComponent {
     console.log('--- INICIANDO CARGA DE CURSOS ---');
     this.mostrarCursos.set(true);
 
-    const docenteId = this.profile()?.usuario_id ?? 0;
+    const docenteId = this.user()?.usuario_id ?? 0;
     if (!docenteId) {
       console.error('No se pudo resolver el docenteId desde el perfil autenticado.');
       this.isLoadingCursos.set(false);
