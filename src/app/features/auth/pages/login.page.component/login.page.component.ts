@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { AuthMutations } from '../../data-access/auth.mutations';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -8,6 +8,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
+import { toAppError } from '../../../../shared/http/error-normalizer';
 
 @Component({
   selector: 'app-login.page.component',
@@ -34,6 +35,12 @@ export class LoginPageComponent {
 
   private readonly authMutations = inject(AuthMutations)
   readonly loginMutation = this.authMutations.login()
+
+  loginErrorMessage = computed(() => {
+    const error = this.loginMutation.error();
+    if (!error) return null;
+    return toAppError(error).message;
+  });
 
   constructor() {
     this.loginForm = this.fb.group({

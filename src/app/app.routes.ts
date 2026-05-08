@@ -3,13 +3,12 @@ import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
-    path:'',
-    redirectTo:'auth',
-    pathMatch:'full'
+    path: '',
+    loadComponent: () => import('./features/landing/pages/landing.page.component/landing.page.component').then(m => m.LandingPageComponent)
   },
   {
     path: 'auth',
-    loadChildren: ()=> import('./features/auth/auth.routes').then(m => m.AUTH_ROUTES)
+    loadChildren: () => import('./features/auth/auth.routes').then(m => m.AUTH_ROUTES)
   },
   {
     path: 'admin',
@@ -19,7 +18,7 @@ export const routes: Routes = [
   },
   {
     path: 'docente',
-    loadChildren: ()=> import('./features/docente/docente.routes').then(m=> m.AUTH_ROUTES),
+    loadChildren: () => import('./features/docente/docente.routes').then(m => m.AUTH_ROUTES),
     canActivate: [authGuard],
     data: { roles: ['Docente'] }
   },

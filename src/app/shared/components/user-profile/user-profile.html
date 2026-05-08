@@ -4,13 +4,19 @@
 
   <!-- Loading -->
   @if (loading()) {
-  <div class="profile-loading">
-    <mat-spinner diameter="56" />
-    <p>Cargando perfil…</p>
-  </div>
+    <app-loading-state message="Cargando perfil..." [diameter]="56" />
   }
 
-  @if (!loading() && user(); as p) {
+  <!-- Error -->
+  @if (profileQuery.isError()) {
+    <app-error-state 
+      [error]="error()" 
+      title="Error al cargar perfil"
+      (retry)="profileQuery.refetch()"
+    />
+  }
+
+  @if (!loading() && !profileQuery.isError() && user(); as p) {
   <div class="profile-container">
 
     <!-- Header hero -->

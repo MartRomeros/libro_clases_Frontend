@@ -9,10 +9,9 @@
 
 <div class="grades-container">
     @if (isLoading()) {
-    <div class="loading-overlay">
-        <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
-        <p>Cargando tus calificaciones...</p>
-    </div>
+        <app-loading-state message="Cargando tus calificaciones..." />
+    } @else if (isError()) {
+        <app-error-state [error]="error()" (retry)="notasQuery.refetch()" />
     } @else {
     <mat-card class="table-card animate-fade-in" appearance="outlined">
         <mat-card-header>
@@ -22,8 +21,14 @@
         <mat-divider></mat-divider>
         <mat-card-content>
             <div class="table-responsive">
+                @if (dataSource.data.length === 0) {
+                    <app-empty-state 
+                        icon="grading" 
+                        title="No hay notas" 
+                        message="Aún no tienes calificaciones registradas."
+                    />
+                } @else {
                 <table mat-table [dataSource]="dataSource" class="grades-table">
-
                     <!-- Asignatura Column -->
                     <ng-container matColumnDef="asignatura">
                         <th mat-header-cell *matHeaderCellDef> Asignatura </th>
@@ -73,14 +78,9 @@
                     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
                     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
                 </table>
+                }
             </div>
 
-            @if (dataSource.data.length === 0) {
-            <div class="empty-state">
-                <mat-icon>info</mat-icon>
-                <p>No se encontraron calificaciones registradas.</p>
-            </div>
-            }
         </mat-card-content>
     </mat-card>
     }

@@ -5,9 +5,9 @@ Sirve para apoyar a los 4 microservicios a realizar los cuales son:
 - MS Autenticacion y autorizacion (Node JS + Express)
 - MS Asistencia y conducta (Node JS + Express)
 - MS Mensajeria (Node JS + Express)
+- BFF (Node JS + Express)
 
-Ademas este proyecto sera subido a un AWS S3 en. Tener en cuenta que se trata de
-un AWS Academy.
+Ademas este proyecto sera subido a un AWS S3 en AWS Academy.
 
 MER de base de datos: `.agents/context/script.sql.md`
 

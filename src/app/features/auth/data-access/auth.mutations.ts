@@ -8,6 +8,7 @@ import { MatSnackBar } from "@angular/material/snack-bar";
 import { getHomeRouteForRole } from "../../../core/utils/access-control";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { authKeys } from "./auth.keys";
+import { showErrorSnack } from "../../../shared/http/error-snackbar";
 
 @Injectable({ providedIn: 'root' })
 export class AuthMutations {
@@ -26,7 +27,10 @@ export class AuthMutations {
                 this.authStore.setSession(response.token)
                 this.queryClient.setQueryData(authKeys.me(), response.profile)
                 this.router.navigateByUrl(getHomeRouteForRole(response.profile.rol.nombre))
-            }
+            },
+            onError: (error) => {
+                showErrorSnack(this.snackbar, error);
+            },
 
         }))
     }

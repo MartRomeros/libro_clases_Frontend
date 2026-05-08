@@ -8,7 +8,6 @@ import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
 import { injectQuery } from '@tanstack/angular-query-experimental';
@@ -16,6 +15,9 @@ import { injectQuery } from '@tanstack/angular-query-experimental';
 import { Navbar } from '../../../../layout/navbar/navbar';
 import { AuthQueries } from '../../../auth/data-access/auth.queries';
 import { EstudianteQueries } from '../../data-access/estudiante.queries';
+import { LoadingStateComponent } from '../../../../shared/components/loading-state/loading-state.component';
+import { ErrorStateComponent } from '../../../../shared/components/error-state/error-state.component';
+import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
 
 @Component({
   selector: 'app-attendance-page',
@@ -29,9 +31,11 @@ import { EstudianteQueries } from '../../data-access/estudiante.queries';
     MatTableModule,
     MatDividerModule,
     MatTooltipModule,
-    MatProgressSpinnerModule,
     BaseChartDirective,
     Navbar,
+    LoadingStateComponent,
+    ErrorStateComponent,
+    EmptyStateComponent
   ],
   templateUrl: './attendance.page.component.html',
   styleUrl: './attendance.page.component.css',
@@ -57,7 +61,8 @@ export class AttendancePageComponent {
     (!!this.estudianteId() && this.asistenciaQuery.isPending())
   );
   
-  isError = computed(() => this.asistenciaQuery.isError());
+  isError = computed(() => this.profileQuery.isError() || this.asistenciaQuery.isError());
+  error = computed(() => this.profileQuery.error() || this.asistenciaQuery.error());
 
   processedData = computed(() => {
     const response = this.asistenciaQuery.data();

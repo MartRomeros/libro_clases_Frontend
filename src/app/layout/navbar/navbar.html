@@ -5,7 +5,9 @@
   <span class="docente-nombre">
     @if(loading()){
     cargando...
-    }@else {
+    } @else if (profileQuery.isError()) {
+    Error de perfil
+    } @else {
     {{ user()?.nombre }} {{user()?.apellido_paterno}}
     }
   </span>

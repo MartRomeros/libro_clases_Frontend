@@ -7,12 +7,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { Navbar } from '../../../layout/navbar/navbar';
 import { DocentePerfil, EstudiantePerfil } from '../../../features/auth/models/profile.response.model';
 import { AuthQueries } from '../../../features/auth/data-access/auth.queries';
 import { injectQuery } from '@tanstack/angular-query-experimental';
+import { LoadingStateComponent } from '../loading-state/loading-state.component';
+import { ErrorStateComponent } from '../error-state/error-state.component';
 
 @Component({
   selector: 'app-user-profile',
@@ -25,8 +26,9 @@ import { injectQuery } from '@tanstack/angular-query-experimental';
     MatChipsModule,
     MatDividerModule,
     MatTooltipModule,
-    MatProgressSpinnerModule,
-    Navbar 
+    Navbar,
+    LoadingStateComponent,
+    ErrorStateComponent
   ],
   templateUrl: './user-profile.html',
   styleUrl: './user-profile.css',
@@ -39,6 +41,7 @@ export class UserProfileComponent {
   profileQuery = injectQuery(()=> this.authQuery.me())
   user = computed(()=> this.profileQuery.data())
   loading = computed(()=> this.profileQuery.isLoading())
+  error = computed(() => this.profileQuery.error())
   
 
   initials = computed(() => {

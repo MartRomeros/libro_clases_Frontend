@@ -31,10 +31,12 @@ export class EstudianteHomePageComponent {
 
   profileQuery = injectQuery(() => this.authQueries.me());
   profile = computed(() => this.profileQuery.data());
+  loading = computed(() => this.profileQuery.isLoading());
+  error = computed(() => this.profileQuery.error());
 
-  docenteNombre = computed(() => {
+  estudianteNombre = computed(() => {
     const p = this.profile();
-    return p ? `${p.nombre} ${p.apellido_paterno}` : 'Estudiante';
+    return p ? `${p.nombre} ${p.apellido_paterno}` : '';
   });
 
   opciones: OpcionEstudiante[] = [

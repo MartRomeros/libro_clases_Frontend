@@ -23,6 +23,10 @@ import { AdminQueries } from '../../data-access/admin.queries';
 import { AdminMutations } from '../../data-access/admin.mutations';
 import { Usuario, Evaluacion } from '../../models/admin.model';
 import { Navbar } from '../../../../layout/navbar/navbar';
+import { LoadingStateComponent } from '../../../../shared/components/loading-state/loading-state.component';
+import { ErrorStateComponent } from '../../../../shared/components/error-state/error-state.component';
+import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
+import { showErrorSnack } from '../../../../shared/http/error-snackbar';
 
 @Component({
   selector: 'app-user-management-page',
@@ -45,7 +49,10 @@ import { Navbar } from '../../../../layout/navbar/navbar';
     MatTooltipModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    Navbar 
+    Navbar,
+    LoadingStateComponent,
+    ErrorStateComponent,
+    EmptyStateComponent
   ],
   templateUrl: './user-management.page.component.html',
   styleUrl: './user-management.page.component.css'
@@ -164,7 +171,7 @@ export class UserManagementPageComponent {
     if (!cursoId) return;
     this.actualizarEstudianteMutation.mutate({ id: estudianteId, estudiante: { cursoId } }, {
       onSuccess: () => this.mostrarMensaje('Estudiante asignado al curso'),
-      onError: () => this.mostrarMensaje('Error al asignar curso')
+      onError: (err) => showErrorSnack(this.snackBar, err)
     });
   }
 
@@ -185,7 +192,7 @@ export class UserManagementPageComponent {
         this.mostrarMensaje('Curso creado');
         this.cursoForm.reset({ anioAcademico: new Date().getFullYear() });
       },
-      onError: () => this.mostrarMensaje('Error al crear curso')
+      onError: (err) => showErrorSnack(this.snackBar, err)
     });
   }
 
@@ -193,7 +200,7 @@ export class UserManagementPageComponent {
     if (confirm('¿Eliminar curso?')) {
       this.eliminarCursoMutation.mutate(id, {
         onSuccess: () => this.mostrarMensaje('Curso eliminado'),
-        onError: () => this.mostrarMensaje('No se puede eliminar: tiene dependencias')
+        onError: (err) => showErrorSnack(this.snackBar, err)
       });
     }
   }
@@ -205,14 +212,14 @@ export class UserManagementPageComponent {
         this.mostrarMensaje('Asignatura creada');
         this.asignaturaForm.reset();
       },
-      onError: () => this.mostrarMensaje('Error al crear asignatura')
+      onError: (err) => showErrorSnack(this.snackBar, err)
     });
   }
 
   eliminarAsignatura(id: number) {
     this.eliminarAsignaturaMutation.mutate(id, {
       onSuccess: () => this.mostrarMensaje('Asignatura eliminada'),
-      onError: () => this.mostrarMensaje('Error al eliminar')
+      onError: (err) => showErrorSnack(this.snackBar, err)
     });
   }
 
@@ -223,14 +230,15 @@ export class UserManagementPageComponent {
         this.mostrarMensaje('Vínculo académico creado');
         this.cadForm.reset();
       },
-      onError: () => this.mostrarMensaje('Error al vincular: ya existe o datos inválidos')
+      onError: (err) => showErrorSnack(this.snackBar, err)
     });
   }
 
   eliminarCAD(id: number) {
     if (confirm('¿Eliminar vínculo?')) {
       this.eliminarCADMutation.mutate(id, {
-        onSuccess: () => this.mostrarMensaje('Vínculo eliminado')
+        onSuccess: () => this.mostrarMensaje('Vínculo eliminado'),
+        onError: (err) => showErrorSnack(this.snackBar, err)
       });
     }
   }
@@ -268,8 +276,7 @@ export class UserManagementPageComponent {
           this.resetUserForm();
         },
         onError: (err) => {
-          console.error('Error update:', err);
-          this.mostrarMensaje('Error al actualizar');
+          showErrorSnack(this.snackBar, err);
         }
       });
     } else {
@@ -280,8 +287,7 @@ export class UserManagementPageComponent {
           this.resetUserForm();
         },
         onError: (err) => {
-          console.error('Error create:', err);
-          this.mostrarMensaje('Error: RUT o Email ya existen');
+          showErrorSnack(this.snackBar, err);
         }
       });
     }
@@ -306,7 +312,8 @@ export class UserManagementPageComponent {
   eliminarUsuario(id: number) {
     if (confirm('¿Estás seguro de eliminar este usuario?')) {
       this.eliminarUsuarioMutation.mutate(id, {
-        onSuccess: () => this.mostrarMensaje('Usuario eliminado')
+        onSuccess: () => this.mostrarMensaje('Usuario eliminado'),
+        onError: (err) => showErrorSnack(this.snackBar, err)
       });
     }
   }
@@ -326,14 +333,16 @@ export class UserManagementPageComponent {
         onSuccess: () => {
           this.mostrarMensaje('Evaluación actualizada');
           this.resetEvalForm();
-        }
+        },
+        onError: (err) => showErrorSnack(this.snackBar, err)
       });
     } else {
       this.crearEvaluacionMutation.mutate(evalData, {
         onSuccess: () => {
           this.mostrarMensaje('Evaluación creada');
           this.resetEvalForm();
-        }
+        },
+        onError: (err) => showErrorSnack(this.snackBar, err)
       });
     }
   }
@@ -341,7 +350,8 @@ export class UserManagementPageComponent {
   eliminarEval(id: number, cadId: number) {
     if (confirm('¿Eliminar evaluación?')) {
       this.eliminarEvaluacionMutation.mutate({ id, cadId }, {
-        onSuccess: () => this.mostrarMensaje('Eliminada')
+        onSuccess: () => this.mostrarMensaje('Eliminada'),
+        onError: (err) => showErrorSnack(this.snackBar, err)
       });
     }
   }

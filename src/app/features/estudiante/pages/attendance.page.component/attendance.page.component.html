@@ -8,34 +8,22 @@
 </div>
 
 <div class="attendance-container fade-in">
-    <!-- Estado de carga -->
     @if (isLoading()) {
-        <div class="loading-container">
-            <mat-spinner diameter="50"></mat-spinner>
-            <p>Cargando información de asistencia...</p>
-        </div>
-    }
-    <!-- Estado de error -->
-    @else if (isError()) {
-        <div class="error-container">
-            <mat-icon class="error-icon">error_outline</mat-icon>
-            <h3>Error al cargar asistencia</h3>
-            <p>No se pudo recuperar la información de asistencia. Por favor, intenta más tarde.</p>
-            <button mat-raised-button color="primary" (click)="asistenciaQuery.refetch()">
-                <mat-icon>refresh</mat-icon>
-                Reintentar
-            </button>
-        </div>
-    }
-    <!-- Datos -->
-    @else if (asistenciaQuery.isSuccess()) {
-        <!-- Encabezado -->
+        <app-loading-state message="Cargando información de asistencia..." />
+    } @else if (isError()) {
+        <app-error-state [error]="error()" (retry)="asistenciaQuery.refetch()" />
+    } @else if (processedData().length === 0) {
+        <app-empty-state
+            icon="event_busy"
+            title="No hay asistencia"
+            message="Aún no existen registros de asistencia para mostrar."
+        />
+    } @else {
         <div class="page-header">
             <p>Revisa el detalle de tus clases y mantén tu porcentaje al día.</p>
         </div>
 
         <div class="dashboard-grid">
-            <!-- Tabla de Asignaturas -->
             <mat-card class="table-card" appearance="outlined">
                 <mat-card-header>
                     <div class="header-icon-title">
@@ -50,35 +38,30 @@
                 <mat-card-content>
                     <div class="table-responsive">
                         <table mat-table [dataSource]="processedData()" class="attendance-table">
-                            <!-- Asignatura Column -->
                             <ng-container matColumnDef="asignatura">
                                 <th mat-header-cell *matHeaderCellDef> Asignatura </th>
                                 <td mat-cell *matCellDef="let element" class="subject-cell"> {{element.asignatura}} </td>
                             </ng-container>
 
-                            <!-- Asistidas Column -->
                             <ng-container matColumnDef="asistidas">
                                 <th mat-header-cell *matHeaderCellDef class="text-center"> Asistidas </th>
                                 <td mat-cell *matCellDef="let element" class="text-center success-text font-bold"> {{element.clasesAsistidas}} </td>
                             </ng-container>
 
-                            <!-- Ausentes Column -->
                             <ng-container matColumnDef="ausentes">
                                 <th mat-header-cell *matHeaderCellDef class="text-center"> Inasistencias </th>
                                 <td mat-cell *matCellDef="let element" class="text-center danger-text font-bold"> {{element.clasesAusentes}} </td>
                             </ng-container>
 
-                            <!-- Total Column -->
                             <ng-container matColumnDef="total">
                                 <th mat-header-cell *matHeaderCellDef class="text-center"> Total Clases </th>
                                 <td mat-cell *matCellDef="let element" class="text-center"> {{element.totalClases}} </td>
                             </ng-container>
 
-                            <!-- Porcentaje Column -->
                             <ng-container matColumnDef="porcentaje">
                                 <th mat-header-cell *matHeaderCellDef class="text-center"> Porcentaje </th>
                                 <td mat-cell *matCellDef="let element" class="text-center">
-                                    <span class="badge" 
+                                    <span class="badge"
                                         [ngClass]="{'bg-success': element.porcentaje >= 85, 'bg-warning': element.porcentaje >= 75 && element.porcentaje < 85, 'bg-danger': element.porcentaje < 75}">
                                         {{element.porcentaje}}%
                                     </span>
@@ -92,7 +75,6 @@
                 </mat-card-content>
             </mat-card>
 
-            <!-- Dashboard Chart -->
             <mat-card class="chart-card" appearance="outlined">
                 <mat-card-header>
                     <div class="header-icon-title">
@@ -106,13 +88,13 @@
                 <mat-divider></mat-divider>
                 <mat-card-content class="chart-content">
                     <div class="porcentaje-circle">
-                        <span class="porcentaje-valor" 
+                        <span class="porcentaje-valor"
                               [ngClass]="{'success-text': porcentajeGeneral() >= 85, 'warning-text': porcentajeGeneral() >= 75 && porcentajeGeneral() < 85, 'danger-text': porcentajeGeneral() < 75}">
                             {{ porcentajeGeneral() }}%
                         </span>
                         <span class="porcentaje-label">Global</span>
                     </div>
-                    
+
                     <div class="chart-wrapper">
                         <canvas baseChart
                             [data]="pieChartData()"
@@ -120,7 +102,7 @@
                             [options]="pieChartOptions">
                         </canvas>
                     </div>
-                    
+
                     <div class="stats-footer">
                         <div class="stat-item bg-light-green">
                             <span class="stat-label">Total Asistencias</span>

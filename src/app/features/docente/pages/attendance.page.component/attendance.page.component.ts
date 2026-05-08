@@ -16,6 +16,9 @@ import { CommonModule } from '@angular/common';
 import { AttendanceComponent } from '../../sections/attendance.component/attendance.component';
 import { ConductComponent } from '../../sections/conduct.component/conduct.component';
 import { MatButtonModule } from '@angular/material/button';
+import { LoadingStateComponent } from '../../../../shared/components/loading-state/loading-state.component';
+import { ErrorStateComponent } from '../../../../shared/components/error-state/error-state.component';
+import { Course } from '../../models/curso.response.model';
 
 @Component({
   selector: 'app-attendance.page.component',
@@ -32,8 +35,9 @@ import { MatButtonModule } from '@angular/material/button';
     MatNativeDateModule,
     AttendanceComponent,
     ConductComponent ,
-    MatButtonModule
-    
+    MatButtonModule,
+    LoadingStateComponent,
+    ErrorStateComponent
   ],
   templateUrl: './attendance.page.component.html',
   styleUrl: './attendance.page.component.css',
@@ -49,7 +53,8 @@ export class AttendancePageComponent {
   profile = computed(() => this.profileQuery.data())
 
   cursosQuery = injectQuery(()=> this.attendanceQueries.cursosDocente())
-  cursosDisponibles = computed(()=> this.cursosQuery.data())
+  cursosDisponibles = computed<Course[]>(() => this.cursosQuery.data()?.data ?? [])
+  cursos = computed<Course[]>(() => this.cursosDisponibles())
 
   fechaSeleccionada = signal<Date>(new Date());
   cursoSeleccionado = signal<number | string>('');
