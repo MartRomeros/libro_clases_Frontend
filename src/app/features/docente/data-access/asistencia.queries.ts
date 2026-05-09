@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { queryOptions } from '@tanstack/angular-query-experimental';
-import { AttendanceApi } from './docente.api';
-import { attendanceKeys } from './docente.keys';
+import { AttendanceApi } from './asistencia.api';
+import { attendanceKeys } from './asistencia.keys';
 
 @Injectable({ providedIn: 'root' })
 export class AttendanceQueries {

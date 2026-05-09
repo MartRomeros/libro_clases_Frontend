@@ -12,7 +12,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { injectQuery } from '@tanstack/angular-query-experimental';
 
-import { AttendanceQueries } from '../../data-access/docente.queries';
+import { AttendanceQueries } from '../../data-access/asistencia.queries';
 import { Alumno } from '../../models/alumno.response.model';
 import { LoadingStateComponent } from '../../../../shared/components/loading-state/loading-state.component';
 import { ErrorStateComponent } from '../../../../shared/components/error-state/error-state.component';

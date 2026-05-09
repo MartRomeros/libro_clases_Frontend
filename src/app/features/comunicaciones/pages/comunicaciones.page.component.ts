@@ -14,12 +14,15 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatOptionModule } from '@angular/material/core';
 import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
+import { injectMutation, injectQuery } from '@tanstack/angular-query-experimental';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { ComunicacionesService } from '../data-access/comunicaciones.service';
+import { ComunicacionesApi } from '../data-access/comunicaciones.api';
+import { ComunicacionesQueries } from '../data-access/comunicaciones.queries';
+import { ComunicacionesMutations } from '../data-access/comunicaciones.mutations';
 import { Conversacion } from '../models/mensaje.model';
-import { AuthStore } from '../../auth/data-access/auth.store';
+import { AuthQueries } from '../../auth/data-access/auth.queries';
 import { EvaluationsApi } from '../../docente/data-access/evaluations.api';
+import { Navbar } from '../../../layout/navbar/navbar';
 
 interface Contacto {
   nombre: string;
@@ -45,7 +48,8 @@ interface Contacto {
     MatOptionModule,
     MatSnackBarModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    Navbar
   ],
   animations: [
     trigger('listAnimation', [
@@ -69,12 +73,7 @@ interface Contacto {
     ])
   ],
   template: `
-    <div class="p-4 flex gap-3 align-items-center">
-      <button mat-icon-button class="back-btn" matTooltip="Volver al inicio" (click)="volver()">
-          <mat-icon>arrow_back</mat-icon>
-      </button>
-      <h2 class="text-4xl bold m-0">Mensajería</h2>
-    </div>
+    <app-navbar/>
 
     <div class="comunicaciones-container">
       <!-- Sidebar -->
@@ -958,9 +957,12 @@ interface Contacto {
   `]
 })
 export class ComunicacionesPageComponent implements OnInit {
-  private service = inject(ComunicacionesService);
+  
+  private comunicacionesQueries = inject(ComunicacionesQueries);
+  private comunicacionesMutations = inject(ComunicacionesMutations);
+  private comunicacionesApi = inject(ComunicacionesApi);
   private evaluationsApi = inject(EvaluationsApi);
-  private authStore = inject(AuthStore);
+  private authQueries = inject(AuthQueries);
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
 
@@ -972,8 +974,14 @@ export class ComunicacionesPageComponent implements OnInit {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   @ViewChild('imageInput') imageInput!: ElementRef<HTMLInputElement>;
 
-  conversaciones = this.service.getConversaciones();
-  isLoading = this.service.getIsLoading();
+  profileQuery = injectQuery(() => this.authQueries.me());
+  profile = computed(() => this.profileQuery.data());
+  conversacionesQuery = injectQuery(() => this.comunicacionesQueries.conversaciones(this.profile()?.email));
+  usuariosQuery = injectQuery(() => this.comunicacionesQueries.usuarios());
+  enviarMensajeMutation = injectMutation(() => this.comunicacionesMutations.enviarMensaje());
+  marcarComoLeidoMutation = injectMutation(() => this.comunicacionesMutations.marcarComoLeido(this.profile()?.email || ''));
+  conversaciones = computed(() => this.conversacionesQuery.data() || []);
+  isLoading = computed(() => this.conversacionesQuery.isLoading());
   selectedConvId = signal<string | null>(null);
   searchQuery = signal('');
   mostrandoNuevoMensaje = signal(false);
@@ -1002,12 +1010,11 @@ export class ComunicacionesPageComponent implements OnInit {
   enviarCopiaEmail = false;
   
   ngOnInit() {
-    this.service.cargarMensajes();
     this.cargarContactos();
   }
 
   async cargarContactos() {
-    const user = this.authStore.currentUser();
+    const user = this.profile();
     if (!user) return;
 
     const lista: Contacto[] = [
@@ -1017,7 +1024,7 @@ export class ComunicacionesPageComponent implements OnInit {
 
     try {
       // Obtener todos los usuarios del sistema
-      const usuarios = await firstValueFrom(this.service.getTodosLosUsuarios());
+      const usuarios = this.usuariosQuery.data() || await this.comunicacionesApi.getTodosLosUsuarios();
       
       const dbContacts: Contacto[] = usuarios
         .filter(u => u.email !== user.email && u.activo)
@@ -1143,7 +1150,7 @@ export class ComunicacionesPageComponent implements OnInit {
   
   selectedConv = computed(() => {
     const id = this.selectedConvId();
-    return id ? this.service.getConversacionById(id) : null;
+    return id ? this.conversaciones().find(c => c.id === id) || null : null;
   });
 
   mensajeEsValido() {
@@ -1160,11 +1167,11 @@ export class ComunicacionesPageComponent implements OnInit {
     this.archivosAdjuntos.set([]);
     if (this.editorRef) this.editorRef.nativeElement.innerHTML = '';
     
-    const conv = this.service.getConversacionById(id);
+    const conv = this.conversaciones().find(c => c.id === id);
     if (conv) {
       conv.mensajes.forEach(m => {
         if (!m.leido && !m.esMio) {
-          this.service.marcarComoLeido(m.id);
+          this.marcarComoLeidoMutation.mutate(m.id);
         }
       });
     }
@@ -1232,8 +1239,17 @@ export class ComunicacionesPageComponent implements OnInit {
     // but we could map multiple if the backend supports it.
     const archivo = this.archivosAdjuntos().length > 0 ? this.archivosAdjuntos()[0] : undefined;
 
-    this.service.enviarMensaje(this.selectedConvId()!, this.nuevoMensajeTexto, this.selectedConv()?.asunto, archivo).subscribe({
-      next: () => {
+    const user = this.profile();
+    if (!user?.email) return;
+
+    this.enviarMensajeMutation.mutate({
+      quienEnvia: user.email,
+      quienRecibe: this.selectedConvId()!,
+      cuerpo: this.nuevoMensajeTexto,
+      asunto: this.selectedConv()?.asunto || 'Sin asunto',
+      archivo
+    }, {
+      onSuccess: () => {
         this.snackBar.open('Mensaje enviado', 'Cerrar', { duration: 3000 });
         this.nuevoMensajeTexto = '';
         this.archivosAdjuntos.set([]);
@@ -1251,14 +1267,18 @@ export class ComunicacionesPageComponent implements OnInit {
     
     const archivo = this.archivosAdjuntos().length > 0 ? this.archivosAdjuntos()[0] : undefined;
 
-    this.service.enviarMensaje(
-      destinatario, 
-      this.nuevoMensajeTexto, 
-      this.nuevoAsunto || 'Sin asunto',
+    const user = this.profile();
+    if (!user?.email) return;
+
+    this.enviarMensajeMutation.mutate({
+      quienEnvia: user.email,
+      quienRecibe: destinatario,
+      cuerpo: this.nuevoMensajeTexto,
+      asunto: this.nuevoAsunto || 'Sin asunto',
       archivo,
-      this.enviarCopiaEmail
-    ).subscribe({
-      next: (resp) => {
+      enviarCopiaEmail: this.enviarCopiaEmail
+    }, {
+      onSuccess: (resp) => {
         this.snackBar.open(resp.mensaje || 'Mensaje enviado', 'Cerrar', { duration: 3000 });
         // No seleccionamos la conversación si es masiva o si queremos seguir la regla de solo recibidos
         if (!destinatario.startsWith('GROUP:')) {

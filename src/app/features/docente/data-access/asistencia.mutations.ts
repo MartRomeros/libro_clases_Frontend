@@ -1,8 +1,8 @@
 import { inject, Injectable } from "@angular/core";
 import { injectMutation, QueryClient } from "@tanstack/angular-query-experimental";
-import { AttendanceApi } from "./docente.api";
+import { AttendanceApi } from "./asistencia.api";
 import { AsistenciaPayload } from "../models/asistencia.request.model";
-import { attendanceKeys } from "./docente.keys";
+import { attendanceKeys } from "./asistencia.keys";
 import { MatSnackBar } from "@angular/material/snack-bar";
 
 @Injectable({ providedIn: 'root' })

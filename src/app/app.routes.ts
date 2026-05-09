@@ -31,7 +31,8 @@ export const routes: Routes = [
   {
     path: 'comunicaciones',
     loadChildren: () => import('./features/comunicaciones/comunicaciones.routes').then(m => m.COMUNICACIONES_ROUTES),
-    canActivate: [authGuard]
+    canActivate: [authGuard],
+    data: { roles: ['Administrador', 'Docente','Estudiante'] }
   },
   {
     path: 'perfil',

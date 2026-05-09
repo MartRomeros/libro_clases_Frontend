@@ -2,7 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthQueries } from '../../../auth/data-access/auth.queries';
 import { injectQuery } from '@tanstack/angular-query-experimental';
-import { AttendanceQueries } from '../../data-access/docente.queries';
+import { AttendanceQueries } from '../../data-access/asistencia.queries';
 import { Navbar } from '../../../../layout/navbar/navbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';

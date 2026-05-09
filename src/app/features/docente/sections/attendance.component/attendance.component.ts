@@ -17,8 +17,8 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { injectQuery } from '@tanstack/angular-query-experimental';
 
-import { AttendanceQueries } from '../../data-access/docente.queries';
-import { AttendanceMutations } from '../../data-access/docente.mutations';
+import { AttendanceQueries } from '../../data-access/asistencia.queries';
+import { AttendanceMutations } from '../../data-access/asistencia.mutations';
 import { Alumno } from '../../models/alumno.response.model';
 import { AsistenciaPayload } from '../../models/asistencia.request.model';
 import { LoadingStateComponent } from '../../../../shared/components/loading-state/loading-state.component';
