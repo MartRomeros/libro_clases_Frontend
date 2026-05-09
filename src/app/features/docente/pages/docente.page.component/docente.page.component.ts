@@ -1,27 +1,32 @@
 import { ChangeDetectorRef, Component, computed, inject, signal } from '@angular/core';
-import { Resumen } from '../../models/resumen.docente.model';
-import { OpcionDocente } from '../../models/menu.options.model';
-import { Navbar } from '../../../../layout/navbar/navbar';
 import { CommonModule } from '@angular/common';
-import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
-import { AuthStore } from '../../../auth/data-access/auth.store';
+import { FormsModule } from '@angular/forms';
+import { from, forkJoin, of, catchError } from 'rxjs';
+import { injectQuery } from '@tanstack/angular-query-experimental';
+
+import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { AuthQueries } from '../../../auth/data-access/auth.queries';
-import { injectQuery } from '@tanstack/angular-query-experimental';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+
+import { Resumen } from '../../models/resumen.docente.model';
+import { OpcionDocente } from '../../models/menu.options.model';
+import { Navbar } from '../../../../layout/navbar/navbar';
+import { AuthQueries } from '../../../auth/data-access/auth.queries';
 import { DocenteCurso, EstudianteCurso, NotaPost } from '../../models/evaluations.model';
 import { EvaluationsApi } from '../../data-access/evaluations.api';
-import { catchError, forkJoin, from, of } from 'rxjs';
-import { FormsModule } from '@angular/forms';
+import { LoadingStateComponent } from '../../../../shared/components/loading-state/loading-state.component';
+import { ErrorStateComponent } from '../../../../shared/components/error-state/error-state.component';
+import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
+import { showErrorSnack } from '../../../../shared/http/error-snackbar';
 
 @Component({
   selector: 'app-docente.page.component',
+  standalone: true,
   imports: [
     Navbar,
     CommonModule,
@@ -30,9 +35,11 @@ import { FormsModule } from '@angular/forms';
     MatDividerModule,
     MatBadgeModule,
     MatButtonModule,
-    MatProgressSpinnerModule,
     MatTableModule,
-    FormsModule
+    FormsModule,
+    LoadingStateComponent,
+    ErrorStateComponent,
+    EmptyStateComponent
   ],
   templateUrl: './docente.page.component.html',
   styleUrl: './docente.page.component.css',
@@ -40,18 +47,19 @@ import { FormsModule } from '@angular/forms';
 export class DocentePageComponent {
 
   private readonly router = inject(Router)
-  readonly authStore = inject(AuthStore)
   private readonly authQueries = inject(AuthQueries)
   private readonly evaluationsApi = inject(EvaluationsApi)
   private readonly snackBar = inject(MatSnackBar)
-  private queryProfile = injectQuery(() => this.authQueries.me())
+  
 
-  profile = computed(() => this.queryProfile.data() || this.authStore.currentUser())
+  private userQuery = injectQuery(() => this.authQueries.me())
 
-  loading = computed(() => this.queryProfile.isPending())
+  user = computed(()=>this.userQuery.data() || null);
+  loading = computed(()=> this.userQuery.isLoading())
+  error = computed(() => this.userQuery.error())
 
   fullName = computed(() => {
-    const p = this.profile();
+    const p = this.user();
     if (!p) return '';
     const parts = [p.nombre, p.apellido_paterno, p.apellido_materno].filter(Boolean);
     return parts.join(' ');
@@ -59,9 +67,11 @@ export class DocentePageComponent {
 
   mostrarCursos = signal<boolean>(false);
   isLoadingCursos = signal<boolean>(false);
+  cursosLoadError = signal<unknown>(null);
   cursoSeleccionado = signal<string>('');
   mostrarEstudiantes = signal<boolean>(false);
   isLoadingEstudiantes = signal<boolean>(false);
+  estudiantesLoadError = signal<unknown>(null);
 
   dataSource = new MatTableDataSource<DocenteCurso>([]);
   estudiantesDataSource = new MatTableDataSource<EstudianteCurso>([]);
@@ -121,25 +131,22 @@ export class DocentePageComponent {
   }
 
   cargarCursos(): void {
-    console.log('--- INICIANDO CARGA DE CURSOS ---');
     this.mostrarCursos.set(true);
+    this.cursosLoadError.set(null);
 
-    const docenteId = this.profile()?.usuario_id ?? 0;
+    const docenteId = this.user()?.usuario_id ?? 0;
     if (!docenteId) {
-      console.error('No se pudo resolver el docenteId desde el perfil autenticado.');
       this.isLoadingCursos.set(false);
       return;
     }
 
-    console.log('Usando Docente ID:', docenteId);
     this.isLoadingCursos.set(true);
 
     from(this.evaluationsApi.getCursos(docenteId)).subscribe({
       next: (data: DocenteCurso[]) => {
-        console.log('ÉXITO: Datos recibidos del back:');
-        console.table(data); // <-- ESTO NOS MOSTRARÁ TODO CLARO
         this.dataSource.data = data;
         this.isLoadingCursos.set(false);
+        this.cursosLoadError.set(null);
 
         setTimeout(() => {
           this.cdr.detectChanges();
@@ -148,8 +155,9 @@ export class DocentePageComponent {
         }, 50);
       },
       error: (err) => {
-        console.error('ERROR CRÍTICO AL LLAMAR API:', err);
+        showErrorSnack(this.snackBar, err);
         this.isLoadingCursos.set(false);
+        this.cursosLoadError.set(err);
       }
     });
   }
@@ -180,11 +188,7 @@ export class DocentePageComponent {
   }
 
   verDetalleCurso(curso: DocenteCurso): void {
-    console.log('--- CLICK EN VER CURSO ---');
-    console.log('Objeto curso recibido:', curso);
-
     if (!curso.cursoId) {
-      console.error('ERROR: El objeto curso no tiene cursoId. Verifica el backend.');
       alert('Error: No se pudo obtener el ID del curso para cargar los alumnos.');
       return;
     }
@@ -192,28 +196,21 @@ export class DocentePageComponent {
     this.cursoSeleccionado.set(`${curso.curso} - ${curso.asignaturaNombre}`);
     this.mostrarEstudiantes.set(true);
     this.isLoadingEstudiantes.set(true);
-
-    console.log(`Cargando Alumnos y Notas para Curso: ${curso.cursoId}, Asignatura: ${curso.asignaturaId}`);
+    this.estudiantesLoadError.set(null);
 
     forkJoin({
       estudiantes: from(this.evaluationsApi.getEstudiantesPorCurso(curso.cursoId)),
       evaluaciones: from(this.evaluationsApi.getEvaluacionesPorCad(curso.cadId)),
       notas: from(this.evaluationsApi.getNotasPorCursoAsignatura(curso.cursoId, curso.asignaturaId)).pipe(
-        catchError(err => {
-          console.warn('No se pudieron cargar las notas, se mostrarán campos vacíos:', err);
-          return of([]);
-        })
+        catchError(() => of([]))
       )
     }).subscribe({
       next: (resp) => {
-        // Obtener los IDs de las evaluaciones disponibles (máximo 3 para esta vista simplificada)
         const evIds = resp.evaluaciones
           .sort((a, b) => new Date(a.fechaEvaluacion).getTime() - new Date(b.fechaEvaluacion).getTime())
           .slice(0, 3);
 
-        // Mapear notas a estudiantes
         const listaCompleta = resp.estudiantes.map(est => {
-          // Asignar IDs de evaluación base por si no tienen notas aún
           if (evIds[0]) est.ev1Id = evIds[0].evaluacionId;
           if (evIds[1]) est.ev2Id = evIds[1].evaluacionId;
           if (evIds[2]) est.ev3Id = evIds[2].evaluacionId;
@@ -236,6 +233,7 @@ export class DocentePageComponent {
 
         this.estudiantesDataSource.data = listaCompleta;
         this.isLoadingEstudiantes.set(false);
+        this.estudiantesLoadError.set(null);
 
         setTimeout(() => {
           this.cdr.detectChanges();
@@ -243,8 +241,9 @@ export class DocentePageComponent {
         }, 100);
       },
       error: (err) => {
-        console.error('Error al cargar datos:', err);
+        showErrorSnack(this.snackBar, err);
         this.isLoadingEstudiantes.set(false);
+        this.estudiantesLoadError.set(err);
       }
     });
   }
@@ -254,7 +253,6 @@ export class DocentePageComponent {
     const notasParaGuardar: NotaPost[] = [];
 
     listaEstudiantes.forEach(est => {
-      // Nota 1
       if (est.ev1Id && est.nota1 != null && est.nota1 > 0) {
         notasParaGuardar.push({
           notaId: est.nota1Id,
@@ -263,7 +261,6 @@ export class DocentePageComponent {
           valor: est.nota1
         });
       }
-      // Nota 2
       if (est.ev2Id && est.nota2 != null && est.nota2 > 0) {
         notasParaGuardar.push({
           notaId: est.nota2Id,
@@ -272,7 +269,6 @@ export class DocentePageComponent {
           valor: est.nota2
         });
       }
-      // Nota 3
       if (est.ev3Id && est.nota3 != null && est.nota3 > 0) {
         notasParaGuardar.push({
           notaId: est.nota3Id,
@@ -302,11 +298,7 @@ export class DocentePageComponent {
         this.mostrarEstudiantes.set(false);
       },
       error: (err) => {
-        console.error('Error al guardar masivamente:', err);
-        this.snackBar.open('Error al guardar. Verifica tu conexión.', 'Entendido', {
-          duration: 5000,
-          panelClass: ['error-snackbar']
-        });
+        showErrorSnack(this.snackBar, err);
         this.isLoadingEstudiantes.set(false);
       }
     });
@@ -315,7 +307,4 @@ export class DocentePageComponent {
   cancelarEdicion(): void {
     this.mostrarEstudiantes.set(false);
   }
-
-
-
 }

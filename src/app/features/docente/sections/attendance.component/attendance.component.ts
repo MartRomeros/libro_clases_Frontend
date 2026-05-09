@@ -8,18 +8,23 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { AttendanceQueries } from '../../data-access/docente.queries';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
 import { injectQuery } from '@tanstack/angular-query-experimental';
+
+import { AttendanceQueries } from '../../data-access/docente.queries';
+import { AttendanceMutations } from '../../data-access/docente.mutations';
 import { Alumno } from '../../models/alumno.response.model';
 import { AsistenciaPayload } from '../../models/asistencia.request.model';
-import { AttendanceMutations } from '../../data-access/docente.mutations';
-
+import { LoadingStateComponent } from '../../../../shared/components/loading-state/loading-state.component';
+import { ErrorStateComponent } from '../../../../shared/components/error-state/error-state.component';
+import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
+import { showErrorSnack } from '../../../../shared/http/error-snackbar';
 
 @Component({
   selector: 'app-confirm-dialog',
@@ -39,6 +44,7 @@ export class ConfirmDialogComponent { }
 
 @Component({
   selector: 'app-attendance-component',
+  standalone: true,
   imports: [
     MatButtonModule,
     MatCardModule,
@@ -48,21 +54,22 @@ export class ConfirmDialogComponent { }
     MatDatepickerModule,
     MatNativeDateModule,
     MatTableModule,
-    MatButtonModule,
     MatTabsModule,
     MatChipsModule,
     MatTooltipModule,
     MatSnackBarModule,
-    MatProgressSpinnerModule,
     MatDialogModule,
-    CommonModule
+    MatMenuModule,
+    MatDividerModule,
+    CommonModule,
+    LoadingStateComponent,
+    ErrorStateComponent,
+    EmptyStateComponent
   ],
   templateUrl: './attendance.component.html',
   styleUrl: './attendance.component.css',
 })
 export class AttendanceComponent {
-
-
 
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
@@ -80,12 +87,14 @@ export class AttendanceComponent {
   @Input() fecha: Date | null = null;
 
 
-  private alumnosQuery = injectQuery(() => {
+  alumnosQuery = injectQuery(() => {
     const cursoId = this.cursoIdSignal();
     const enabled = cursoId !== null && cursoId !== '';
 
     return this.attendanceQueries.alumnosCurso(Number(cursoId), enabled);
   })
+
+  alumnosError = computed(() => this.alumnosQuery.error());
 
   readonly registrarAsistencia = this.attendanceMutation.registrarAsistencia()
 
@@ -165,7 +174,6 @@ export class AttendanceComponent {
   private enviarAsistencia(): void {
     const isoDate = this.fecha ? this.fecha.toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
 
-    // Asumimos cad_id: 1 (según el spec), o si estuviéramos usando this.cursoId()
     const payload: AsistenciaPayload = {
       cad_id: Number(this.cursoIdSignal()),
       fecha: isoDate,
@@ -175,12 +183,8 @@ export class AttendanceComponent {
         tipo_asistencia: 'Presencial'
       }))
     };
-    this.registrarAsistencia.mutate(payload);
+    this.registrarAsistencia.mutate(payload, {
+      onError: (err) => showErrorSnack(this.snackBar, err)
+    });
   }
-
-
-
-
-
-
 }

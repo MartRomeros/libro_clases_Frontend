@@ -10,8 +10,14 @@
                 <mat-icon class="avatar-icon">person</mat-icon>
             </button>
             <div class="bienvenida-texto">
-                <h1 class="bienvenida-titulo">Bienvenido,
-                    {{loading() ? "cargando" : fullName()}}
+                <h1 class="bienvenida-titulo">
+                    @if(loading()){
+                        cargando...
+                    } @else if (error()) {
+                        Bienvenido
+                    } @else {
+                        Bienvenido, {{ fullName() }}
+                    }
                 </h1>
                 <p class="bienvenida-subtitulo">Panel de gestión docente — Colegio Bernardo O'Higgins</p>
                 <button mat-button class="perfil-link" (click)="navegarA('/perfil')">
@@ -81,14 +87,18 @@
 
         <mat-card class="cursos-card" appearance="outlined">
             <mat-card-content>
-                <!-- Loader -->
-                <div class="loading-cursos" [hidden]="!isLoadingCursos()">
-                    <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
-                    <p>Obteniendo cursos desde BackGestion...</p>
-                </div>
-
-                <!-- Tabla (Siempre en el DOM, pero oculta si carga o no hay datos) -->
-                <div class="table-container" [hidden]="isLoadingCursos() || dataSource.data.length === 0">
+                @if (isLoadingCursos()) {
+                  <app-loading-state message="Obteniendo cursos desde BackGestion..." />
+                } @else if (cursosLoadError()) {
+                  <app-error-state [error]="cursosLoadError()" (retry)="cargarCursos()" />
+                } @else if (dataSource.data.length === 0) {
+                  <app-empty-state 
+                    icon="event_busy" 
+                    title="No hay cursos asignados" 
+                    message="No se encontraron cursos asignados para este docente. Verifica tu configuración académica."
+                  />
+                } @else {
+                  <div class="table-container">
                     <table mat-table [dataSource]="dataSource" class="tabla-premium">
 
                         <!-- Columna Curso -->
@@ -125,14 +135,8 @@
                         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
                         <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
                     </table>
-                </div>
-
-                <!-- Mensaje de no datos -->
-                <div class="no-cursos" [hidden]="isLoadingCursos() || dataSource.data.length > 0">
-                    <mat-icon>event_busy</mat-icon>
-                    <p>No se encontraron cursos asignados para este docente</p>
-                    <p class="debug-hint">Verifica que este ID sea el correcto en la base de datos de docentes.</p>
-                </div>
+                  </div>
+                }
             </mat-card-content>
         </mat-card>
     </section>
@@ -153,10 +157,15 @@
         <mat-card class="estudiantes-card" appearance="outlined">
             <mat-card-content>
                 @if (isLoadingEstudiantes()) {
-                <div class="loading-cursos">
-                    <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
-                    <p>Obteniendo lista de estudiantes...</p>
-                </div>
+                  <app-loading-state message="Obteniendo lista de estudiantes..." />
+                } @else if (estudiantesLoadError()) {
+                  <app-error-state [error]="estudiantesLoadError()" />
+                } @else if (estudiantesDataSource.data.length === 0) {
+                  <app-empty-state 
+                    icon="group_off" 
+                    title="No hay alumnos" 
+                    message="Este curso aún no tiene alumnos asignados."
+                  />
                 } @else {
                 <div class="table-container">
                     <table mat-table [dataSource]="estudiantesDataSource" class="tabla-premium">

@@ -1,29 +1,8 @@
-.toolbar {
-  display: flex;
-  align-items: center;
-  padding: 0 16px;
-  background-color: #f8fafc;
-  color: #1e293b;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.toolbar-icon {
-  margin: 0 12px;
-}
-
-.toolbar-title {
-  font-size: 20px;
-  font-weight: 500;
-}
-
-.spacer {
-  flex: 1 1 auto;
-}
-
+/* ... existing content ... */
 .admin-container {
   padding: 24px;
-  max-width: 1400px;
-  margin: 0 auto;
+  background-color: #f8fafc;
+  min-height: calc(100vh - 64px);
 }
 
 .tab-icon {
@@ -31,13 +10,19 @@
 }
 
 .tab-content {
-  padding-top: 24px;
+  padding: 24px 0;
 }
 
 .split-layout {
   display: grid;
   grid-template-columns: 350px 1fr;
   gap: 24px;
+  align-items: start;
+}
+
+.form-card {
+  position: sticky;
+  top: 24px;
 }
 
 .user-form {
@@ -47,12 +32,9 @@
 }
 
 .row {
-  display: flex;
-  gap: 12px;
-}
-
-.row mat-form-field {
-  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
 }
 
 .form-actions {
@@ -62,78 +44,31 @@
   margin-top: 16px;
 }
 
-.table-card {
-  overflow: hidden;
-}
-
 .user-table {
   width: 100%;
 }
 
 .role-badge {
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
 }
 
-.role-1 { background-color: #fef3c7; color: #92400e; } /* Admin */
-.role-2 { background-color: #dcfce7; color: #166534; } /* Docente */
-.role-3 { background-color: #dbeafe; color: #1e40af; } /* Estudiante */
+.role-1 { background-color: #fee2e2; color: #991b1b; }
+.role-2 { background-color: #e0f2fe; color: #075985; }
+.role-3 { background-color: #f0fdf4; color: #166534; }
 
 .actions-cell {
   text-align: right;
+  white-space: nowrap;
 }
 
-.eval-search-bar {
-  max-width: 500px;
-  margin-bottom: 24px;
-}
-
-.fade-in {
-  animation: fadeIn 0.4s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@media (max-width: 1024px) {
-  .split-layout {
-    grid-template-columns: 1fr;
-  }
-}
-
-.w-100 {
-  width: 100%;
-}
-
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 48px;
-  color: #64748b;
-}
-
-.empty-state mat-icon {
-  font-size: 48px;
-  width: 48px;
-  height: 48px;
-  margin-bottom: 16px;
-}
-
+/* Gestión Académica */
 .academic-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 24px;
-}
-
-.academic-section {
-  background: white;
 }
 
 .academic-section.large {
@@ -143,19 +78,14 @@
 .mini-form {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-bottom: 24px;
+  gap: 8px;
+  margin-bottom: 16px;
 }
 
 .mini-form.horizontal {
   flex-direction: row;
-  align-items: center;
-}
-
-.academic-list {
-  max-height: 250px;
-  overflow-y: auto;
-  margin-top: 16px;
+  align-items: baseline;
+  flex-wrap: wrap;
 }
 
 .item-row {
@@ -163,62 +93,55 @@
   justify-content: space-between;
   align-items: center;
   padding: 8px 12px;
-  border-bottom: 1px solid #f1f5f9;
+  border-radius: 8px;
+  transition: background-color 0.2s;
 }
 
-.item-row:last-child {
-  border-bottom: none;
-}
-
-.item-row span {
-  font-size: 14px;
-  color: #334155;
+.item-row:hover {
+  background-color: #f1f5f9;
 }
 
 .assignment-table {
   border-collapse: collapse;
-  margin-top: 12px;
 }
 
 .assignment-table th {
   text-align: left;
   padding: 12px;
-  background: #f8fafc;
-  font-size: 13px;
+  border-bottom: 2px solid #e2e8f0;
   color: #64748b;
+  font-size: 13px;
   text-transform: uppercase;
-  letter-spacing: 0.025em;
 }
 
 .assignment-table td {
   padding: 8px 12px;
   border-bottom: 1px solid #f1f5f9;
-  font-size: 14px;
 }
 
 .current-course {
-  background: #f1f5f9;
-  padding: 4px 8px;
-  border-radius: 4px;
   font-weight: 500;
-  color: #475569;
+  color: #0f172a;
 }
 
 .mini-select {
-  width: 100%;
-  max-width: 200px;
+  width: 150px;
 }
 
-.mini-select ::ng-deep .mat-mdc-text-field-wrapper {
-  height: 48px !important;
+/* Evaluaciones */
+.eval-search-bar {
+  margin-bottom: 24px;
 }
+
+.w-100 { width: 100%; }
 
 .loading-shade {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  padding: 40px;
   gap: 12px;
-  padding: 24px;
   color: #64748b;
 }
 
@@ -232,16 +155,9 @@
 }
 
 .error-message {
+  padding: 16px;
+  color: #ef4444;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 24px;
-  color: #ef4444;
-}
-
-.user-profile-text {
-  font-size: 14px;
-  color: #64748b;
-  margin-right: 16px;
+  gap: 8px;
 }

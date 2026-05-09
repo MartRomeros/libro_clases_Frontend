@@ -1,203 +1,206 @@
-<app-navbar/>
+<app-navbar />
 
 <div class="profile-page">
 
   <!-- Loading -->
   @if (loading()) {
-    <div class="profile-loading">
-      <mat-spinner diameter="56" />
-      <p>Cargando perfil…</p>
-    </div>
+    <app-loading-state message="Cargando perfil..." [diameter]="56" />
   }
 
-  <!-- Content -->
-  @if (!loading() && profile(); as p) {
-    <div class="profile-container">
+  <!-- Error -->
+  @if (profileQuery.isError()) {
+    <app-error-state 
+      [error]="error()" 
+      title="Error al cargar perfil"
+      (retry)="profileQuery.refetch()"
+    />
+  }
 
-      <!-- Header hero -->
-      <div class="profile-hero">
-        <div class="profile-avatar">
-          <span class="avatar-initials">{{ initials() }}</span>
-          <div class="avatar-status" [class.active]="p.activo" [class.inactive]="!p.activo"></div>
-        </div>
+  @if (!loading() && !profileQuery.isError() && user(); as p) {
+  <div class="profile-container">
 
-        <div class="hero-info">
-          <h1 class="hero-name">{{ fullName() }}</h1>
-          <mat-chip-set class="hero-chips">
-            <mat-chip [color]="rolColor()" selected>
-              <mat-icon matChipAvatar>{{ rolIcon() }}</mat-icon>
-              {{ p.rol.nombre }}
-            </mat-chip>
-            <mat-chip [class.chip-active]="p.activo" [class.chip-inactive]="!p.activo">
-              <mat-icon matChipAvatar>{{ p.activo ? 'check_circle' : 'cancel' }}</mat-icon>
-              {{ p.activo ? 'Cuenta activa' : 'Cuenta inactiva' }}
-            </mat-chip>
-          </mat-chip-set>
-        </div>
-
-        <button mat-icon-button
-          class="back-btn"
-          matTooltip="Volver al inicio"
-          (click)="volver()">
-          <mat-icon>arrow_back</mat-icon>
-        </button>
+    <!-- Header hero -->
+    <div class="profile-hero">
+      <div class="profile-avatar">
+        <span class="avatar-initials">{{ initials() }}</span>
+        <div class="avatar-status" [class.active]="p.activo" [class.inactive]="!p.activo"></div>
       </div>
 
-      <mat-divider />
+      <div class="hero-info">
+        <h1 class="hero-name">{{ fullName() }}</h1>
+        <mat-chip-set class="hero-chips">
+          <mat-chip [color]="rolColor()" selected>
+            <mat-icon matChipAvatar>{{ rolIcon() }}</mat-icon>
+            {{ p.rol.nombre }}
+          </mat-chip>
+          <mat-chip [class.chip-active]="p.activo" [class.chip-inactive]="!p.activo">
+            <mat-icon matChipAvatar>{{ p.activo ? 'check_circle' : 'cancel' }}</mat-icon>
+            {{ p.activo ? 'Cuenta activa' : 'Cuenta inactiva' }}
+          </mat-chip>
+        </mat-chip-set>
+      </div>
 
-      <!-- Data grid -->
-      <div class="profile-grid">
+      <button mat-icon-button class="back-btn" matTooltip="Volver al inicio" (click)="volver()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+    </div>
 
-        <!-- Personal data card -->
-        <mat-card class="data-card">
-          <mat-card-header>
-            <mat-icon mat-card-avatar class="card-icon">badge</mat-icon>
-            <mat-card-title>Datos Personales</mat-card-title>
-            <mat-card-subtitle>Información de identificación</mat-card-subtitle>
-          </mat-card-header>
-          <mat-card-content>
-            <ul class="data-list">
-              <li class="data-item">
-                <span class="data-label">
-                  <mat-icon class="label-icon">fingerprint</mat-icon>RUT
-                </span>
-                <span class="data-value">{{ p.rut }}</span>
-              </li>
-              <li class="data-item">
-                <span class="data-label">
-                  <mat-icon class="label-icon">person</mat-icon>Nombre
-                </span>
-                <span class="data-value">{{ p.nombre }}</span>
-              </li>
-              <li class="data-item">
-                <span class="data-label">
-                  <mat-icon class="label-icon">family_restroom</mat-icon>Apellido paterno
-                </span>
-                <span class="data-value">{{ p.apellido_paterno }}</span>
-              </li>
-              @if (p.apellido_materno) {
-                <li class="data-item">
-                  <span class="data-label">
-                    <mat-icon class="label-icon">family_restroom</mat-icon>Apellido materno
-                  </span>
-                  <span class="data-value">{{ p.apellido_materno }}</span>
-                </li>
-              }
-            </ul>
-          </mat-card-content>
-        </mat-card>
+    <mat-divider />
 
-        <!-- Contact card -->
-        <mat-card class="data-card">
-          <mat-card-header>
-            <mat-icon mat-card-avatar class="card-icon">contact_mail</mat-icon>
-            <mat-card-title>Contacto</mat-card-title>
-            <mat-card-subtitle>Datos de comunicación</mat-card-subtitle>
-          </mat-card-header>
-          <mat-card-content>
-            <ul class="data-list">
-              <li class="data-item">
-                <span class="data-label">
-                  <mat-icon class="label-icon">email</mat-icon>Correo electrónico
-                </span>
-                <span class="data-value email-value">{{ p.email }}</span>
-              </li>
-              <li class="data-item">
-                <span class="data-label">
-                  <mat-icon class="label-icon">lock</mat-icon>Contraseña
-                </span>
-                <span class="data-value password-placeholder">••••••••••</span>
-              </li>
-            </ul>
-          </mat-card-content>
-        </mat-card>
+    <!-- Data grid -->
+    <div class="profile-grid">
 
-        <!-- Datos específicos por rol -->
-        @if (p.datosEspecificos) {
-          @switch (p.datosEspecificos.tipo) {
-
-            @case ('docente') {
-              <mat-card class="data-card role-card">
-                <mat-card-header>
-                  <mat-icon mat-card-avatar class="card-icon role-icon-docente">school</mat-icon>
-                  <mat-card-title>Información Docente</mat-card-title>
-                  <mat-card-subtitle>Datos académicos del docente</mat-card-subtitle>
-                </mat-card-header>
-                <mat-card-content>
-                  <ul class="data-list">
-                    <li class="data-item">
-                      <span class="data-label">
-                        <mat-icon class="label-icon">psychology</mat-icon>Especialidad
-                      </span>
-                      <span class="data-value">{{ asDocente(p.datosEspecificos).especialidad ?? 'Sin especificar' }}</span>
-                    </li>
-                  </ul>
-                </mat-card-content>
-              </mat-card>
-            }
-
-            @case ('estudiante') {
-              <mat-card class="data-card role-card">
-                <mat-card-header>
-                  <mat-icon mat-card-avatar class="card-icon role-icon-estudiante">menu_book</mat-icon>
-                  <mat-card-title>Información Académica</mat-card-title>
-                  <mat-card-subtitle>Datos del estudiante</mat-card-subtitle>
-                </mat-card-header>
-                <mat-card-content>
-                  @if (asEstudiante(p.datosEspecificos).curso; as curso) {
-                    <ul class="data-list">
-                      <li class="data-item">
-                        <span class="data-label">
-                          <mat-icon class="label-icon">class</mat-icon>Nivel
-                        </span>
-                        <span class="data-value">{{ curso.nivel }}</span>
-                      </li>
-                      <li class="data-item">
-                        <span class="data-label">
-                          <mat-icon class="label-icon">abc</mat-icon>Letra
-                        </span>
-                        <span class="data-value">{{ curso.letra }}</span>
-                      </li>
-                      <li class="data-item">
-                        <span class="data-label">
-                          <mat-icon class="label-icon">calendar_today</mat-icon>Año académico
-                        </span>
-                        <span class="data-value">{{ curso.anio_academico }}</span>
-                      </li>
-                    </ul>
-                  } @else {
-                    <p class="no-data">Sin curso asignado</p>
-                  }
-                </mat-card-content>
-              </mat-card>
-            }
-
-          }
-        }
-
-      </div><!-- /profile-grid -->
-
-      <!-- System info -->
-      <mat-card class="system-card">
+      <!-- Personal data card -->
+      <mat-card class="data-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="card-icon">badge</mat-icon>
+          <mat-card-title>Datos Personales</mat-card-title>
+          <mat-card-subtitle>Información de identificación</mat-card-subtitle>
+        </mat-card-header>
         <mat-card-content>
-          <div class="system-info">
-            <span class="system-item">
-              <mat-icon class="sys-icon">tag</mat-icon>
-              ID de usuario: <strong>#{{ p.usuario_id }}</strong>
-            </span>
-            <span class="system-item">
-              <mat-icon class="sys-icon">manage_accounts</mat-icon>
-              Rol: <strong>{{ p.rol.nombre }}</strong>
-            </span>
-            <span class="system-item" [class.active-badge]="p.activo" [class.inactive-badge]="!p.activo">
-              <mat-icon class="sys-icon">{{ p.activo ? 'verified_user' : 'gpp_bad' }}</mat-icon>
-              Estado: <strong>{{ p.activo ? 'Activo' : 'Inactivo' }}</strong>
-            </span>
-          </div>
+          <ul class="data-list">
+            <li class="data-item">
+              <span class="data-label">
+                <mat-icon class="label-icon">fingerprint</mat-icon>RUT
+              </span>
+              <span class="data-value">{{ p.rut }}</span>
+            </li>
+            <li class="data-item">
+              <span class="data-label">
+                <mat-icon class="label-icon">person</mat-icon>Nombre
+              </span>
+              <span class="data-value">{{ p.nombre }}</span>
+            </li>
+            <li class="data-item">
+              <span class="data-label">
+                <mat-icon class="label-icon">family_restroom</mat-icon>Apellido paterno
+              </span>
+              <span class="data-value">{{ p.apellido_paterno }}</span>
+            </li>
+            @if (p.apellido_materno) {
+            <li class="data-item">
+              <span class="data-label">
+                <mat-icon class="label-icon">family_restroom</mat-icon>Apellido materno
+              </span>
+              <span class="data-value">{{ p.apellido_materno }}</span>
+            </li>
+            }
+          </ul>
         </mat-card-content>
       </mat-card>
 
-    </div><!-- /profile-container -->
+      <!-- Contact card -->
+      <mat-card class="data-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="card-icon">contact_mail</mat-icon>
+          <mat-card-title>Contacto</mat-card-title>
+          <mat-card-subtitle>Datos de comunicación</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <ul class="data-list">
+            <li class="data-item">
+              <span class="data-label">
+                <mat-icon class="label-icon">email</mat-icon>Correo electrónico
+              </span>
+              <span class="data-value email-value">{{ p.email }}</span>
+            </li>
+            <li class="data-item">
+              <span class="data-label">
+                <mat-icon class="label-icon">lock</mat-icon>Contraseña
+              </span>
+              <span class="data-value password-placeholder">••••••••••</span>
+            </li>
+          </ul>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Datos específicos por rol -->
+      @if (p.datosEspecificos) {
+      @switch (p.datosEspecificos.tipo) {
+
+      @case ('docente') {
+      <mat-card class="data-card role-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="card-icon role-icon-docente">school</mat-icon>
+          <mat-card-title>Información Docente</mat-card-title>
+          <mat-card-subtitle>Datos académicos del docente</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <ul class="data-list">
+            <li class="data-item">
+              <span class="data-label">
+                <mat-icon class="label-icon">psychology</mat-icon>Especialidad
+              </span>
+              <span class="data-value">{{ asDocente(p.datosEspecificos).especialidad ?? 'Sin especificar' }}</span>
+            </li>
+          </ul>
+        </mat-card-content>
+      </mat-card>
+      }
+
+      @case ('estudiante') {
+      <mat-card class="data-card role-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="card-icon role-icon-estudiante">menu_book</mat-icon>
+          <mat-card-title>Información Académica</mat-card-title>
+          <mat-card-subtitle>Datos del estudiante</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          @if (asEstudiante(p.datosEspecificos).curso; as curso) {
+          <ul class="data-list">
+            <li class="data-item">
+              <span class="data-label">
+                <mat-icon class="label-icon">class</mat-icon>Nivel
+              </span>
+              <span class="data-value">{{ curso.nivel }}</span>
+            </li>
+            <li class="data-item">
+              <span class="data-label">
+                <mat-icon class="label-icon">abc</mat-icon>Letra
+              </span>
+              <span class="data-value">{{ curso.letra }}</span>
+            </li>
+            <li class="data-item">
+              <span class="data-label">
+                <mat-icon class="label-icon">calendar_today</mat-icon>Año académico
+              </span>
+              <span class="data-value">{{ curso.anio_academico }}</span>
+            </li>
+          </ul>
+          } @else {
+          <p class="no-data">Sin curso asignado</p>
+          }
+        </mat-card-content>
+      </mat-card>
+      }
+
+      }
+      }
+
+    </div><!-- /profile-grid -->
+
+    <!-- System info -->
+    <mat-card class="system-card">
+      <mat-card-content>
+        <div class="system-info">
+          <span class="system-item">
+            <mat-icon class="sys-icon">tag</mat-icon>
+            ID de usuario: <strong>#{{ p.usuario_id }}</strong>
+          </span>
+          <span class="system-item">
+            <mat-icon class="sys-icon">manage_accounts</mat-icon>
+            Rol: <strong>{{ p.rol.nombre }}</strong>
+          </span>
+          <span class="system-item" [class.active-badge]="p.activo" [class.inactive-badge]="!p.activo">
+            <mat-icon class="sys-icon">{{ p.activo ? 'verified_user' : 'gpp_bad' }}</mat-icon>
+            Estado: <strong>{{ p.activo ? 'Activo' : 'Inactivo' }}</strong>
+          </span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+  </div><!-- /profile-container -->
   }
+
 
 </div>

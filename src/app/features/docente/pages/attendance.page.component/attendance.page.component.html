@@ -8,16 +8,19 @@
 </div>
 
 <div class="asistencia-container">
+    @if (cursosQuery.isPending()) {
+        <app-loading-state message="Cargando cursos..." />
+    } @else if (cursosQuery.isError()) {
+        <app-error-state [error]="cursosQuery.error()" (retry)="cursosQuery.refetch()" />
+    } @else {
     <!-- Filtros de curso y fecha -->
     <mat-card class="filtros-card" appearance="outlined">
         <mat-card-content class="filtros-content">
             <mat-form-field appearance="outline" class="filtro-field">
                 <mat-label>Curso</mat-label>
-                <mat-select [value]="cursoSeleccionado()" (valueChange)="cursoSeleccionado.set($event)">
-                    <mat-option [value]="''">Seleccione un curso</mat-option>
-                    @for (curso of cursosDisponibles()?.data; track curso.curso_id) {
-                    <mat-option [value]="curso.curso_id">{{ curso.nivel }} {{ curso.letra }} - {{
-                        curso.asignatura_nombre }}</mat-option>
+                <mat-select [value]="cursoSeleccionado()" (selectionChange)="cursoSeleccionado.set($event.value)">
+                    @for (curso of cursos(); track curso.curso_id) {
+                        <mat-option [value]="curso.cad_id">{{ curso.nivel }} {{ curso.letra }}</mat-option>
                     }
                 </mat-select>
                 <mat-icon matPrefix>class</mat-icon>
@@ -25,25 +28,23 @@
 
             <mat-form-field appearance="outline" class="filtro-field">
                 <mat-label>Fecha</mat-label>
-                <input matInput [matDatepicker]="picker" [value]="fechaSeleccionada()"
-                    [matDatepickerFilter]="dateFilter" (dateChange)="fechaSeleccionada.set($event.value!)">
+                <input matInput [matDatepicker]="picker" [value]="fechaSeleccionada()" (dateChange)="fechaSeleccionada.set($event.value)">
                 <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
                 <mat-datepicker #picker></mat-datepicker>
+                <mat-icon matPrefix>calendar_today</mat-icon>
             </mat-form-field>
         </mat-card-content>
     </mat-card>
 
-    <mat-tab-group animationDuration="300ms" class="tabs-group">
+    <!-- Tabs para alternar entre Asistencia y Conducta -->
+    <mat-tab-group class="asistencia-tabs" animationDuration="500ms">
         <mat-tab>
             <ng-template mat-tab-label>
-                <mat-icon class="tab-icon">how_to_reg</mat-icon>
+                <mat-icon class="tab-icon">check_circle</mat-icon>
                 Asistencia
             </ng-template>
-            <app-attendance-component
-                [cursoId]="cursoSeleccionado()"
-                [fecha]="fechaSeleccionada()"
-            />
-            
+            <app-attendance-component [cursoId]="cursoSeleccionado()" 
+                [fecha]="fechaSeleccionada()" />
         </mat-tab>
 
         <mat-tab>
@@ -56,5 +57,5 @@
             
         </mat-tab>
     </mat-tab-group>
-
+    }
 </div>

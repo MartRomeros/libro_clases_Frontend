@@ -2,7 +2,6 @@ import { Component, inject, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -12,6 +11,9 @@ import { injectQuery } from '@tanstack/angular-query-experimental';
 import { Navbar } from '../../../../layout/navbar/navbar';
 import { AuthQueries } from '../../../auth/data-access/auth.queries';
 import { EstudianteQueries } from '../../data-access/estudiante.queries';
+import { LoadingStateComponent } from '../../../../shared/components/loading-state/loading-state.component';
+import { ErrorStateComponent } from '../../../../shared/components/error-state/error-state.component';
+import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
 
 @Component({
   selector: 'app-grades-page',
@@ -20,11 +22,13 @@ import { EstudianteQueries } from '../../data-access/estudiante.queries';
     CommonModule,
     Navbar,
     MatCardModule,
-    MatProgressSpinnerModule,
     MatDividerModule,
     MatIconModule,
     MatTableModule,
-    MatButtonModule
+    MatButtonModule,
+    LoadingStateComponent,
+    ErrorStateComponent,
+    EmptyStateComponent
    ],
   templateUrl: './grades.page.component.html',
   styleUrl: './grades.page.component.css',
@@ -46,6 +50,9 @@ export class GradesPageComponent {
     this.profileQuery.isPending() || 
     (!!this.estudianteId() && this.notasQuery.isPending())
   );
+
+  isError = computed(() => this.profileQuery.isError() || this.notasQuery.isError());
+  error = computed(() => this.profileQuery.error() || this.notasQuery.error());
   
   dataSource = new MatTableDataSource<any>([]);
   displayedColumns: string[] = ['asignatura', 'nota1', 'nota2', 'nota3', 'promedio'];

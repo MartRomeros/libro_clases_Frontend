@@ -1,0 +1,22 @@
+<div class="no-access-shell">
+  <mat-card class="no-access-card">
+    <div class="badge">
+      <mat-icon>block</mat-icon>
+      <span>Acceso restringido</span>
+    </div>
+
+    <h1>No tienes acceso a esta vista</h1>
+    <p>
+      Tu rol no tiene permisos para abrir esta sección. Serás redirigido en
+      {{ countdown() }} segundos.
+    </p>
+
+    <div class="actions">
+      <button mat-flat-button color="primary" (click)="volver()">
+        <mat-icon>arrow_back</mat-icon>
+        Volver ahora
+      </button>
+      <span class="hint">Destino: {{ returnUrl() || fallbackUrl() }}</span>
+    </div>
+  </mat-card>
+</div>

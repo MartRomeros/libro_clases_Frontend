@@ -8,12 +8,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatListModule } from '@angular/material/list';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -24,6 +24,10 @@ import { AuthQueries } from '../../../auth/data-access/auth.queries';
 import { EvaluationsQueries } from '../../data-access/evaluations.queries';
 import { EvaluationsMutations } from '../../data-access/evaluations.mutations';
 import { DocenteCurso, Evaluacion, EstudianteCurso, NotaPost } from '../../models/evaluations.model';
+import { LoadingStateComponent } from '../../../../shared/components/loading-state/loading-state.component';
+import { ErrorStateComponent } from '../../../../shared/components/error-state/error-state.component';
+import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
+import { showErrorSnack } from '../../../../shared/http/error-snackbar';
 
 @Component({
   selector: 'app-evaluations-page',
@@ -38,15 +42,18 @@ import { DocenteCurso, Evaluacion, EstudianteCurso, NotaPost } from '../../model
     MatInputModule,
     MatSelectModule,
     MatSnackBarModule,
-    MatProgressSpinnerModule,
     MatDividerModule,
     MatDatepickerModule,
     MatNativeDateModule,
     MatListModule,
     MatToolbarModule,
+    MatTooltipModule,
     FormsModule,
     ReactiveFormsModule,
-    Navbar
+    Navbar,
+    LoadingStateComponent,
+    ErrorStateComponent,
+    EmptyStateComponent
   ],
   templateUrl: './evaluations.page.component.html',
   styleUrl: './evaluations.page.component.css'
@@ -125,8 +132,7 @@ export class EvaluationsPageComponent {
       this.mostrarFormNuevaEv.set(false);
     },
     onError: (err) => {
-      console.error('Error al crear evaluación:', err);
-      this.snackBar.open('Error al crear evaluación', 'Cerrar', { duration: 3000 });
+      showErrorSnack(this.snackBar, err);
     }
   }));
 
@@ -141,13 +147,11 @@ export class EvaluationsPageComponent {
         verticalPosition: 'top'
       });
       this.mostrarEstudiantes.set(false);
+      this.isLoadingEstudiantes.set(false);
     },
     onError: (err) => {
-      console.error('Error al guardar masivamente:', err);
-      this.snackBar.open('Error al guardar. Verifica tu conexión.', 'Entendido', {
-        duration: 5000,
-        panelClass: ['error-snackbar']
-      });
+      showErrorSnack(this.snackBar, err);
+      this.isLoadingEstudiantes.set(false);
     }
   }));
 
@@ -217,7 +221,7 @@ export class EvaluationsPageComponent {
     if (rol.includes('admin')) this.router.navigate(['/admin']);
     else if (rol.includes('docente')) this.router.navigate(['/docente']);
     else if (rol.includes('estudiante')) this.router.navigate(['/estudiante']);
-    else this.router.navigate(['/login']);
+    else this.router.navigate(['/auth/login']);
   }
 
   // Construir la matriz de datos combinando estudiantes, evaluaciones y notas

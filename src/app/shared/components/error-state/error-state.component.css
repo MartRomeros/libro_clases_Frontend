@@ -1,0 +1,38 @@
+.error-state-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+  text-align: center;
+  width: 100%;
+  min-height: 200px;
+}
+
+.error-state-content {
+  max-width: 400px;
+}
+
+.error-state-icon {
+  font-size: 64px;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 16px;
+}
+
+.error-state-title {
+  margin: 0 0 8px 0;
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #c62828;
+}
+
+.error-state-message {
+  margin: 0 0 24px 0;
+  color: #757575;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.error-state-retry {
+  margin-top: 8px;
+}
