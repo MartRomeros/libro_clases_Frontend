@@ -6,6 +6,6 @@
 - [x] Cambiar navegación de logout inconsistente: actualmente unas partes usan /login y otras /auth.
 - [x] Evitar JSON.parse(localStorage.getItem('user') || ""); usar parse seguro o el AuthStore.
 - [ ] Eliminar any en APIs y componentes críticos; crear DTOs para requests/responses.
-- [ ] Agregar manejo uniforme de errores HTTP y estados vacíos en todas las features.
+- [x] Agregar manejo uniforme de errores HTTP y estados vacíos en todas las features.
 - [ ] Agregar interceptores para errores 401/403 globales, no solo header de autorización.
 - [x] Agregar pipeline CI con build.
