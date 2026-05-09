@@ -7,6 +7,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { injectQuery } from '@tanstack/angular-query-experimental';
 
 import { Navbar } from '../../../../layout/navbar/navbar';
+import { AuthStore } from '../../../auth/data-access/auth.store';
 import { AuthQueries } from '../../../auth/data-access/auth.queries';
 
 interface OpcionEstudiante {
@@ -27,14 +28,17 @@ interface OpcionEstudiante {
 })
 export class EstudianteHomePageComponent {
   private readonly router = inject(Router);
+  private readonly authStore = inject(AuthStore);
   private readonly authQueries = inject(AuthQueries);
 
   profileQuery = injectQuery(() => this.authQueries.me());
-  profile = computed(() => this.profileQuery.data());
+  profile = computed(() => this.profileQuery.data() || this.authStore.currentUser());
 
-  docenteNombre = computed(() => {
+  fullName = computed(() => {
     const p = this.profile();
-    return p ? `${p.nombre} ${p.apellido_paterno}` : 'Estudiante';
+    if (!p) return 'Estudiante';
+    const parts = [p.nombre, p.apellido_paterno, p.apellido_materno].filter(Boolean);
+    return parts.join(' ');
   });
 
   opciones: OpcionEstudiante[] = [
@@ -66,6 +70,13 @@ export class EstudianteHomePageComponent {
       ruta: '/estudiante/noticias',
       color: 'accent',
       badge: 2,
+    },
+    {
+      titulo: 'Mensajería',
+      descripcion: 'Comunícate con tus profesores y personal del colegio.',
+      icono: 'forum',
+      ruta: '/comunicaciones',
+      color: 'primary',
     },
   ];
 

@@ -4,6 +4,7 @@ export const environment = {
   apiAttendanceConductUrl: 'http://localhost:3001/api', //MS de asistencia y conducta
   backGestionUrl: 'http://localhost:8080/api',// MS Gestion academica
   msAuthUrl: 'http://localhost:3000/api',
+  msMensajeriaUrl: 'http://localhost:3001/api/mensajes',
   /** ⚠️ SOLO DESARROLLO: omite el login e inyecta un estudiante de prueba */
   bypassLogin: false,
   mockUser: {

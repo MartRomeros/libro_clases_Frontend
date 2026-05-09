@@ -22,7 +22,8 @@ export class AuthMutations {
                         this.router.navigate(["admin"])
                         break
                     case "Alumno":
-                        this.router.navigate(["alumno"])
+                    case "Estudiante":
+                        this.router.navigate(["estudiante"])
                         break
                     case "Docente":
                         this.router.navigate(["docente"])

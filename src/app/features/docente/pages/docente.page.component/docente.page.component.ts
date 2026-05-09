@@ -46,7 +46,7 @@ export class DocentePageComponent {
   private readonly snackBar = inject(MatSnackBar)
   private queryProfile = injectQuery(() => this.authQueries.me())
 
-  profile = computed(() => this.queryProfile.data())
+  profile = computed(() => this.queryProfile.data() || this.authStore.currentUser())
 
   loading = computed(() => this.queryProfile.isPending())
 
@@ -95,7 +95,7 @@ export class DocentePageComponent {
       titulo: 'Mensajería',
       descripcion: 'Comunícate con apoderados, estudiantes y personal del colegio.',
       icono: 'forum',
-      ruta: '/docente/mensajes',
+      ruta: '/comunicaciones',
       color: 'accent',
       badge: 3,
     },

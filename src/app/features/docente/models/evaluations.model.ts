@@ -16,6 +16,7 @@ export interface EstudianteCurso {
   estudianteFullName: string;
   docenteACargo: string;
   estudianteId: number;
+  email: string;
   ev1?: string;
   ev1Id?: number;
   nota1?: number;

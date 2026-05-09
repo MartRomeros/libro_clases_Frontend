@@ -26,14 +26,8 @@ export class Navbar {
   private router = inject(Router);
   authStore = inject(AuthStore)
 
-  user:User = JSON.parse(localStorage.getItem('user') || "")
-
   profileQuery = injectQuery(() => this.authService.profileOptions());
-
-  docenteNombre = computed(() => {
-    const p = this.profileQuery.data();
-    return p ? `${p.nombre} ${p.apellido_paterno}` : 'Docente';
-  });
+  currentUser = computed(() => this.authStore.currentUser() || this.profileQuery.data());
 
   navegarA(ruta: string): void {
     this.router.navigate([ruta]);

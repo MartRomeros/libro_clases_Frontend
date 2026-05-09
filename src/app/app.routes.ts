@@ -27,6 +27,11 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'comunicaciones',
+    loadChildren: () => import('./features/comunicaciones/comunicaciones.routes').then(m => m.COMUNICACIONES_ROUTES),
+    canActivate: [authGuard]
+  },
+  {
     path: 'perfil',
     loadComponent: () => import('./shared/components/user-profile/user-profile').then(m => m.UserProfileComponent)
   }
