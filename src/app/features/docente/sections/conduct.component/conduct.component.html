@@ -1,8 +1,10 @@
 @if (cursoId && cursoId !== '') {
-    @if (alumnosQuery.isPending()) {
-        <app-loading-state message="Cargando alumnos..." />
+    @if (isLoading()) {
+        <app-loading-state message="Cargando datos..." />
     } @else if (alumnosQuery.isError()) {
         <app-error-state [error]="alumnosError()" (retry)="alumnosQuery.refetch()" />
+    } @else if (anotacionesQuery.isError()) {
+        <app-error-state [error]="anotacionesError()" (retry)="anotacionesQuery.refetch()" />
     } @else {
 <div class="conducta-layout">
     <!-- Formulario nueva anotación -->
@@ -66,9 +68,9 @@
                 </mat-form-field>
 
                 <div class="form-actions">
-                    <button mat-flat-button color="primary" type="submit" [disabled]="anotacionForm.invalid">
+                    <button mat-flat-button color="primary" type="submit" [disabled]="anotacionForm.invalid || registrarAnotacionMutation.isPending()">
                         <mat-icon>save</mat-icon>
-                        Registrar Anotación
+                        {{ registrarAnotacionMutation.isPending() ? 'Guardando...' : 'Registrar Anotación' }}
                     </button>
                 </div>
             </form>

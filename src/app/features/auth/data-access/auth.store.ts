@@ -1,7 +1,6 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { QueryClient } from '@tanstack/angular-query-experimental';
 import { User } from '../models/profile.response.model';
-import { authKeys } from './auth.keys';
 
 @Injectable({
   providedIn: 'root',
@@ -21,7 +20,7 @@ export class AuthStore {
 
   clearSession(): void {
     localStorage.clear();
-    this.queryClient.removeQueries({ queryKey: authKeys.all });
+    this.queryClient.clear();
     this.token.set(null);
   }
 }

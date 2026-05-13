@@ -28,7 +28,7 @@
 
             <mat-form-field appearance="outline" class="filtro-field">
                 <mat-label>Fecha</mat-label>
-                <input matInput [matDatepicker]="picker" [value]="fechaSeleccionada()" (dateChange)="fechaSeleccionada.set($event.value)">
+                <input matInput placeholder="dd/mm/yyyy" [matDatepicker]="picker" [matDatepickerFilter]="dateFilter" [value]="fechaSeleccionada()" (dateChange)="onDateChange($event.value)">
                 <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
                 <mat-datepicker #picker></mat-datepicker>
                 <mat-icon matPrefix>calendar_today</mat-icon>

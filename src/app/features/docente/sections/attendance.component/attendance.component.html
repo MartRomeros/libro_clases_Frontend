@@ -33,13 +33,13 @@
         <mat-card-subtitle>Marque la asistencia para hoy</mat-card-subtitle>
 
         <div class="marcar-todos-btn">
-            <button mat-button [matMenuTriggerFor]="menuTodos" color="primary">
+            <button mat-button [matMenuTriggerFor]="menuTodos" color="primary" class="btn-marcar-todos">
                 <mat-icon>done_all</mat-icon>
                 Marcar todos como...
             </button>
             <mat-menu #menuTodos="matMenu">
-                <button mat-menu-item (click)="marcarTodos('Presente')">Presente</button>
-                <button mat-menu-item (click)="marcarTodos('Ausente')">Ausente</button>
+                <button mat-menu-item (click)="marcarTodos('Presente')" class="btn-presente" >Presente</button>
+                <button mat-menu-item (click)="marcarTodos('Ausente')" class="btn-ausente" >Ausente</button>
             </mat-menu>
         </div>
     </mat-card-header>

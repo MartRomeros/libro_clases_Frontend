@@ -22,4 +22,12 @@ export class AttendanceQueries {
         });
     }
 
+    anotacionesCurso(cursoId: number, isEnabled: boolean) {
+        return queryOptions({
+            queryKey: attendanceKeys.anotacionesByCurso(cursoId),
+            queryFn: () => this.attendanceApi.getAnotaciones(cursoId),
+            enabled: isEnabled
+        });
+    }
+
 }

@@ -17,7 +17,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { injectQuery } from '@tanstack/angular-query-experimental';
 
-import { AttendanceQueries } from '../../data-access/asistencia.queries';
+import { AttendanceQueries } from '../../data-access/docente.queries';
 import { AttendanceMutations } from '../../data-access/asistencia.mutations';
 import { Alumno } from '../../models/alumno.response.model';
 import { AsistenciaPayload } from '../../models/asistencia.request.model';
@@ -25,6 +25,7 @@ import { LoadingStateComponent } from '../../../../shared/components/loading-sta
 import { ErrorStateComponent } from '../../../../shared/components/error-state/error-state.component';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
 import { showErrorSnack } from '../../../../shared/http/error-snackbar';
+import { isBusinessDayChile } from '../../utils/chile-business-day.util';
 
 @Component({
   selector: 'app-confirm-dialog',
@@ -34,8 +35,8 @@ import { showErrorSnack } from '../../../../shared/http/error-snackbar';
     <h2 mat-dialog-title>Confirmar registro</h2>
     <mat-dialog-content>¿Realmente desea registrar la asistencia para esta fecha?</mat-dialog-content>
     <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close>Cancelar</button>
-      <button mat-raised-button color="primary" [mat-dialog-close]="true">Registrar</button>
+      <button mat-button mat-dialog-close  class="btn-cancelar" >Cancelar</button>
+      <button mat-raised-button color="primary" [mat-dialog-close]="true" class="btn-registrar" >Registrar</button>
     </mat-dialog-actions>
   `
 })
@@ -140,6 +141,15 @@ export class AttendanceComponent {
   }
 
   guardarAsistencia(): void {
+    const fechaAsistencia = this.fecha ?? new Date();
+    if (!isBusinessDayChile(fechaAsistencia)) {
+      this.snackBar.open('La asistencia solo puede registrarse en días hábiles no feriados de Chile.', 'Entendido', {
+        duration: 4500,
+        panelClass: ['warn-snackbar'],
+      });
+      return;
+    }
+
     const sinMarcar = this.estudiantes().filter(e => e.estadoAsistencia === null).length;
     if (sinMarcar > 0) {
       this.snackBar.open(`Hay ${sinMarcar} estudiantes sin marcar.`, 'Entendido', {

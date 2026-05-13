@@ -28,7 +28,7 @@
                 <mat-form-field appearance="outline" class="w-full custom-field">
                     <mat-label>Correo Electrónico</mat-label>
                     <input matInput type="email" formControlName="email" placeholder="ejemplo@correo.com"
-                        autocomplete="email">
+                        autocomplete="email" name="email">
                     <mat-icon matPrefix class="mr-2 text-(--mat-sys-primary)">mail</mat-icon>
                     <mat-error *ngIf="loginForm.get('email')?.hasError('required')">El correo es obligatorio</mat-error>
                     <mat-error *ngIf="loginForm.get('email')?.hasError('email')">Ingresa un correo válido</mat-error>
@@ -37,7 +37,7 @@
                 <mat-form-field appearance="outline" class="w-full custom-field">
                     <mat-label>Contraseña</mat-label>
                     <input matInput [type]="hidePassword() ? 'password' : 'text'" formControlName="password"
-                        autocomplete="current-password">
+                        autocomplete="current-password" name="password">
                     <mat-icon matPrefix class="mr-2 text-(--mat-sys-primary)">lock</mat-icon>
                     <button mat-icon-button matSuffix (click)="togglePasswordVisibility(); $event.preventDefault()"
                         type="button" class="text-(--mat-sys-on-surface-variant)">
