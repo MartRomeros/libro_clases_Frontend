@@ -8,15 +8,19 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { AttendanceQueries } from '../../data-access/docente.queries';
 import { injectQuery } from '@tanstack/angular-query-experimental';
+
+import { AttendanceQueries } from '../../data-access/asistencia.queries';
 import { Alumno } from '../../models/alumno.response.model';
+import { LoadingStateComponent } from '../../../../shared/components/loading-state/loading-state.component';
+import { ErrorStateComponent } from '../../../../shared/components/error-state/error-state.component';
+import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
 
 @Component({
   selector: 'app-conduct-component',
+  standalone: true,
   imports: [
     MatCardModule,
     MatIconModule,
@@ -28,9 +32,11 @@ import { Alumno } from '../../models/alumno.response.model';
     MatChipsModule,
     ReactiveFormsModule,
     MatSnackBarModule,
-    MatProgressSpinnerModule,
     DatePipe,
-    CommonModule
+    CommonModule,
+    LoadingStateComponent,
+    ErrorStateComponent,
+    EmptyStateComponent
   ],
   templateUrl: './conduct.component.html',
   styleUrl: './conduct.component.css',
@@ -51,14 +57,16 @@ export class ConductComponent {
 
   private readonly attendanceQueries = inject(AttendanceQueries)
 
-  private alumnosQuery = injectQuery(() => {
+  alumnosQuery = injectQuery(() => {
       const cursoId = this.cursoIdSignal();
       const enabled = cursoId !== null && cursoId !== '';
   
       return this.attendanceQueries.alumnosCurso(Number(cursoId), enabled);
   })
 
-    tiposAnotacion: string[] = ['Positiva', 'Negativa', 'Informativa'];
+  alumnosError = computed(() => this.alumnosQuery.error());
+
+  tiposAnotacion: string[] = ['Positiva', 'Negativa', 'Informativa'];
   anotacionForm: FormGroup;
 
   // Anotaciones registradas
@@ -128,5 +136,4 @@ export class ConductComponent {
     };
     return mapa[tipo];
   }
-
 }

@@ -14,6 +14,7 @@ import { injectQuery } from '@tanstack/angular-query-experimental';
 import { AuthQueries } from '../../../auth/data-access/auth.queries';
 import { Navbar } from '../../../../layout/navbar/navbar';
 import { Recurso } from '../../models/estudiante.model';
+import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
 
 @Component({
   selector: 'app-resources-page',
@@ -28,7 +29,8 @@ import { Recurso } from '../../models/estudiante.model';
     MatDividerModule,
     MatTooltipModule,
     MatChipsModule,
-    Navbar 
+    Navbar,
+    EmptyStateComponent
   ],
   templateUrl: './resources.page.component.html',
   styleUrl: './resources.page.component.css',

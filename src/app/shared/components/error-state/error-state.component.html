@@ -1,0 +1,14 @@
+<div class="error-state-container">
+  <div class="error-state-content">
+    <mat-icon class="error-state-icon" color="warn">error_outline</mat-icon>
+    <h3 class="error-state-title">{{ title || normalizedError?.title || 'Error' }}</h3>
+    <p class="error-state-message">{{ message || normalizedError?.message || 'Ocurrió un error inesperado.' }}</p>
+    
+    @if (retry.observed) {
+      <button mat-flat-button color="warn" class="error-state-retry" (click)="onRetry()">
+        <mat-icon>refresh</mat-icon>
+        {{ retryLabel }}
+      </button>
+    }
+  </div>
+</div>

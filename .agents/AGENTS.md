@@ -5,17 +5,11 @@ Sirve para apoyar a los 4 microservicios a realizar los cuales son:
 - MS Autenticacion y autorizacion (Node JS + Express)
 - MS Asistencia y conducta (Node JS + Express)
 - MS Mensajeria (Node JS + Express)
+- BFF (Node JS + Express)
 
-Ademas este proyecto sera subido a un AWS S3 en. Tener en cuenta que se trata de
-un AWS Academy.
-
-Base de datos:
-- Local: PostgreSQL
-- Remota: AWS RDS Postgre + DynamoDB Para la mensajeria. Ademas se pretende
-utilizar SQS para la cola de notificaciones y mensajes.
+Ademas este proyecto sera subido a un AWS S3 en AWS Academy.
 
 MER de base de datos: `.agents/context/script.sql.md`
-
 
 ## Reglas
 
@@ -27,18 +21,6 @@ MER de base de datos: `.agents/context/script.sql.md`
   - spec.md
   - design.md
   - task.md
-
-
-## Validacion
-Antes de terminar cada tarea implementar:
-- npm run build para verificar que el proyecto compila correctamente
-
-## Limites
-
-- En este proyecto no se consideraran tests. solo desarrollo y el codigo final
-- Si se requieren instalar dependencias se debe preguntar antes de instalarlas.
-
-## Como trabajar el SDD:
 
 crear un spec dentro de `specs/` con esta estructura
 

@@ -13,7 +13,6 @@ import { injectQuery } from '@tanstack/angular-query-experimental';
 
 import { Navbar } from '../../../../layout/navbar/navbar';
 import { AuthQueries } from '../../../auth/data-access/auth.queries';
-import { AuthService } from '../../../../core/services/auth.service';
 
 interface OpcionAdmin {
   titulo: string;
@@ -46,7 +45,6 @@ export class AdminHomePageComponent {
 
   private readonly router = inject(Router);
   private readonly authQueries = inject(AuthQueries);
-  private readonly authService = inject(AuthService);
 
   profileQuery = injectQuery(() => this.authQueries.me());
   profile = computed(() => this.profileQuery.data());
@@ -109,7 +107,6 @@ export class AdminHomePageComponent {
   }
 
   cerrarSesion(): void {
-    this.authService.logout();
-    this.router.navigate(['/login']);
+    this.router.navigate(['/auth/login']);
   }
 }

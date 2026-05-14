@@ -7,12 +7,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { injectQuery } from '@tanstack/angular-query-experimental';
 
 import { Navbar } from '../../../layout/navbar/navbar';
-import { AuthQueries } from '../../../features/auth/data-access/auth.queries';
 import { DocentePerfil, EstudiantePerfil } from '../../../features/auth/models/profile.response.model';
+import { AuthQueries } from '../../../features/auth/data-access/auth.queries';
+import { injectQuery } from '@tanstack/angular-query-experimental';
+import { LoadingStateComponent } from '../loading-state/loading-state.component';
+import { ErrorStateComponent } from '../error-state/error-state.component';
 
 @Component({
   selector: 'app-user-profile',
@@ -25,8 +26,9 @@ import { DocentePerfil, EstudiantePerfil } from '../../../features/auth/models/p
     MatChipsModule,
     MatDividerModule,
     MatTooltipModule,
-    MatProgressSpinnerModule,
-    Navbar 
+    Navbar,
+    LoadingStateComponent,
+    ErrorStateComponent
   ],
   templateUrl: './user-profile.html',
   styleUrl: './user-profile.css',
@@ -34,29 +36,29 @@ import { DocentePerfil, EstudiantePerfil } from '../../../features/auth/models/p
 export class UserProfileComponent {
 
   private authQuery = inject(AuthQueries)
-
   private router = inject(Router);
 
-  private profileQuery = injectQuery(() => this.authQuery.me());
-
-  profile = computed(() => this.profileQuery.data());
-  loading = computed(() => this.profileQuery.isLoading());
+  profileQuery = injectQuery(()=> this.authQuery.me())
+  user = computed(()=> this.profileQuery.data())
+  loading = computed(()=> this.profileQuery.isLoading())
+  error = computed(() => this.profileQuery.error())
+  
 
   initials = computed(() => {
-    const p = this.profile();
+    const p = this.user()
     if (!p) return '?';
     return `${p.nombre.charAt(0)}${p.apellido_paterno.charAt(0)}`.toUpperCase();
   });
 
   fullName = computed(() => {
-    const p = this.profile();
+    const p = this.user()
     if (!p) return '';
     const parts = [p.nombre, p.apellido_paterno, p.apellido_materno].filter(Boolean);
     return parts.join(' ');
   });
 
   rolColor = computed(() => {
-    const rol = this.profile()?.rol?.nombre?.toLowerCase() ?? '';
+    const rol = this.user()?.rol.nombre.toLowerCase() ?? '';
     if (rol.includes('admin')) return 'warn';
     if (rol.includes('docente')) return 'primary';
     if (rol.includes('estudiante')) return 'accent';
@@ -64,7 +66,7 @@ export class UserProfileComponent {
   });
 
   rolIcon = computed(() => {
-    const rol = this.profile()?.rol?.nombre?.toLowerCase() ?? '';
+    const rol = this.user()?.rol.nombre.toLowerCase() ?? '';
     if (rol.includes('admin')) return 'admin_panel_settings';
     if (rol.includes('docente')) return 'school';
     if (rol.includes('estudiante')) return 'person';
@@ -76,10 +78,10 @@ export class UserProfileComponent {
   asEstudiante(d: unknown): EstudiantePerfil { return d as EstudiantePerfil; }
 
   volver(): void {
-    const rol = this.profile()?.rol?.nombre?.toLowerCase() ?? '';
+    const rol = this.user()?.rol.nombre.toLowerCase() ?? '';
     if (rol.includes('admin')) this.router.navigate(['/admin']);
     else if (rol.includes('docente')) this.router.navigate(['/docente']);
     else if (rol.includes('estudiante')) this.router.navigate(['/estudiante']);
-    else this.router.navigate(['/login']);
+    else this.router.navigate(['/auth/login']);
   }
 }

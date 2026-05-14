@@ -1,0 +1,47 @@
+<mat-sidenav-container class="min-h-screen" [hasBackdrop]="true">
+    <mat-sidenav #sidenav mode="over" position="end" class="w-72! bg-white!">
+
+        <div class="p-6 border-b border-gray-100 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 bg-linear-to-br from-[#001e40] to-[#003366] rounded-lg grid place-items-center">
+                    <mat-icon class="text-white! w-5! h-5! text-[20px]!">shield</mat-icon>
+                </div>
+                <span class="font-display font-bold text-[#001e40]">O'Higgins</span>
+            </div>
+            <button mat-icon-button (click)="sidenav.close()">
+                <mat-icon>close</mat-icon>
+            </button>
+        </div>
+
+        <mat-nav-list class="pt-4!">
+            <a mat-list-item href="#inicio" (click)="sidenav.close()"><mat-icon matListItemIcon>home</mat-icon><span
+                    matListItemTitle>Inicio</span></a>
+            <a mat-list-item href="#nosotros" (click)="sidenav.close()"><mat-icon matListItemIcon>school</mat-icon><span
+                    matListItemTitle>Nuestro Colegio</span></a>
+            <a mat-list-item href="#departamentos" (click)="sidenav.close()"><mat-icon
+                    matListItemIcon>account_tree</mat-icon><span matListItemTitle>Departamentos</span></a>
+            <a mat-list-item href="#utiles" (click)="sidenav.close()"><mat-icon
+                    matListItemIcon>inventory_2</mat-icon><span matListItemTitle>Útiles Escolares</span></a>
+            <a mat-list-item href="#contacto" (click)="sidenav.close()"><mat-icon
+                    matListItemIcon>contact_support</mat-icon><span matListItemTitle>Contacto</span></a>
+
+            <div class="p-4 mt-4 flex flex-col gap-3">
+                <button mat-stroked-button class="w-full! rounded-full! text-[#001e40]!" (click)="sidenav.close()"
+                    routerLink="/auth/login">
+                    <mat-icon>person</mat-icon> Ingresar
+                </button>
+                <a mat-flat-button href="#admision"
+                    class="w-full! bg-[#2dbcfe]! text-[#001e40]! rounded-full! font-bold!" (click)="sidenav.close()">
+                    Admisión 2025
+                </a>
+            </div>
+        </mat-nav-list>
+
+    </mat-sidenav>
+
+    <mat-sidenav-content>
+        <app-toolbar (menuClick)="sidenav.toggle()" />
+        <ng-content></ng-content>
+    </mat-sidenav-content>
+
+</mat-sidenav-container>

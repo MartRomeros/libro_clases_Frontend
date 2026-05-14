@@ -34,10 +34,6 @@ npm start
 npm run build
 ```
 
-### Linting
-```bash
-npm run lint
-```
 
 ## 📂 Estructura del Proyecto
 

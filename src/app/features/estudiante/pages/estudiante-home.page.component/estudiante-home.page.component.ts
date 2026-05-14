@@ -32,13 +32,13 @@ export class EstudianteHomePageComponent {
   private readonly authQueries = inject(AuthQueries);
 
   profileQuery = injectQuery(() => this.authQueries.me());
-  profile = computed(() => this.profileQuery.data() || this.authStore.currentUser());
+  profile = computed(() => this.profileQuery.data());
+  loading = computed(() => this.profileQuery.isLoading());
+  error = computed(() => this.profileQuery.error());
 
-  fullName = computed(() => {
+  estudianteNombre = computed(() => {
     const p = this.profile();
-    if (!p) return 'Estudiante';
-    const parts = [p.nombre, p.apellido_paterno, p.apellido_materno].filter(Boolean);
-    return parts.join(' ');
+    return p ? `${p.nombre} ${p.apellido_paterno}` : '';
   });
 
   opciones: OpcionEstudiante[] = [

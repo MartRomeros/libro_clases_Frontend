@@ -9,7 +9,15 @@
                 <mat-icon class="avatar-icon">face</mat-icon>
             </div>
             <div class="bienvenida-texto">
-                <h1 class="bienvenida-titulo">Bienvenido, {{ fullName() }}</h1>
+                <h1 class="bienvenida-titulo">
+                  @if (loading()) {
+                    cargando...
+                  } @else if (error()) {
+                    ¡Bienvenido!
+                  } @else {
+                    ¡Hola, {{ estudianteNombre() }}!
+                  }
+                </h1>
                 <p class="bienvenida-subtitulo">Portal del Estudiante — Colegio Bernardo O'Higgins</p>
             </div>
         </div>

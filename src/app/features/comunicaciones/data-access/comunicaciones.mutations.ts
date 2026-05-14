@@ -10,7 +10,10 @@ interface EnviarMensajePayload {
   cuerpo: string;
   archivo?: File;
   enviarCopiaEmail?: boolean;
+<<<<<<< HEAD
   enviarCopiaTelegram?: boolean;
+=======
+>>>>>>> 88751cb27e7e5b77bc17ac9e727630ae5435510f
 }
 
 @Injectable({
@@ -29,7 +32,10 @@ export class ComunicacionesMutations {
         formData.append('asunto', payload.asunto || 'Sin asunto');
         formData.append('cuerpo_mensaje', payload.cuerpo);
         formData.append('enviar_copia_email', String(!!payload.enviarCopiaEmail));
+<<<<<<< HEAD
         formData.append('enviar_copia_telegram', String(!!payload.enviarCopiaTelegram));
+=======
+>>>>>>> 88751cb27e7e5b77bc17ac9e727630ae5435510f
 
         if (payload.archivo) {
           formData.append('archivo', payload.archivo);

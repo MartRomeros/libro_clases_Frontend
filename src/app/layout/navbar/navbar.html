@@ -2,7 +2,15 @@
   <mat-icon class="toolbar-icon">school</mat-icon>
   <span class="toolbar-title">Libro de Clases</span>
   <span class="spacer"></span>
-  <span class="docente-nombre">{{ currentUser()?.nombre }} {{ currentUser()?.apellido_paterno }}</span>
+  <span class="docente-nombre">
+    @if(loading()){
+    cargando...
+    } @else if (profileQuery.isError()) {
+    Error de perfil
+    } @else {
+    {{ user()?.nombre }} {{user()?.apellido_paterno}}
+    }
+  </span>
   <button mat-icon-button matTooltip="Mi perfil" (click)="navegarA('/perfil')">
     <mat-icon>account_circle</mat-icon>
   </button>
