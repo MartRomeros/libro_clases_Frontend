@@ -75,13 +75,79 @@
             @if (mostrarEstudiantes()) {
             <mat-card class="table-card" appearance="outlined">
                 <mat-card-header>
+<<<<<<< Updated upstream
                     <mat-card-title>Matriz de Calificaciones</mat-card-title>
+=======
+                    <mat-card-title>Evaluaciones Existentes</mat-card-title>
+                    <mat-card-subtitle>{{ evaluaciones().length }} registros</mat-card-subtitle>
+                </mat-card-header>
+                <mat-divider></mat-divider>
+                <mat-card-content>
+                    <mat-list>
+                        @for (ev of evaluaciones(); track ev.evaluacionId) {
+                        <mat-list-item>
+                            <mat-icon matListItemIcon color="primary">assignment</mat-icon>
+                            <div matListItemTitle class="ev-title">{{ ev.nombre }}</div>
+                            <div matListItemLine class="ev-line">
+                                <span>{{ ev.fechaEvaluacion | date:'dd/MM/yyyy' }}</span>
+                                <span class="status-chip" [class.future]="esFutura(ev.fechaEvaluacion)">
+                                    {{ esFutura(ev.fechaEvaluacion) ? 'Pendiente' : 'Realizada' }}
+                                </span>
+                            </div>
+                            <div matListItemMeta>
+                                <button mat-icon-button color="warn" matTooltip="Eliminar evaluación" (click)="confirmarEliminar(ev)">
+                                    <mat-icon>delete</mat-icon>
+                                </button>
+                            </div>
+                        </mat-list-item>
+                        } @empty {
+                            <app-empty-state 
+                                icon="assignment_late" 
+                                title="No hay evaluaciones" 
+                                message="Aún no has creado evaluaciones para este curso."
+                            />
+                        }
+                    </mat-list>
+                </mat-card-content>
+            </mat-card>
+            }
+        </div>
+
+        <!-- Contenido Principal: Matriz de Notas -->
+        <div class="main-content">
+            @if (!cursoSeleccionado()) {
+            <app-empty-state 
+                icon="school" 
+                title="Selecciona un curso" 
+                message="Elige un curso y asignatura en el panel lateral para gestionar las calificaciones."
+            />
+            } @else {
+            <mat-card appearance="outlined" class="grades-card">
+                <mat-card-header>
+                    <mat-card-title>Planilla de Calificaciones</mat-card-title>
+>>>>>>> Stashed changes
                     <mat-card-subtitle>{{ cursoSeleccionadoLabel() }}</mat-card-subtitle>
                 </mat-card-header>
                 <mat-divider></mat-divider>
                 <mat-card-content>
                     @if (isLoadingEstudiantes()) {
+<<<<<<< Updated upstream
                     <div class="loading-overlay"><mat-progress-spinner mode="indeterminate"></mat-progress-spinner></div>
+=======
+                        <app-loading-state message="Obteniendo lista de estudiantes y calificaciones..." />
+                    } @else if (estudiantesQuery.isError() || notasQuery.isError() || evaluacionesQuery.isError()) {
+                        <app-error-state 
+                          [error]="estudiantesQuery.error() || notasQuery.error() || evaluacionesQuery.error()" 
+                          title="Error al cargar datos"
+                          (retry)="verDetalleCurso(cursoSeleccionado()!)"
+                        />
+                    } @else if (listaEstudiantes().length === 0) {
+                        <app-empty-state 
+                            icon="group_off" 
+                            title="No hay alumnos" 
+                            message="Este curso aún no tiene alumnos asignados."
+                        />
+>>>>>>> Stashed changes
                     } @else {
                     <div class="table-container">
                         <table mat-table [dataSource]="dataSource" class="grades-table">

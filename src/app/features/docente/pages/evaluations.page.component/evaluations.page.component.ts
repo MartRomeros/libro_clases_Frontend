@@ -109,14 +109,56 @@ export class EvaluationsPageComponent {
   mostrarEstudiantes = signal<boolean>(false);
   isLoadingEstudiantes = signal<boolean>(false);
   cursoSeleccionadoLabel = signal<string>('');
-  tablaDataSignal = signal<EstudianteCurso[]>([]);
+
+  // Matriz de datos reactiva: combina estudiantes, evaluaciones y notas
+  listaEstudiantes = computed(() => {
+    const rawEsts = this.estudiantesQuery.data() ?? [];
+    const evs = this.evaluaciones();
+    const nts = this.notasQuery.data() ?? [];
+
+    if (!rawEsts.length) return [];
+
+    // 1. Eliminar duplicados por estudianteId
+    const estsMap = new Map<number, EstudianteCurso>();
+    rawEsts.forEach(est => {
+      if (!estsMap.has(est.estudianteId)) {
+        estsMap.set(est.estudianteId, { ...est });
+      }
+    });
+
+    // 2. Mapear y combinar con notas
+    const listaCombinada = Array.from(estsMap.values()).map((est: EstudianteCurso) => {
+      // Asignar IDs de evaluación base
+      if (evs[0]) est.ev1Id = evs[0].evaluacionId;
+      if (evs[1]) est.ev2Id = evs[1].evaluacionId;
+      if (evs[2]) est.ev3Id = evs[2].evaluacionId;
+
+      const notaInfo = nts.find(n => n.estudianteId === est.estudianteId);
+      if (notaInfo) {
+        if (notaInfo.notaEv1 != null) est.nota1 = notaInfo.notaEv1;
+        if (notaInfo.nota1Id != null) est.nota1Id = notaInfo.nota1Id;
+        if (notaInfo.notaEv2 != null) est.nota2 = notaInfo.notaEv2;
+        if (notaInfo.nota2Id != null) est.nota2Id = notaInfo.nota2Id;
+        if (notaInfo.notaEv3 != null) est.nota3 = notaInfo.notaEv3;
+        if (notaInfo.nota3Id != null) est.nota3Id = notaInfo.nota3Id;
+        est.promedio = notaInfo.promedio;
+      }
+      return est;
+    });
+
+    // 3. Ordenar alfabéticamente A-Z
+    return listaCombinada.sort((a, b) => 
+      a.estudianteFullName.localeCompare(b.estudianteFullName)
+    );
+  });
 
   dataSource = new MatTableDataSource<EstudianteCurso>([]);
 
   // Mutation: Crear Evaluación
   crearEvaluacionMutation = injectMutation(() => ({
     ...this.evaluationsMutations.crearEvaluacion(),
-    onSuccess: () => {
+    onSuccess: (...args) => {
+      this.evaluationsMutations.crearEvaluacion().onSuccess?.(...args);
       this.snackBar.open('✓ Evaluación creada con éxito', 'Cerrar', { duration: 3000 });
       this.evaluacionForm.reset({
         nombre: '',
@@ -124,23 +166,32 @@ export class EvaluationsPageComponent {
       });
       this.mostrarFormNuevaEv.set(false);
     },
+<<<<<<< Updated upstream
     onError: (err) => {
       console.error('Error al crear evaluación:', err);
       this.snackBar.open('Error al crear evaluación', 'Cerrar', { duration: 3000 });
     }
+=======
+    onError: (err) => showErrorSnack(this.snackBar, err)
+>>>>>>> Stashed changes
   }));
 
   // Mutation: Guardar Notas
   guardarNotasMutation = injectMutation(() => ({
     ...this.evaluationsMutations.guardarNotasBulk(),
-    onSuccess: () => {
+    onSuccess: (...args) => {
+      this.evaluationsMutations.guardarNotasBulk().onSuccess?.(...args);
       this.snackBar.open('¡Todas las calificaciones se guardaron con éxito!', 'Genial', {
         duration: 4000,
         panelClass: ['success-snackbar'],
         horizontalPosition: 'end',
         verticalPosition: 'top'
       });
+<<<<<<< Updated upstream
       this.mostrarEstudiantes.set(false);
+=======
+      this.isLoadingEstudiantes.set(false);
+>>>>>>> Stashed changes
     },
     onError: (err) => {
       console.error('Error al guardar masivamente:', err);
@@ -149,6 +200,16 @@ export class EvaluationsPageComponent {
         panelClass: ['error-snackbar']
       });
     }
+  }));
+
+  // Mutation: Eliminar Evaluación
+  eliminarEvaluacionMutation = injectMutation(() => ({
+    ...this.evaluationsMutations.eliminarEvaluacion(),
+    onSuccess: (...args) => {
+      this.evaluationsMutations.eliminarEvaluacion().onSuccess?.(...args);
+      this.snackBar.open('✓ Evaluación eliminada', 'Cerrar', { duration: 3000 });
+    },
+    onError: (err) => showErrorSnack(this.snackBar, err)
   }));
 
   evaluacionForm: FormGroup;
@@ -161,22 +222,16 @@ export class EvaluationsPageComponent {
       fechaEvaluacion: [new Date().toISOString().split('T')[0], Validators.required]
     });
 
-    // Check if we received a course from navigation state
     const state = this.location.getState() as { cursoSeleccionado?: DocenteCurso };
     if (state?.cursoSeleccionado) {
       this.cursoSeleccionado.set(state.cursoSeleccionado);
-      // Auto-load students after a brief delay to allow queries to initialize
       setTimeout(() => {
         this.verDetalleCurso(state.cursoSeleccionado!);
       }, 500);
     }
 
     effect(() => {
-      if (this.estudiantesQuery.data() && this.evaluaciones() && this.notasQuery.data()) {
-        if (this.mostrarEstudiantes()) {
-          this.buildTablaData();
-        }
-      }
+      this.dataSource.data = this.listaEstudiantes();
     });
   }
 
@@ -185,24 +240,34 @@ export class EvaluationsPageComponent {
   }
 
   crearEvaluacion(): void {
-    if (this.evaluacionForm.invalid || !this.cursoSeleccionado()) return;
+    if (this.evaluacionForm.invalid) return;
+    
+    const curso = this.cursoSeleccionado();
+    if (!curso) return;
 
-    const fechaRaw = this.evaluacionForm.value.fechaEvaluacion;
+    const formVal = this.evaluacionForm.value;
+    const fechaRaw = formVal.fechaEvaluacion;
     let fechaStr = '';
 
     if (fechaRaw instanceof Date) {
       fechaStr = fechaRaw.toISOString().split('T')[0];
     } else {
-      fechaStr = fechaRaw;
+      fechaStr = String(fechaRaw || '');
     }
 
     const nueva: Evaluacion = {
-      cadId: this.cadId(),
-      nombre: this.evaluacionForm.value.nombre,
+      cadId: curso.cadId,
+      nombre: String(formVal.nombre || ''),
       fechaEvaluacion: fechaStr
     };
 
     this.crearEvaluacionMutation.mutate(nueva);
+  }
+
+  confirmarEliminar(ev: any): void {
+    if (confirm(`¿Estás seguro de que deseas eliminar la evaluación "${ev.nombre}"? Esta acción no se puede deshacer.`)) {
+      this.eliminarEvaluacionMutation.mutate(ev.evaluacionId);
+    }
   }
 
   esFutura(fechaStr: string): boolean {
@@ -220,57 +285,11 @@ export class EvaluationsPageComponent {
     else this.router.navigate(['/login']);
   }
 
-  // Construir la matriz de datos combinando estudiantes, evaluaciones y notas
-  buildTablaData(): void {
-    const ests = this.estudiantesQuery.data() ?? [];
-    const evs = this.evaluaciones();
-    const nts = this.notasQuery.data() ?? [];
-
-    if (!ests.length) {
-      this.tablaDataSignal.set([]);
-      this.dataSource.data = [];
-      return;
-    }
-
-    const listaCompleta = ests.map((est: EstudianteCurso) => {
-      // Asignar IDs de evaluación base por si no tienen notas aún
-      if (evs[0]) {
-        est.ev1Id = evs[0].evaluacionId;
-      }
-      if (evs[1]) {
-        est.ev2Id = evs[1].evaluacionId;
-      }
-      if (evs[2]) {
-        est.ev3Id = evs[2].evaluacionId;
-      }
-
-      const notaInfo = nts.find(n => n.estudianteId === est.estudianteId);
-      if (notaInfo) {
-        if (notaInfo.notaEv1 != null) est.nota1 = notaInfo.notaEv1;
-        if (notaInfo.nota1Id != null) est.nota1Id = notaInfo.nota1Id;
-
-        if (notaInfo.notaEv2 != null) est.nota2 = notaInfo.notaEv2;
-        if (notaInfo.nota2Id != null) est.nota2Id = notaInfo.nota2Id;
-
-        if (notaInfo.notaEv3 != null) est.nota3 = notaInfo.notaEv3;
-        if (notaInfo.nota3Id != null) est.nota3Id = notaInfo.nota3Id;
-
-        est.promedio = notaInfo.promedio;
-      }
-      return est;
-    });
-
-    this.tablaDataSignal.set(listaCompleta);
-    this.dataSource.data = listaCompleta;
-  }
-
-  // Actualizar promedio localmente cuando cambian las notas
   actualizarPromedio(estudiante: EstudianteCurso): void {
-    const n1 = estudiante.nota1 || 0;
-    const n2 = estudiante.nota2 || 0;
-    const n3 = estudiante.nota3 || 0;
+    const n1 = Number(estudiante.nota1 || 0);
+    const n2 = Number(estudiante.nota2 || 0);
+    const n3 = Number(estudiante.nota3 || 0);
 
-    // Validación de rango 1-7
     if (n1 > 7) estudiante.nota1 = 7;
     if (n2 > 7) estudiante.nota2 = 7;
     if (n3 > 7) estudiante.nota3 = 7;
@@ -290,33 +309,18 @@ export class EvaluationsPageComponent {
     }
   }
 
-  // Ver detalle del curso: carga estudiantes, evaluaciones y notas
   verDetalleCurso(curso: DocenteCurso): void {
     this.cursoSeleccionado.set(curso);
     this.cursoSeleccionadoLabel.set(`${curso.curso} - ${curso.asignaturaNombre}`);
     this.mostrarEstudiantes.set(true);
-    this.isLoadingEstudiantes.set(true);
-
-    // Los queries se activan automáticamente por los computed signals
-    // Esperar a que carguen y luego construir la tabla
-    const checkData = () => {
-      if (!this.isLoadingData()) {
-        this.isLoadingEstudiantes.set(false);
-        this.buildTablaData();
-      } else {
-        setTimeout(checkData, 100);
-      }
-    };
-    checkData();
+    this.isLoadingEstudiantes.set(false);
   }
 
-  // Guardar todas las notas masivamente
   guardarNotas(): void {
-    const listaEstudiantes = this.tablaDataSignal();
+    const listaEstudiantes = this.listaEstudiantes();
     const notasParaGuardar: NotaPost[] = [];
 
     listaEstudiantes.forEach((est: EstudianteCurso) => {
-      // Nota 1
       if (est.ev1Id && est.nota1 != null && est.nota1 > 0) {
         notasParaGuardar.push({
           notaId: est.nota1Id,
@@ -325,7 +329,6 @@ export class EvaluationsPageComponent {
           valor: est.nota1
         });
       }
-      // Nota 2
       if (est.ev2Id && est.nota2 != null && est.nota2 > 0) {
         notasParaGuardar.push({
           notaId: est.nota2Id,
@@ -334,7 +337,6 @@ export class EvaluationsPageComponent {
           valor: est.nota2
         });
       }
-      // Nota 3
       if (est.ev3Id && est.nota3 != null && est.nota3 > 0) {
         notasParaGuardar.push({
           notaId: est.nota3Id,
@@ -354,7 +356,6 @@ export class EvaluationsPageComponent {
     this.guardarNotasMutation.mutate(notasParaGuardar);
   }
 
-  // Cancelar edición y cerrar sección de estudiantes
   cancelarEdicion(): void {
     this.mostrarEstudiantes.set(false);
   }

@@ -220,3 +220,43 @@
 :host ::ng-deep .mat-mdc-snack-bar-container {
     margin-top: 20px !important;
 }
+
+/* Acciones en el formulario */
+.form-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    width: 100%;
+}
+
+.ev-title {
+    font-weight: 600;
+    color: #334155;
+}
+
+.ev-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+}
+
+.status-chip {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background: #e2e8f0;
+    color: #64748b;
+}
+
+.status-chip.future {
+    background: #dcfce7;
+    color: #166534;
+}
+
+/* Alineación de iconos en la lista */
+[matListItemMeta] {
+    display: flex;
+    gap: 4px;
+}

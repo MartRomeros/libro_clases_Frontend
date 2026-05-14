@@ -54,4 +54,16 @@ export class EvaluationsApi {
       this.http.post<any[]>(`${this.apiUrl}/notas/bulk`, notas)
     );
   }
+
+  actualizarEvaluacion(id: number, evaluacion: Partial<Evaluacion>) {
+    return firstValueFrom(
+      this.http.put<Evaluacion>(`${this.apiUrl}/evaluaciones/${id}`, evaluacion)
+    );
+  }
+
+  eliminarEvaluacion(id: number) {
+    return firstValueFrom(
+      this.http.delete<void>(`${this.apiUrl}/evaluaciones/${id}`)
+    );
+  }
 }

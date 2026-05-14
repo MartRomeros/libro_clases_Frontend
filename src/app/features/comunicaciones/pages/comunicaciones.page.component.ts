@@ -226,7 +226,7 @@ interface Contacto {
                     #editorRef 
                     (input)="onEditorInput()"
                     placeholder="Escribe un mensaje..."
-                    style="min-height: 100px;"></div>
+                    style="min-height: 60px;"></div>
 
                <div class="editor-footer-actions">
                  @if (archivosAdjuntos().length > 0) {
@@ -358,9 +358,18 @@ interface Contacto {
                 }
 
                 <div class="form-footer">
-                  <label class="checkbox-container" style="display: none;">
-                    <input type="checkbox" [(ngModel)]="enviarCopiaEmail"> Enviar una copia por correo electrónico a los destinatarios
-                  </label>
+                  <div class="notification-options">
+                    <label class="checkbox-container">
+                      <input type="checkbox" [(ngModel)]="enviarCopiaEmail"> 
+                      <mat-icon>email</mat-icon>
+                      Notificar por Email
+                    </label>
+                    <label class="checkbox-container">
+                      <input type="checkbox" [(ngModel)]="enviarCopiaTelegram"> 
+                      <mat-icon>send</mat-icon>
+                      Notificar por Telegram
+                    </label>
+                  </div>
                   <button mat-flat-button color="primary" (click)="enviarNuevoMensaje()" [disabled]="!mensajeEsValido()">
                     <mat-icon>send</mat-icon>
                     Enviar
@@ -393,7 +402,7 @@ interface Contacto {
 
     .comunicaciones-container {
       display: flex;
-      height: calc(100vh - 160px);
+      height: calc(100vh - 85px);
       background: #f8fafc;
       overflow: hidden;
     }
@@ -804,13 +813,13 @@ interface Contacto {
       font-size: 20px;
     }
     .editor-content {
-      padding: 24px;
+      padding: 16px 24px;
       flex: 1;
       outline: none;
       font-size: 1rem;
       line-height: 1.6;
       overflow-y: auto;
-      min-height: 200px;
+      min-height: 150px;
     }
     .editor-content img {
       max-width: 100%;
@@ -855,10 +864,35 @@ interface Contacto {
     .checkbox-container {
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-size: 0.95rem;
-      color: #475569;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: #64748b;
       cursor: pointer;
+      padding: 6px 12px;
+      background: #f8fafc;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      border: 1px solid #e2e8f0;
+    }
+    .checkbox-container:hover {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+    }
+    .checkbox-container input {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+    .checkbox-container mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      color: #94a3b8;
+    }
+    .notification-options {
+      display: flex;
+      gap: 12px;
+      align-items: center;
     }
 
     .full-width {
@@ -919,6 +953,11 @@ interface Contacto {
     .rich-reply .rich-editor-wrapper {
       background: white;
       box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      min-height: 160px;
+    }
+
+    .rich-reply .editor-content {
+      min-height: 60px;
     }
 
     /* Empty State */
@@ -1000,6 +1039,7 @@ export class ComunicacionesPageComponent implements OnInit {
   nuevoMensajeTexto = '';
   nuevoAsunto = '';
   enviarCopiaEmail = false;
+  enviarCopiaTelegram = false;
   
   ngOnInit() {
     this.service.cargarMensajes();
@@ -1178,6 +1218,7 @@ export class ComunicacionesPageComponent implements OnInit {
     this.contactoCtrl.setValue('');
     this.archivosAdjuntos.set([]);
     this.enviarCopiaEmail = false;
+    this.enviarCopiaTelegram = false;
     this.isDragging.set(false);
     if (this.editorRef) this.editorRef.nativeElement.innerHTML = '';
   }
@@ -1256,9 +1297,16 @@ export class ComunicacionesPageComponent implements OnInit {
       this.nuevoMensajeTexto, 
       this.nuevoAsunto || 'Sin asunto',
       archivo,
+<<<<<<< Updated upstream
       this.enviarCopiaEmail
     ).subscribe({
       next: (resp) => {
+=======
+      enviarCopiaEmail: this.enviarCopiaEmail,
+      enviarCopiaTelegram: this.enviarCopiaTelegram
+    }, {
+      onSuccess: (resp) => {
+>>>>>>> Stashed changes
         this.snackBar.open(resp.mensaje || 'Mensaje enviado', 'Cerrar', { duration: 3000 });
         // No seleccionamos la conversación si es masiva o si queremos seguir la regla de solo recibidos
         if (!destinatario.startsWith('GROUP:')) {
@@ -1271,6 +1319,7 @@ export class ComunicacionesPageComponent implements OnInit {
         this.contactoCtrl.setValue('');
         this.archivosAdjuntos.set([]);
         this.enviarCopiaEmail = false;
+        this.enviarCopiaTelegram = false;
       }
     });
   }

@@ -41,4 +41,25 @@ export class EvaluationsMutations {
       },
     });
   }
+
+  actualizarEvaluacion() {
+    return mutationOptions({
+      mutationFn: ({ id, evaluacion }: { id: number, evaluacion: Partial<Evaluacion> }) => 
+        this.api.actualizarEvaluacion(id, evaluacion),
+      onSuccess: () => {
+        this.queryClient.invalidateQueries({ queryKey: evaluationsKeys.evaluaciones() });
+        this.queryClient.invalidateQueries({ queryKey: evaluationsKeys.notas() });
+      },
+    });
+  }
+
+  eliminarEvaluacion() {
+    return mutationOptions({
+      mutationFn: (id: number) => this.api.eliminarEvaluacion(id),
+      onSuccess: () => {
+        this.queryClient.invalidateQueries({ queryKey: evaluationsKeys.evaluaciones() });
+        this.queryClient.invalidateQueries({ queryKey: evaluationsKeys.notas() });
+      },
+    });
+  }
 }

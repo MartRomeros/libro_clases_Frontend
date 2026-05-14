@@ -62,10 +62,17 @@ export class DocentePageComponent {
   cursoSeleccionado = signal<string>('');
   mostrarEstudiantes = signal<boolean>(false);
   isLoadingEstudiantes = signal<boolean>(false);
+<<<<<<< Updated upstream
+=======
+  estudiantesLoadError = signal<unknown>(null);
+  ev1Nombre = signal<string>('EV 1');
+  ev2Nombre = signal<string>('EV 2');
+  ev3Nombre = signal<string>('EV 3');
+>>>>>>> Stashed changes
 
   dataSource = new MatTableDataSource<DocenteCurso>([]);
   estudiantesDataSource = new MatTableDataSource<EstudianteCurso>([]);
-  estudiantesColumns: string[] = ['rut', 'nombre', 'nota1', 'nota2', 'nota3', 'promedio'];
+  estudiantesColumns = signal<string[]>(['rut', 'nombre', 'nota1', 'nota2', 'nota3', 'promedio']);
   displayedColumns: string[] = ['curso', 'asignatura', 'anioAcademico', 'acciones'];
 
 
@@ -211,28 +218,69 @@ export class DocentePageComponent {
           .sort((a, b) => new Date(a.fechaEvaluacion).getTime() - new Date(b.fechaEvaluacion).getTime())
           .slice(0, 3);
 
+<<<<<<< Updated upstream
         // Mapear notas a estudiantes
         const listaCompleta = resp.estudiantes.map(est => {
           // Asignar IDs de evaluación base por si no tienen notas aún
           if (evIds[0]) est.ev1Id = evIds[0].evaluacionId;
           if (evIds[1]) est.ev2Id = evIds[1].evaluacionId;
           if (evIds[2]) est.ev3Id = evIds[2].evaluacionId;
+=======
+        // 1. Eliminar duplicados
+        const estsMap = new Map<number, any>();
+        resp.estudiantes.forEach(est => {
+          if (!estsMap.has(est.estudianteId)) {
+            estsMap.set(est.estudianteId, { ...est });
+          }
+        });
+
+        // 2. Combinar con evaluaciones y notas
+        const listaCompleta = Array.from(estsMap.values()).map(est => {
+          if (evIds[0]) {
+            est.ev1Id = evIds[0].evaluacionId;
+            this.ev1Nombre.set(evIds[0].nombre);
+          } else {
+            this.ev1Nombre.set('EV 1');
+          }
+
+          if (evIds[1]) {
+            est.ev2Id = evIds[1].evaluacionId;
+            this.ev2Nombre.set(evIds[1].nombre);
+          } else {
+            this.ev2Nombre.set('EV 2');
+          }
+
+          if (evIds[2]) {
+            est.ev3Id = evIds[2].evaluacionId;
+            this.ev3Nombre.set(evIds[2].nombre);
+          } else {
+            this.ev3Nombre.set('EV 3');
+          }
+>>>>>>> Stashed changes
 
           const notaInfo = resp.notas.find(n => n.estudianteId === est.estudianteId);
           if (notaInfo) {
             if (notaInfo.notaEv1 != null) est.nota1 = notaInfo.notaEv1;
             if (notaInfo.nota1Id != null) est.nota1Id = notaInfo.nota1Id;
-
             if (notaInfo.notaEv2 != null) est.nota2 = notaInfo.notaEv2;
             if (notaInfo.nota2Id != null) est.nota2Id = notaInfo.nota2Id;
-
             if (notaInfo.notaEv3 != null) est.nota3 = notaInfo.notaEv3;
             if (notaInfo.nota3Id != null) est.nota3Id = notaInfo.nota3Id;
-
             est.promedio = notaInfo.promedio;
           }
           return est;
         });
+
+        // 3. Ordenar A-Z
+        listaCompleta.sort((a, b) => a.estudianteFullName.localeCompare(b.estudianteFullName));
+
+        this.estudiantesDataSource.data = listaCompleta;
+        const columns = ['rut', 'nombre'];
+        if (evIds.length >= 1) columns.push('nota1');
+        if (evIds.length >= 2) columns.push('nota2');
+        if (evIds.length >= 3) columns.push('nota3');
+        columns.push('promedio');
+        this.estudiantesColumns.set(columns);
 
         this.estudiantesDataSource.data = listaCompleta;
         this.isLoadingEstudiantes.set(false);

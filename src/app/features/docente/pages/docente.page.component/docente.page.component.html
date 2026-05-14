@@ -173,7 +173,7 @@
 
                         <!-- Nota 1 -->
                         <ng-container matColumnDef="nota1">
-                            <th mat-header-cell *matHeaderCellDef class="text-center"> EV 1 </th>
+                            <th mat-header-cell *matHeaderCellDef class="text-center"> {{ ev1Nombre() }} </th>
                             <td mat-cell *matCellDef="let element" class="text-center">
                                 <input type="number" [(ngModel)]="element.nota1" (input)="actualizarPromedio(element)"
                                     min="1" max="7" step="0.1" class="nota-input">
@@ -182,7 +182,7 @@
 
                         <!-- Nota 2 -->
                         <ng-container matColumnDef="nota2">
-                            <th mat-header-cell *matHeaderCellDef class="text-center"> EV 2 </th>
+                            <th mat-header-cell *matHeaderCellDef class="text-center"> {{ ev2Nombre() }} </th>
                             <td mat-cell *matCellDef="let element" class="text-center">
                                 <input type="number" [(ngModel)]="element.nota2" (input)="actualizarPromedio(element)"
                                     min="1" max="7" step="0.1" class="nota-input">
@@ -191,7 +191,7 @@
 
                         <!-- Nota 3 -->
                         <ng-container matColumnDef="nota3">
-                            <th mat-header-cell *matHeaderCellDef class="text-center"> EV 3 </th>
+                            <th mat-header-cell *matHeaderCellDef class="text-center"> {{ ev3Nombre() }} </th>
                             <td mat-cell *matCellDef="let element" class="text-center">
                                 <input type="number" [(ngModel)]="element.nota3" (input)="actualizarPromedio(element)"
                                     min="1" max="7" step="0.1" class="nota-input">
@@ -208,8 +208,8 @@
                             </td>
                         </ng-container>
 
-                        <tr mat-header-row *matHeaderRowDef="estudiantesColumns"></tr>
-                        <tr mat-row *matRowDef="let row; columns: estudiantesColumns"></tr>
+                        <tr mat-header-row *matHeaderRowDef="estudiantesColumns()"></tr>
+                        <tr mat-row *matRowDef="let row; columns: estudiantesColumns()"></tr>
                     </table>
                 </div>
 
