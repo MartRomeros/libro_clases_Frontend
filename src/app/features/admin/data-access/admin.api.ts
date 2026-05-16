@@ -17,7 +17,7 @@ import {
 })
 export class AdminApi {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = environment.backGestionUrl;
+  private readonly apiUrl = `${environment.bffUrl}/api`;
 
   // --- Usuarios ---
   getUsuarios() {

@@ -19,11 +19,11 @@ export interface BackendMensaje {
 })
 export class ComunicacionesApi {
   private readonly http = inject(HttpClient);
-  private readonly bffMensajesUrl = environment.msMensajeriaUrl;
-  private readonly bffUrl = environment.backGestionUrl;
+  private readonly apiUrl = `${environment.bffUrl}/api`;
+  private readonly bffMensajesUrl = `${this.apiUrl}/mensajes`;
 
   getTodosLosUsuarios() {
-    return firstValueFrom(this.http.get<any[]>(`${this.bffUrl}/usuarios`));
+    return firstValueFrom(this.http.get<any[]>(`${this.apiUrl}/usuarios`));
   }
 
   getRecibidos(email: string) {

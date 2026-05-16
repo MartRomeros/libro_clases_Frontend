@@ -21,31 +21,31 @@ export interface RegistrarAnotacionResponse {
 @Injectable({ providedIn: "root" })
 export class AttendanceApi {
   private readonly http = inject(HttpClient);
-  private readonly attendanceUrl = environment.apiAttendanceConductUrl;
+  private readonly apiUrl = `${environment.bffUrl}/api`;
 
   getCursosDisponibles(): Promise<CoursesResponse> {
-    return firstValueFrom(this.http.get<CoursesResponse>(`${this.attendanceUrl}/docentes/cursos`));
+    return firstValueFrom(this.http.get<CoursesResponse>(`${this.apiUrl}/asistencia-conducta/docentes/cursos`));
   }
 
   getAlumnosCurso(cursoId: number) {
-    return firstValueFrom(this.http.get<AlumnosResponse>(`${this.attendanceUrl}/cursos/${cursoId}/alumnos`));
+    return firstValueFrom(this.http.get<AlumnosResponse>(`${this.apiUrl}/asistencia-conducta/cursos/${cursoId}/alumnos`));
   }
 
   registrarAsistencia(payload: AsistenciaPayload) {
     return firstValueFrom(
-      this.http.post<RegistroAsistenciaResponse>(`${this.attendanceUrl}/asistencia`, payload)
+      this.http.post<RegistroAsistenciaResponse>(`${this.apiUrl}/asistencia`, payload)
     );
   }
 
   registrarAnotacion(payload: AnotacionPayload) {
     return firstValueFrom(
-      this.http.post<RegistrarAnotacionResponse>(`${this.attendanceUrl}/anotaciones`, payload)
+      this.http.post<RegistrarAnotacionResponse>(`${this.apiUrl}/anotaciones`, payload)
     );
   }
 
   getAnotaciones(cursoId: number) {
     return firstValueFrom(
-      this.http.get<AnotacionesResponse>(`${this.attendanceUrl}/anotaciones`, {
+      this.http.get<AnotacionesResponse>(`${this.apiUrl}/anotaciones`, {
         params: { curso_id: cursoId },
       })
     );

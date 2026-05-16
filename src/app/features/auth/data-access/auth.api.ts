@@ -9,13 +9,13 @@ import { User } from "../models/profile.response.model";
 @Injectable({ providedIn: "root" })
 export class AuthApi {
   private readonly http = inject(HttpClient);
-  private readonly authUrl = environment.msAuthUrl;
+  private readonly authUrl = `${environment.bffUrl}/api/auth`;
 
   login(payload: LoginRequest): Promise<LoginResponse> {
-    return firstValueFrom(this.http.post<LoginResponse>(`${this.authUrl}/auth/login`, payload));
+    return firstValueFrom(this.http.post<LoginResponse>(`${this.authUrl}/login`, payload));
   }
 
   me(): Promise<User> {
-    return firstValueFrom(this.http.get<User>(`${this.authUrl}/auth/profile`));
+    return firstValueFrom(this.http.get<User>(`${this.authUrl}/profile`));
   }
 }

@@ -16,7 +16,7 @@ import { Course, CoursesResponse } from '../models/curso.response.model';
 })
 export class EvaluationsApi {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = environment.backGestionUrl;
+  private readonly apiUrl = `${environment.bffUrl}/api`;
 
   async getCursos(_docenteId: number): Promise<DocenteCurso[]> {
     const response = await firstValueFrom(
