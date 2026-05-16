@@ -15,25 +15,34 @@
         </div>
 
         <div class="hidden md:flex gap-2 ml-auto">
-            <a mat-button href="#inicio" class="nav-link text-gray-600! hover:text-[#001e40]! px-4!">Inicio</a>
-            <a mat-button href="#nosotros" class="nav-link text-gray-600! hover:text-[#001e40]! px-4!">Nuestro
-                Colegio</a>
-            <a mat-button href="#departamentos"
-                class="nav-link text-gray-600! hover:text-[#001e40]! px-4!">Departamentos</a>
-            <a mat-button href="#utiles" class="nav-link text-gray-600! hover:text-[#001e40]! px-4!">Útiles</a>
-            <a mat-button href="#contacto" class="nav-link text-gray-600! hover:text-[#001e40]! px-4!">Contacto</a>
+            <a mat-button routerLink="/docente" class="nav-link text-gray-600! hover:text-[#001e40]! px-4!">Inicio</a>
+            <a mat-button routerLink="/docente/cursos" class="nav-link text-gray-600! hover:text-[#001e40]! px-4!">Cursos</a>
+            <a mat-button routerLink="/docente/evaluaciones" class="nav-link text-gray-600! hover:text-[#001e40]! px-4!">Evaluaciones</a>
+            <a mat-button routerLink="/docente/asistencia" class="nav-link text-gray-600! hover:text-[#001e40]! px-4!">Asistencia</a>
+            <a mat-button routerLink="/comunicaciones" class="nav-link text-gray-600! hover:text-[#001e40]! px-4!">Mensajes</a>
         </div>
 
         <div class="hidden md:flex items-center gap-3 ml-6">
             <button mat-icon-button
                 class="text-[#001e40]! bg-gray-100/50! hover:bg-gray-100! flex items-center justify-center"
-                matTooltip="Ingresar al Portal" routerLink="/auth/login">
+                matTooltip="Ver notificaciones recientes">
+                <mat-icon>notifications</mat-icon>
+            </button>
+            <button mat-icon-button
+                class="text-[#001e40]! bg-gray-100/50! hover:bg-gray-100! flex items-center justify-center"
+                matTooltip="Opciones de sesión" [matMenuTriggerFor]="sessionMenu">
                 <mat-icon>person</mat-icon>
             </button>
-            <a mat-flat-button href="#admision"
-                class="bg-[#2dbcfe]! text-[#001e40]! rounded-full! font-bold! px-6! shadow-sm hover:shadow-md transition-all">
-                Admisión 2025
-            </a>
+            <mat-menu #sessionMenu="matMenu">
+                <button mat-menu-item (click)="cerrarSesion()">
+                    <mat-icon>logout</mat-icon>
+                    <span>Cerrar sesión</span>
+                </button>
+                <button mat-menu-item (click)="verPerfil()">
+                    <mat-icon>person</mat-icon>
+                    <span>Ver perfil</span>
+                </button>
+            </mat-menu>
         </div>
 
         <button mat-icon-button class="md:hidden! ml-auto text-[#001e40]!" (click)="menuClick.emit()">

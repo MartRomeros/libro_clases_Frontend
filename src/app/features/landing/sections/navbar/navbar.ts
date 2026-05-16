@@ -18,8 +18,6 @@ import { Toolbar } from '../toolbar/toolbar';
     MatListItemTitle,
     RouterLink,
     Toolbar
-
-
   ],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',

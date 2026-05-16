@@ -1,24 +1,18 @@
-<app-navbar />
-
 <div class="profile-page">
-
   <!-- Loading -->
   @if (loading()) {
-    <app-loading-state message="Cargando perfil..." [diameter]="56" />
+  <app-loading-state message="Cargando perfil..." [diameter]="56" />
   }
 
   <!-- Error -->
   @if (profileQuery.isError()) {
-    <app-error-state 
-      [error]="error()" 
-      title="Error al cargar perfil"
-      (retry)="profileQuery.refetch()"
-    />
-  }
-
-  @if (!loading() && !profileQuery.isError() && user(); as p) {
+  <app-error-state
+    [error]="error()"
+    title="Error al cargar perfil"
+    (retry)="profileQuery.refetch()"
+  />
+  } @if (!loading() && !profileQuery.isError() && user(); as p) {
   <div class="profile-container">
-
     <!-- Header hero -->
     <div class="profile-hero">
       <div class="profile-avatar">
@@ -49,7 +43,6 @@
 
     <!-- Data grid -->
     <div class="profile-grid">
-
       <!-- Personal data card -->
       <mat-card class="data-card">
         <mat-card-header>
@@ -66,9 +59,7 @@
               <span class="data-value">{{ p.rut }}</span>
             </li>
             <li class="data-item">
-              <span class="data-label">
-                <mat-icon class="label-icon">person</mat-icon>Nombre
-              </span>
+              <span class="data-label"> <mat-icon class="label-icon">person</mat-icon>Nombre </span>
               <span class="data-value">{{ p.nombre }}</span>
             </li>
             <li class="data-item">
@@ -115,10 +106,7 @@
       </mat-card>
 
       <!-- Datos específicos por rol -->
-      @if (p.datosEspecificos) {
-      @switch (p.datosEspecificos.tipo) {
-
-      @case ('docente') {
+      @if (p.datosEspecificos) { @switch (p.datosEspecificos.tipo) { @case ('docente') {
       <mat-card class="data-card role-card">
         <mat-card-header>
           <mat-icon mat-card-avatar class="card-icon role-icon-docente">school</mat-icon>
@@ -131,14 +119,14 @@
               <span class="data-label">
                 <mat-icon class="label-icon">psychology</mat-icon>Especialidad
               </span>
-              <span class="data-value">{{ asDocente(p.datosEspecificos).especialidad ?? 'Sin especificar' }}</span>
+              <span class="data-value"
+                >{{ asDocente(p.datosEspecificos).especialidad ?? 'Sin especificar' }}</span
+              >
             </li>
           </ul>
         </mat-card-content>
       </mat-card>
-      }
-
-      @case ('estudiante') {
+      } @case ('estudiante') {
       <mat-card class="data-card role-card">
         <mat-card-header>
           <mat-icon mat-card-avatar class="card-icon role-icon-estudiante">menu_book</mat-icon>
@@ -149,15 +137,11 @@
           @if (asEstudiante(p.datosEspecificos).curso; as curso) {
           <ul class="data-list">
             <li class="data-item">
-              <span class="data-label">
-                <mat-icon class="label-icon">class</mat-icon>Nivel
-              </span>
+              <span class="data-label"> <mat-icon class="label-icon">class</mat-icon>Nivel </span>
               <span class="data-value">{{ curso.nivel }}</span>
             </li>
             <li class="data-item">
-              <span class="data-label">
-                <mat-icon class="label-icon">abc</mat-icon>Letra
-              </span>
+              <span class="data-label"> <mat-icon class="label-icon">abc</mat-icon>Letra </span>
               <span class="data-value">{{ curso.letra }}</span>
             </li>
             <li class="data-item">
@@ -172,12 +156,9 @@
           }
         </mat-card-content>
       </mat-card>
-      }
-
-      }
-      }
-
-    </div><!-- /profile-grid -->
+      } } }
+    </div>
+    <!-- /profile-grid -->
 
     <!-- System info -->
     <mat-card class="system-card">
@@ -191,16 +172,18 @@
             <mat-icon class="sys-icon">manage_accounts</mat-icon>
             Rol: <strong>{{ p.rol.nombre }}</strong>
           </span>
-          <span class="system-item" [class.active-badge]="p.activo" [class.inactive-badge]="!p.activo">
+          <span
+            class="system-item"
+            [class.active-badge]="p.activo"
+            [class.inactive-badge]="!p.activo"
+          >
             <mat-icon class="sys-icon">{{ p.activo ? 'verified_user' : 'gpp_bad' }}</mat-icon>
             Estado: <strong>{{ p.activo ? 'Activo' : 'Inactivo' }}</strong>
           </span>
         </div>
       </mat-card-content>
     </mat-card>
-
-  </div><!-- /profile-container -->
+  </div>
+  <!-- /profile-container -->
   }
-
-
 </div>

@@ -19,34 +19,34 @@ export interface BackendMensaje {
 })
 export class ComunicacionesApi {
   private readonly http = inject(HttpClient);
-  private readonly msMensajeriaUrl = environment.msMensajeriaUrl;
-  private readonly backGestionUrl = environment.backGestionUrl;
+  private readonly bffMensajesUrl = environment.msMensajeriaUrl;
+  private readonly bffUrl = environment.backGestionUrl;
 
   getTodosLosUsuarios() {
-    return firstValueFrom(this.http.get<any[]>(`${this.backGestionUrl}/usuarios`));
+    return firstValueFrom(this.http.get<any[]>(`${this.bffUrl}/usuarios`));
   }
 
   getRecibidos(email: string) {
     return firstValueFrom(
-      this.http.get<{ ok: boolean; data: BackendMensaje[] }>(`${this.msMensajeriaUrl}/recibidos/${email}`)
+      this.http.get<{ ok: boolean; data: BackendMensaje[] }>(`${this.bffMensajesUrl}/recibidos/${email}`)
     );
   }
 
   getEnviados(email: string) {
     return firstValueFrom(
-      this.http.get<{ ok: boolean; data: BackendMensaje[] }>(`${this.msMensajeriaUrl}/enviados/${email}`)
+      this.http.get<{ ok: boolean; data: BackendMensaje[] }>(`${this.bffMensajesUrl}/enviados/${email}`)
     );
   }
 
   enviarMensaje(formData: FormData) {
-    return firstValueFrom(this.http.post<{ ok: boolean; data: BackendMensaje; mensaje?: string }>(this.msMensajeriaUrl, formData));
+    return firstValueFrom(this.http.post<{ ok: boolean; data: BackendMensaje; mensaje?: string }>(this.bffMensajesUrl, formData));
   }
 
   marcarComoLeido(mensajeId: string) {
-    return firstValueFrom(this.http.patch(`${this.msMensajeriaUrl}/leido/${mensajeId}`, {}));
+    return firstValueFrom(this.http.patch(`${this.bffMensajesUrl}/leido/${mensajeId}`, {}));
   }
 
   getDownloadUrl(mensajeId: string) {
-    return `${this.msMensajeriaUrl}/descargar/${mensajeId}`;
+    return `${this.bffMensajesUrl}/descargar/${mensajeId}`;
   }
 }

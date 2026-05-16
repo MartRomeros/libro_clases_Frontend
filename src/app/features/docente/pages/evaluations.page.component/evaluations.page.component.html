@@ -1,21 +1,15 @@
-<app-navbar />
+<app-navbar-docente>
 
-<div class="p-4 flex gap-3">
-    <button mat-icon-button class="back-btn" matTooltip="Volver al inicio" (click)="volver()">
-        <mat-icon>arrow_back</mat-icon>
-    </button>
-    <h2 class="text-4xl bold">Evaluaciones y Calificaciones</h2>
-</div>
-
-<div class="evaluations-container">
+<div class="evaluations-container pt-30! px-[5%]!">
     <div class="dashboard-layout">
         <!-- Sidebar: Selector de Curso y Lista de Evaluaciones -->
         <div class="sidebar">
-            <mat-card appearance="outlined" class="sticky-card">
-                <mat-card-header>
+            <mat-card appearance="outlined" class="sticky-card bg-white!">
+                <mat-card-header class="mb-4">
                     <mat-card-title>Configuración</mat-card-title>
-                </mat-card-header>
-                <mat-card-content>
+                </mat-card-header >
+
+                <mat-card-content class="">
                     <div class="selector-row">
                         @if (cursosQuery.isError()) {
                             <app-error-state [error]="cursosQuery.error()" (retry)="cursosQuery.refetch()" />
@@ -49,7 +43,7 @@
 
             <!-- Formulario Nueva Evaluación -->
             @if (mostrarFormNuevaEv()) {
-            <mat-card appearance="outlined" class="form-card animate-slide-in">
+            <mat-card appearance="outlined" class="form-card animate-slide-in mt-4">
                 <mat-card-header>
                     <mat-card-title>Nueva Evaluación</mat-card-title>
                 </mat-card-header>
@@ -80,7 +74,7 @@
 
             <!-- Lista de Evaluaciones del Curso -->
             @if (cursoSeleccionado()) {
-            <mat-card appearance="outlined" class="list-card">
+            <mat-card appearance="outlined" class="list-card mt-4 bg-white!">
                 <mat-card-header>
                     <mat-card-title>Evaluaciones Existentes</mat-card-title>
                     <mat-card-subtitle>{{ evaluaciones().length }} registros</mat-card-subtitle>
@@ -100,9 +94,9 @@
                             </div>
                         </mat-list-item>
                         } @empty {
-                            <app-empty-state 
-                                icon="assignment_late" 
-                                title="No hay evaluaciones" 
+                            <app-empty-state
+                                icon="assignment_late"
+                                title="No hay evaluaciones"
                                 message="Aún no has creado evaluaciones para este curso."
                             />
                         }
@@ -113,15 +107,15 @@
         </div>
 
         <!-- Contenido Principal: Matriz de Notas -->
-        <div class="main-content">
+        <div class="main-content mt-4">
             @if (!cursoSeleccionado()) {
-            <app-empty-state 
-                icon="school" 
-                title="Selecciona un curso" 
+            <app-empty-state
+                icon="school"
+                title="Selecciona un curso"
                 message="Elige un curso y asignatura en el panel lateral para gestionar las calificaciones."
             />
             } @else {
-            <mat-card appearance="outlined" class="grades-card">
+            <mat-card appearance="outlined" class="grades-card bg-white!">
                 <mat-card-header>
                     <mat-card-title>Planilla de Calificaciones</mat-card-title>
                     <mat-card-subtitle>{{ cursoSeleccionadoLabel() }}</mat-card-subtitle>
@@ -131,20 +125,20 @@
                     @if (isLoadingEstudiantes()) {
                         <app-loading-state message="Obteniendo lista de estudiantes y calificaciones..." />
                     } @else if (estudiantesQuery.isError() || notasQuery.isError() || evaluacionesQuery.isError()) {
-                        <app-error-state 
-                          [error]="estudiantesQuery.error() || notasQuery.error() || evaluacionesQuery.error()" 
+                        <app-error-state
+                          [error]="estudiantesQuery.error() || notasQuery.error() || evaluacionesQuery.error()"
                           title="Error al cargar datos"
                           (retry)="verDetalleCurso(cursoSeleccionado()!)"
                         />
                     } @else if (tablaDataSignal().length === 0) {
-                        <app-empty-state 
-                            icon="group_off" 
-                            title="No hay alumnos" 
+                        <app-empty-state
+                            icon="group_off"
+                            title="No hay alumnos"
                             message="Este curso aún no tiene alumnos asignados."
                         />
                     } @else {
                     <div class="table-container">
-                        <table mat-table [dataSource]="dataSource" class="grades-table">
+                        <table mat-table [dataSource]="dataSource" class="grades-table bg-white!">
                             <ng-container matColumnDef="nombre" sticky>
                                 <th mat-header-cell *matHeaderCellDef> Estudiante </th>
                                 <td mat-cell *matCellDef="let element" class="name-cell">
@@ -211,3 +205,4 @@
         </div>
     </div>
 </div>
+</app-navbar-docente>

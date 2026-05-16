@@ -1,9 +1,8 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:3000/api', // Placeholder for AWS Gateway
-  apiAttendanceConductUrl: 'http://localhost:3001/api', //MS de asistencia y conducta
-  backGestionUrl: 'http://localhost:8080/api',// MS Gestion academica
   msAuthUrl: 'http://localhost:3000/api',
+  backGestionUrl: 'http://localhost:8080/api',
+  apiAttendanceConductUrl: 'http://localhost:3001/api',
   msMensajeriaUrl: 'http://localhost:3001/api/mensajes',
   /** ⚠️ SOLO DESARROLLO: omite el login e inyecta un estudiante de prueba */
   bypassLogin: false,

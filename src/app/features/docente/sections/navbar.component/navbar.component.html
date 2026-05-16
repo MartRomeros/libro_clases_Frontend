@@ -1,0 +1,57 @@
+<mat-sidenav-container class="min-h-screen" [hasBackdrop]="true">
+    <mat-sidenav #sidenav mode="over" position="end" class="w-72! bg-white!">
+
+        <div class="p-6 border-b border-gray-100 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 bg-linear-to-br from-[#001e40] to-[#003366] rounded-lg grid place-items-center">
+                    <mat-icon class="text-white! w-5! h-5! text-[20px]!">shield</mat-icon>
+                </div>
+                <span class="font-display font-bold text-[#001e40]">O'Higgins</span>
+            </div>
+            <button mat-icon-button (click)="sidenav.close()">
+                <mat-icon>close</mat-icon>
+            </button>
+        </div>
+
+        <mat-nav-list class="pt-4!">
+            <a mat-list-item routerLink="/docente" (click)="sidenav.close()"><mat-icon matListItemIcon>home</mat-icon><span
+                    matListItemTitle>Inicio</span></a>
+            <a mat-list-item routerLink="/docente/cursos" (click)="sidenav.close()"><mat-icon
+                    matListItemIcon>school</mat-icon><span matListItemTitle>Cursos</span></a>
+            <a mat-list-item routerLink="/docente/evaluaciones" (click)="sidenav.close()"><mat-icon
+                    matListItemIcon>fact_check</mat-icon><span matListItemTitle>Evaluaciones</span></a>
+            <a mat-list-item routerLink="/docente/asistencia" (click)="sidenav.close()"><mat-icon
+                    matListItemIcon>calendar_month</mat-icon><span
+                    matListItemTitle>Asistencia</span></a>
+            <a mat-list-item routerLink="/comunicaciones" (click)="sidenav.close()"><mat-icon
+                    matListItemIcon>chat</mat-icon><span matListItemTitle>Mensajes</span></a>
+
+            <div class="p-4 mt-4 flex flex-col gap-3">
+                <button mat-stroked-button class="w-full! rounded-full! text-[#001e40]!" (click)="sidenav.close()">
+                    <mat-icon>notifications</mat-icon> Notificaciones recientes
+                </button>
+                <button mat-stroked-button class="w-full! rounded-full! text-[#001e40]!"
+                    [matMenuTriggerFor]="sessionMenu">
+                    <mat-icon>person</mat-icon> Cuenta
+                </button>
+                <mat-menu #sessionMenu="matMenu">
+                    <button mat-menu-item (click)="verPerfil()">
+                        <mat-icon>person</mat-icon>
+                        <span>Ver perfil</span>
+                    </button>
+                    <button mat-menu-item (click)="cerrarSesion()">
+                        <mat-icon>logout</mat-icon>
+                        <span>Cerrar sesión</span>
+                    </button>
+                </mat-menu>
+            </div>
+        </mat-nav-list>
+
+    </mat-sidenav>
+
+    <mat-sidenav-content>
+        <app-toolbar-docente [sidenav]="sidenav" (menuClick)="sidenav.toggle()" />
+        <ng-content></ng-content>
+    </mat-sidenav-content>
+
+</mat-sidenav-container>

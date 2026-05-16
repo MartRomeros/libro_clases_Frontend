@@ -2,14 +2,14 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { 
-  Usuario, 
-  Docente, 
-  Estudiante, 
-  Evaluacion, 
-  Curso, 
-  Asignatura, 
-  CAD 
+import {
+  Usuario,
+  Docente,
+  Estudiante,
+  Evaluacion,
+  Curso,
+  Asignatura,
+  CAD
 } from '../models/admin.model';
 
 @Injectable({
@@ -83,6 +83,7 @@ export class AdminApi {
     return firstValueFrom(this.http.delete<void>(`${this.apiUrl}/academico/asignaturas/${id}`));
   }
 
+  // --- CAD ---
   getCads() {
     return firstValueFrom(this.http.get<CAD[]>(`${this.apiUrl}/docentes/cad/all`));
   }

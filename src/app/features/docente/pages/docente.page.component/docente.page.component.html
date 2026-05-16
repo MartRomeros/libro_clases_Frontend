@@ -1,242 +1,179 @@
-<app-navbar />
+<app-navbar-docente>
 
-<div class="docente-container">
-
-    <!-- Header de bienvenida -->
-    <section class="bienvenida">
-        <div class="bienvenida-content">
-            <button class="avatar-circle avatar-btn" mat-icon-button matTooltip="Ver mi perfil"
-                (click)="navegarA('/perfil')">
+    <section class="pt-30 px-[5%] gap-16 relative overflow-hidden">
+        <div class="flex items-center gap-4 mb-12">
+            <div class="bg-(--mat-sys-primary-container) rounded-full w-20 h-20 flex items-center justify-center">
                 <mat-icon class="avatar-icon">person</mat-icon>
-            </button>
-            <div class="bienvenida-texto">
-                <h1 class="bienvenida-titulo">
+            </div>
+            <div>
+                <h1 class="text-xl font-bold text-[#001e40] lg:text-3xl ">
                     @if(loading()){
-                        cargando...
+                    cargando...
                     } @else if (error()) {
-                        Bienvenido
+                    Bienvenido
                     } @else {
-                        Bienvenido, {{ fullName() }}
+                    Bienvenido, {{ fullName() }}
                     }
                 </h1>
-                <p class="bienvenida-subtitulo">Panel de gestión docente — Colegio Bernardo O'Higgins</p>
-                <button mat-button class="perfil-link" (click)="navegarA('/perfil')">
-                    <mat-icon>manage_accounts</mat-icon>
-                    Ver mi perfil
-                </button>
+                <p class="text-sm text-muted-foreground">
+                    Panel de gestión docente — Colegio Bernardo O'Higgins
+                </p>
             </div>
         </div>
     </section>
 
-    <!-- Resumen rápido -->
-    <section class="resumen-section">
-        <h2 class="section-title">Resumen del día</h2>
-        <div class="resumen-grid">
-            @for (item of resumenRapido; track item.etiqueta) {
-            <mat-card class="resumen-card" appearance="outlined">
-                <mat-card-content class="resumen-card-content">
-                    <mat-icon class="resumen-icono" color="primary">{{ item.icono }}</mat-icon>
-                    <div class="resumen-info">
-                        <span class="resumen-valor">{{ item.valor }}</span>
-                        <span class="resumen-etiqueta">{{ item.etiqueta }}</span>
-                    </div>
-                </mat-card-content>
-            </mat-card>
-            }
-        </div>
+    @if (dashboardLoading()) {
+    <section class="px-[5%] pb-10">
+        <app-loading-state message="Cargando información del dashboard docente..." />
+    </section>
+    } @else if (dashboardError()) {
+    <section class="px-[5%] pb-10">
+        <app-error-state [error]="dashboardError()" (retry)="reintentarDashboard()" />
+    </section>
+    } @else if (dashboardIsEmpty()) {
+    <section class="px-[5%] pb-10">
+        <app-empty-state icon="dashboard" title="Sin datos en el dashboard"
+            message="Aún no hay datos académicos disponibles para este docente." />
+    </section>
+    } @else {
+    <section class="pb-6 px-[5%] relative overflow-hidden grid gap-16 lg:grid-cols-4">
+
+        @for (item of resumenRapido(); track $index) {
+        <mat-card appearance="outlined" class="bg-white! overflow-hidden! border-l-[6px]! border-l-[#003366]!">
+            <mat-card-content class="flex! flex-col! items-center! gap-2!">
+                <div>
+                    <mat-icon class="p-2 bg-(--mat-sys-primary-container) text-3xl! w-12! h-12! rounded-xl">
+                        {{item.icono}}
+                    </mat-icon>
+                </div>
+                <h3 class="text-3xl font-bold">{{item.valor}}</h3>
+                <span>{{item.etiqueta}}</span>
+
+            </mat-card-content>
+        </mat-card>
+        }
     </section>
 
     <mat-divider></mat-divider>
 
-    <!-- Opciones principales -->
-    <section class="opciones-section">
-        <h2 class="section-title">Mis herramientas</h2>
-        <div class="opciones-grid">
-            @for (opcion of opciones; track opcion.titulo) {
-            <mat-card class="opcion-card" (click)="navegarA(opcion.ruta)" tabindex="0"
-                (keydown.enter)="navegarA(opcion.ruta)">
-                <mat-card-content class="opcion-card-content">
-                    <div class="opcion-icon-wrapper" [class]="'icon-' + opcion.color">
-                        @if (opcion.badge) {
-                        <mat-icon [matBadge]="opcion.badge" matBadgeColor="warn" class="opcion-icono">
-                            {{ opcion.icono }}
-                        </mat-icon>
-                        } @else {
-                        <mat-icon class="opcion-icono">{{ opcion.icono }}</mat-icon>
-                        }
-                    </div>
-                    <div class="opcion-texto">
-                        <h3 class="opcion-titulo">{{ opcion.titulo }}</h3>
-                        <p class="opcion-descripcion">{{ opcion.descripcion }}</p>
-                    </div>
-                    <mat-icon class="opcion-chevron">chevron_right</mat-icon>
-                </mat-card-content>
-            </mat-card>
-            }
-        </div>
-    </section>
+    <section class="pb-10 pt-10 px-[5%] relative overflow-hidden">
 
-    <!-- Sección Dinámica: Mis Cursos -->
-    <section id="seccion-cursos" class="cursos-section" [style.display]="mostrarCursos() ? 'block' : 'none'">
-        <div class="section-header">
-            <h2 class="section-title">Mis Cursos Asignados</h2>
-            <button mat-icon-button (click)="mostrarCursos.set(false)" matTooltip="Cerrar">
-                <mat-icon>close</mat-icon>
-            </button>
-        </div>
-
-        <mat-card class="cursos-card" appearance="outlined">
+        <mat-card class="bg-white! overflow-hidden! border-l-[6px]! border-l-[#003366]!" appearance="outlined">
             <mat-card-content>
-                @if (isLoadingCursos()) {
-                  <app-loading-state message="Obteniendo cursos desde BackGestion..." />
-                } @else if (cursosLoadError()) {
-                  <app-error-state [error]="cursosLoadError()" (retry)="cargarCursos()" />
-                } @else if (dataSource.data.length === 0) {
-                  <app-empty-state 
-                    icon="event_busy" 
-                    title="No hay cursos asignados" 
-                    message="No se encontraron cursos asignados para este docente. Verifica tu configuración académica."
-                  />
-                } @else {
-                  <div class="table-container">
-                    <table mat-table [dataSource]="dataSource" class="tabla-premium">
-
-                        <!-- Columna Curso -->
+                <h2 class="text-xl font-bold mb-6">Mis clases de hoy <mat-icon>schedule</mat-icon> </h2>
+                <div class="mis-clases-table-container">
+                    <table mat-table [dataSource]="misClasesData()" class="tabla-premium bg-white!">
                         <ng-container matColumnDef="curso">
-                            <th mat-header-cell *matHeaderCellDef> Curso </th>
-                            <td mat-cell *matCellDef="let element">
-                                <span class="badge-curso">{{ element.curso }}</span>
-                            </td>
+                            <th mat-header-cell *matHeaderCellDef>Curso</th>
+                            <td mat-cell *matCellDef="let clase">{{ clase.curso }}</td>
                         </ng-container>
 
-                        <!-- Columna Asignatura -->
                         <ng-container matColumnDef="asignatura">
-                            <th mat-header-cell *matHeaderCellDef> Asignatura </th>
-                            <td mat-cell *matCellDef="let element"> {{ element.asignaturaNombre }} </td>
+                            <th mat-header-cell *matHeaderCellDef>Asignatura</th>
+                            <td mat-cell *matCellDef="let clase">{{ clase.asignatura }}</td>
                         </ng-container>
 
-                        <!-- Columna Año -->
-                        <ng-container matColumnDef="anioAcademico">
-                            <th mat-header-cell *matHeaderCellDef> Año Académico </th>
-                            <td mat-cell *matCellDef="let element"> {{ element.anioAcademico }} </td>
+                        <ng-container matColumnDef="sala">
+                            <th mat-header-cell *matHeaderCellDef>Sala</th>
+                            <td mat-cell *matCellDef="let clase">{{ clase.sala }}</td>
                         </ng-container>
 
-                        <!-- Columna Ver Curso (Alumnos) -->
                         <ng-container matColumnDef="acciones">
-                            <th mat-header-cell *matHeaderCellDef class="text-center"> Ver Curso </th>
-                            <td mat-cell *matCellDef="let element" class="text-center">
-                                <button mat-icon-button color="primary" (click)="verDetalleCurso(element)"
-                                    matTooltip="Ver lista de alumnos">
-                                    <mat-icon (click)="verDetalleCurso(element)">visibility</mat-icon>
+                            <th mat-header-cell *matHeaderCellDef>Acciones</th>
+                            <td mat-cell *matCellDef="let clase" class="mis-clases-actions">
+                                <button mat-button color="primary" (click)="irAAsistenciaPorCurso(clase.cadId)">
+                                    <mat-icon>fact_check</mat-icon>
+                                    Asistencia
                                 </button>
                             </td>
                         </ng-container>
 
-                        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+                        <tr mat-header-row *matHeaderRowDef="misClasesColumns"></tr>
+                        <tr mat-row *matRowDef="let row; columns: misClasesColumns"></tr>
                     </table>
-                  </div>
-                }
+                </div>
             </mat-card-content>
         </mat-card>
     </section>
 
-    <!-- SECCIÓN ESTUDIANTES (Segunda Inteligencia) -->
-    <section id="seccion-estudiantes" class="estudiantes-section"
-        [style.display]="mostrarEstudiantes() ? 'block' : 'none'">
-        <div class="section-header">
-            <div class="header-with-subtitle">
-                <h2 class="section-title">Lista de Alumnos</h2>
-                <span class="section-subtitle">{{ cursoSeleccionado() }}</span>
-            </div>
-            <button mat-icon-button (click)="mostrarEstudiantes.set(false)" matTooltip="Cerrar">
-                <mat-icon>close</mat-icon>
-            </button>
-        </div>
+    <mat-divider />
 
-        <mat-card class="estudiantes-card" appearance="outlined">
+    <section class="pb-10 pt-10 px-[5%] relative overflow-hidden">
+
+        <mat-card class="bg-white! overflow-hidden! border-l-[6px]! border-l-[#003366]!" appearance="outlined">
             <mat-card-content>
-                @if (isLoadingEstudiantes()) {
-                  <app-loading-state message="Obteniendo lista de estudiantes..." />
-                } @else if (estudiantesLoadError()) {
-                  <app-error-state [error]="estudiantesLoadError()" />
-                } @else if (estudiantesDataSource.data.length === 0) {
-                  <app-empty-state 
-                    icon="group_off" 
-                    title="No hay alumnos" 
-                    message="Este curso aún no tiene alumnos asignados."
-                  />
-                } @else {
-                <div class="table-container">
-                    <table mat-table [dataSource]="estudiantesDataSource" class="tabla-premium">
+                <h2 class="text-2xl font-bold mb-6">Herramientas Rapidas <mat-icon>bolt</mat-icon> </h2>
 
-                        <ng-container matColumnDef="rut">
-                            <th mat-header-cell *matHeaderCellDef> RUT </th>
-                            <td mat-cell *matCellDef="let element"> {{ element.rut }} </td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="nombre">
-                            <th mat-header-cell *matHeaderCellDef> Nombre Completo </th>
-                            <td mat-cell *matCellDef="let element"> {{ element.estudianteFullName }} </td>
-                        </ng-container>
-
-                        <!-- Nota 1 -->
-                        <ng-container matColumnDef="nota1">
-                            <th mat-header-cell *matHeaderCellDef class="text-center"> EV 1 </th>
-                            <td mat-cell *matCellDef="let element" class="text-center">
-                                <input type="number" [(ngModel)]="element.nota1" (input)="actualizarPromedio(element)"
-                                    min="1" max="7" step="0.1" class="nota-input">
-                            </td>
-                        </ng-container>
-
-                        <!-- Nota 2 -->
-                        <ng-container matColumnDef="nota2">
-                            <th mat-header-cell *matHeaderCellDef class="text-center"> EV 2 </th>
-                            <td mat-cell *matCellDef="let element" class="text-center">
-                                <input type="number" [(ngModel)]="element.nota2" (input)="actualizarPromedio(element)"
-                                    min="1" max="7" step="0.1" class="nota-input">
-                            </td>
-                        </ng-container>
-
-                        <!-- Nota 3 -->
-                        <ng-container matColumnDef="nota3">
-                            <th mat-header-cell *matHeaderCellDef class="text-center"> EV 3 </th>
-                            <td mat-cell *matCellDef="let element" class="text-center">
-                                <input type="number" [(ngModel)]="element.nota3" (input)="actualizarPromedio(element)"
-                                    min="1" max="7" step="0.1" class="nota-input">
-                            </td>
-                        </ng-container>
-
-                        <!-- Promedio -->
-                        <ng-container matColumnDef="promedio">
-                            <th mat-header-cell *matHeaderCellDef class="text-center"> Promedio </th>
-                            <td mat-cell *matCellDef="let element" class="text-center">
-                                <span class="promedio-badge" [class.reprobado]="(element.promedio || 0) < 4">
-                                    {{ element.promedio || '0.0' }}
-                                </span>
-                            </td>
-                        </ng-container>
-
-                        <tr mat-header-row *matHeaderRowDef="estudiantesColumns"></tr>
-                        <tr mat-row *matRowDef="let row; columns: estudiantesColumns"></tr>
-                    </table>
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                    @for (item of opciones; track $index) {
+                    <mat-card class="bg-white! cursor-pointer transition hover:shadow-md" appearance="outlined" (click)="navegar(item.ruta)">
+                        <mat-card-content>
+                            <div class="flex min-h-20 items-center gap-4">
+                                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-100">
+                                    <mat-icon class="h-7! w-7! text-3xl! leading-none text-slate-700">{{ item.icono }}</mat-icon>
+                                </div>
+                                <div class="min-w-0">
+                                    <h3 class="text-base font-semibold leading-tight">{{item.titulo}}</h3>
+                                    <p class="mt-1 text-sm text-slate-600">{{item.descripcion}}</p>
+                                </div>
+                            </div>
+                        </mat-card-content>
+                    </mat-card>
+                    }
                 </div>
-
-                <!-- Botones de Acción -->
-                <div class="estudiantes-actions">
-                    <button mat-button color="warn" (click)="cancelarEdicion()">
-                        <mat-icon>close</mat-icon>
-                        Cancelar
-                    </button>
-                    <button mat-flat-button color="primary" (click)="guardarNotas()">
-                        <mat-icon>save</mat-icon>
-                        Guardar Cambios
-                    </button>
-                </div>
-                }
             </mat-card-content>
         </mat-card>
     </section>
 
+    <mat-divider />
 
-</div>
+    <section class="pb-10 pt-10 px-[5%] relative overflow-hidden gap-4 grid grid-cols-1 lg:grid-cols-2">
+
+        <mat-card class="bg-white! overflow-hidden! border-l-[6px]! border-l-[#003366]!" appearance="outlined">
+            <mat-card-content>
+                <h2 class="text-2xl font-bold mb-6">Resumen Academico <mat-icon>bar_chart</mat-icon> </h2>
+                <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
+                    <div class="rounded-xl border border-slate-200 p-4">
+                        <h3 class="mb-4 text-lg font-semibold text-slate-800">Asistencia por Curso (%)</h3>
+                        <div class="h-64">
+                            <canvas baseChart [data]="asistenciaChartData()" [options]="asistenciaChartOptions"
+                                [type]="'bar'"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="rounded-xl border border-slate-200 p-4">
+                        <h3 class="mb-4 text-lg font-semibold text-slate-800">Promedio General por Curso</h3>
+                        <div class="h-64">
+                            <canvas baseChart [data]="promedioGeneralChartData()" [options]="promedioGeneralChartOptions"
+                                [type]="'bar'"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card class="bg-white! overflow-hidden! border-l-[6px]! border-l-[#003366]!" appearance="outlined">
+            <mat-card-content>
+                <h2 class="text-2xl font-bold mb-6">Mensajes Recientes <mat-icon>chat_bubble</mat-icon> </h2>
+                <div class="space-y-4">
+                    @for (msg of mensajesRecientes(); track $index) {
+                        <article class="rounded-xl border border-slate-200 p-4 transition hover:border-slate-300 hover:bg-slate-50">
+                            <div class="mb-1 flex items-start justify-between gap-3">
+                                <h3 class="text-sm font-semibold text-slate-900">{{ msg.remitente }}</h3>
+                                <span class="text-xs text-slate-500">{{ msg.fecha }}</span>
+                            </div>
+                            <p class="mb-1 text-sm font-medium text-slate-800">{{ msg.asunto }}</p>
+                            <p class="text-sm text-slate-600">{{ msg.preview }}</p>
+                        </article>
+                    } @empty {
+                        <article class="rounded-xl border border-dashed border-slate-300 p-4 text-sm text-slate-500">
+                            Aún no hay mensajes recientes.
+                        </article>
+                    }
+                </div>
+            </mat-card-content>
+        </mat-card>
+    </section>
+    }
+
+</app-navbar-docente>

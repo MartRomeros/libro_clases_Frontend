@@ -9,12 +9,12 @@ import { AttendanceResponse, NotaEstudiante } from '../models/estudiante.model';
 })
 export class EstudianteApi {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = environment.backGestionUrl;
+  private readonly academicUrl = environment.backGestionUrl;
   private readonly attendanceUrl = environment.apiAttendanceConductUrl;
 
   getNotas(estudianteId: number) {
     return firstValueFrom(
-      this.http.get<NotaEstudiante[]>(`${this.apiUrl}/notas/estudiante/${estudianteId}`)
+      this.http.get<NotaEstudiante[]>(`${this.academicUrl}/notas/estudiante/${estudianteId}`)
     );
   }
 

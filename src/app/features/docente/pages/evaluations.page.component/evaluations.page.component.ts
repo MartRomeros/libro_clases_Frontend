@@ -16,18 +16,30 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { Location } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {
+  FormsModule,
+  ReactiveFormsModule,
+  FormBuilder,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
 import { injectQuery, injectMutation } from '@tanstack/angular-query-experimental';
 
 import { Navbar } from '../../../../layout/navbar/navbar';
 import { AuthQueries } from '../../../auth/data-access/auth.queries';
 import { EvaluationsQueries } from '../../data-access/evaluations.queries';
 import { EvaluationsMutations } from '../../data-access/evaluations.mutations';
-import { DocenteCurso, Evaluacion, EstudianteCurso, NotaPost } from '../../models/evaluations.model';
+import {
+  DocenteCurso,
+  Evaluacion,
+  EstudianteCurso,
+  NotaPost,
+} from '../../models/evaluations.model';
 import { LoadingStateComponent } from '../../../../shared/components/loading-state/loading-state.component';
 import { ErrorStateComponent } from '../../../../shared/components/error-state/error-state.component';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
 import { showErrorSnack } from '../../../../shared/http/error-snackbar';
+import { NavbarComponent } from '../../sections/navbar.component/navbar.component';
 
 @Component({
   selector: 'app-evaluations-page',
@@ -50,13 +62,13 @@ import { showErrorSnack } from '../../../../shared/http/error-snackbar';
     MatTooltipModule,
     FormsModule,
     ReactiveFormsModule,
-    Navbar,
     LoadingStateComponent,
     ErrorStateComponent,
-    EmptyStateComponent
+    EmptyStateComponent,
+    NavbarComponent,
   ],
   templateUrl: './evaluations.page.component.html',
-  styleUrl: './evaluations.page.component.css'
+  styleUrl: './evaluations.page.component.css',
 })
 export class EvaluationsPageComponent {
   private readonly authQueries = inject(AuthQueries);
@@ -72,7 +84,7 @@ export class EvaluationsPageComponent {
   profile = computed(() => this.profileQuery.data());
 
   cursosQuery = injectQuery(() =>
-    this.evaluationsQueries.cursosDocente(this.profile()?.usuario_id ?? 0)
+    this.evaluationsQueries.cursosDocente(this.profile()?.usuario_id ?? 0),
   );
   cursos = computed(() => this.cursosQuery.data() ?? []);
 
@@ -81,23 +93,20 @@ export class EvaluationsPageComponent {
   cadId = computed(() => this.cursoSeleccionado()?.cadId ?? 0);
   asignaturaId = computed(() => this.cursoSeleccionado()?.asignaturaId ?? 0);
 
-  estudiantesQuery = injectQuery(() =>
-    this.evaluationsQueries.estudiantesCurso(this.cursoId())
-  );
+  estudiantesQuery = injectQuery(() => this.evaluationsQueries.estudiantesCurso(this.cursoId()));
 
-  evaluacionesQuery = injectQuery(() =>
-    this.evaluationsQueries.evaluacionesCad(this.cadId())
-  );
+  evaluacionesQuery = injectQuery(() => this.evaluationsQueries.evaluacionesCad(this.cadId()));
 
   notasQuery = injectQuery(() =>
-    this.evaluationsQueries.notasCursoAsignatura(this.cursoId(), this.asignaturaId())
+    this.evaluationsQueries.notasCursoAsignatura(this.cursoId(), this.asignaturaId()),
   );
 
   // Derived Data
-  isLoadingData = computed(() =>
-    this.estudiantesQuery.isPending() ||
-    this.evaluacionesQuery.isPending() ||
-    this.notasQuery.isPending()
+  isLoadingData = computed(
+    () =>
+      this.estudiantesQuery.isPending() ||
+      this.evaluacionesQuery.isPending() ||
+      this.notasQuery.isPending(),
   );
 
   evaluaciones = computed(() => this.evaluacionesQuery.data() ?? []);
@@ -105,7 +114,7 @@ export class EvaluationsPageComponent {
   displayedColumns = computed(() => {
     const evs = this.evaluaciones();
     const columns = ['nombre'];
-    evs.forEach(ev => {
+    evs.forEach((ev) => {
       columns.push(`ev_${ev.evaluacionId}`);
     });
     columns.push('promedio');
@@ -127,13 +136,13 @@ export class EvaluationsPageComponent {
       this.snackBar.open('✓ Evaluación creada con éxito', 'Cerrar', { duration: 3000 });
       this.evaluacionForm.reset({
         nombre: '',
-        fechaEvaluacion: new Date().toISOString().split('T')[0]
+        fechaEvaluacion: new Date().toISOString().split('T')[0],
       });
       this.mostrarFormNuevaEv.set(false);
     },
     onError: (err) => {
       showErrorSnack(this.snackBar, err);
-    }
+    },
   }));
 
   // Mutation: Guardar Notas
@@ -144,7 +153,7 @@ export class EvaluationsPageComponent {
         duration: 4000,
         panelClass: ['success-snackbar'],
         horizontalPosition: 'end',
-        verticalPosition: 'top'
+        verticalPosition: 'top',
       });
       this.mostrarEstudiantes.set(false);
       this.isLoadingEstudiantes.set(false);
@@ -152,7 +161,7 @@ export class EvaluationsPageComponent {
     onError: (err) => {
       showErrorSnack(this.snackBar, err);
       this.isLoadingEstudiantes.set(false);
-    }
+    },
   }));
 
   evaluacionForm: FormGroup;
@@ -162,7 +171,7 @@ export class EvaluationsPageComponent {
   constructor() {
     this.evaluacionForm = this.fb.group({
       nombre: ['', [Validators.required, Validators.minLength(3)]],
-      fechaEvaluacion: [new Date().toISOString().split('T')[0], Validators.required]
+      fechaEvaluacion: [new Date().toISOString().split('T')[0], Validators.required],
     });
 
     // Check if we received a course from navigation state
@@ -203,7 +212,7 @@ export class EvaluationsPageComponent {
     const nueva: Evaluacion = {
       cadId: this.cadId(),
       nombre: this.evaluacionForm.value.nombre,
-      fechaEvaluacion: fechaStr
+      fechaEvaluacion: fechaStr,
     };
 
     this.crearEvaluacionMutation.mutate(nueva);
@@ -236,7 +245,11 @@ export class EvaluationsPageComponent {
       return;
     }
 
-    const listaCompleta = ests.map((est: EstudianteCurso) => {
+    const estudiantesUnicos = Array.from(
+      new Map(ests.map((est) => [est.estudianteId, est])).values(),
+    );
+
+    const listaCompleta = estudiantesUnicos.map((est: EstudianteCurso) => {
       // Asignar IDs de evaluación base por si no tienen notas aún
       if (evs[0]) {
         est.ev1Id = evs[0].evaluacionId;
@@ -248,7 +261,7 @@ export class EvaluationsPageComponent {
         est.ev3Id = evs[2].evaluacionId;
       }
 
-      const notaInfo = nts.find(n => n.estudianteId === est.estudianteId);
+      const notaInfo = nts.find((n) => n.estudianteId === est.estudianteId);
       if (notaInfo) {
         if (notaInfo.notaEv1 != null) est.nota1 = notaInfo.notaEv1;
         if (notaInfo.nota1Id != null) est.nota1Id = notaInfo.nota1Id;
@@ -283,8 +296,8 @@ export class EvaluationsPageComponent {
     if (n3 < 0) estudiante.nota3 = 0;
 
     const notas = [estudiante.nota1, estudiante.nota2, estudiante.nota3]
-      .map(n => Number(n))
-      .filter(n => !isNaN(n) && n > 0);
+      .map((n) => Number(n))
+      .filter((n) => !isNaN(n) && n > 0);
 
     if (notas.length > 0) {
       const sumaTotal = notas.reduce((acc, curr) => acc + curr, 0);
@@ -326,7 +339,7 @@ export class EvaluationsPageComponent {
           notaId: est.nota1Id,
           evaluacionId: est.ev1Id,
           estudianteId: est.estudianteId,
-          valor: est.nota1
+          valor: est.nota1,
         });
       }
       // Nota 2
@@ -335,7 +348,7 @@ export class EvaluationsPageComponent {
           notaId: est.nota2Id,
           evaluacionId: est.ev2Id,
           estudianteId: est.estudianteId,
-          valor: est.nota2
+          valor: est.nota2,
         });
       }
       // Nota 3
@@ -344,13 +357,15 @@ export class EvaluationsPageComponent {
           notaId: est.nota3Id,
           evaluacionId: est.ev3Id,
           estudianteId: est.estudianteId,
-          valor: est.nota3
+          valor: est.nota3,
         });
       }
     });
 
     if (notasParaGuardar.length === 0) {
-      this.snackBar.open('No hay calificaciones válidas para guardar', 'Cerrar', { duration: 3000 });
+      this.snackBar.open('No hay calificaciones válidas para guardar', 'Cerrar', {
+        duration: 3000,
+      });
       return;
     }
 

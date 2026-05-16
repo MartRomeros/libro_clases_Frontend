@@ -9,7 +9,10 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { Navbar } from '../../../layout/navbar/navbar';
-import { DocentePerfil, EstudiantePerfil } from '../../../features/auth/models/profile.response.model';
+import {
+  DocentePerfil,
+  EstudiantePerfil,
+} from '../../../features/auth/models/profile.response.model';
 import { AuthQueries } from '../../../features/auth/data-access/auth.queries';
 import { injectQuery } from '@tanstack/angular-query-experimental';
 import { LoadingStateComponent } from '../loading-state/loading-state.component';
@@ -26,32 +29,29 @@ import { ErrorStateComponent } from '../error-state/error-state.component';
     MatChipsModule,
     MatDividerModule,
     MatTooltipModule,
-    Navbar,
     LoadingStateComponent,
-    ErrorStateComponent
+    ErrorStateComponent,
   ],
   templateUrl: './user-profile.html',
   styleUrl: './user-profile.css',
 })
 export class UserProfileComponent {
-
-  private authQuery = inject(AuthQueries)
+  private authQuery = inject(AuthQueries);
   private router = inject(Router);
 
-  profileQuery = injectQuery(()=> this.authQuery.me())
-  user = computed(()=> this.profileQuery.data())
-  loading = computed(()=> this.profileQuery.isLoading())
-  error = computed(() => this.profileQuery.error())
-  
+  profileQuery = injectQuery(() => this.authQuery.me());
+  user = computed(() => this.profileQuery.data());
+  loading = computed(() => this.profileQuery.isLoading());
+  error = computed(() => this.profileQuery.error());
 
   initials = computed(() => {
-    const p = this.user()
+    const p = this.user();
     if (!p) return '?';
     return `${p.nombre.charAt(0)}${p.apellido_paterno.charAt(0)}`.toUpperCase();
   });
 
   fullName = computed(() => {
-    const p = this.user()
+    const p = this.user();
     if (!p) return '';
     const parts = [p.nombre, p.apellido_paterno, p.apellido_materno].filter(Boolean);
     return parts.join(' ');
@@ -74,8 +74,12 @@ export class UserProfileComponent {
     return 'account_circle';
   });
 
-  asDocente(d: unknown): DocentePerfil { return d as DocentePerfil; }
-  asEstudiante(d: unknown): EstudiantePerfil { return d as EstudiantePerfil; }
+  asDocente(d: unknown): DocentePerfil {
+    return d as DocentePerfil;
+  }
+  asEstudiante(d: unknown): EstudiantePerfil {
+    return d as EstudiantePerfil;
+  }
 
   volver(): void {
     const rol = this.user()?.rol.nombre.toLowerCase() ?? '';

@@ -1,61 +1,58 @@
-<app-navbar />
+<app-navbar-docente>
 
-<div class="p-4 flex gap-3">
-    <button mat-icon-button class="back-btn" matTooltip="Volver al inicio" (click)="volver()">
-        <mat-icon>arrow_back</mat-icon>
-    </button>
-    <h2 class="text-4xl bold">Asistencia y Conducta</h2>
-</div>
-
-<div class="asistencia-container">
-    @if (cursosQuery.isPending()) {
+    <section class="pt-30 px-[5%] gap-16 relative overflow-hidden">
+        @if (cursosQuery.isPending()) {
         <app-loading-state message="Cargando cursos..." />
-    } @else if (cursosQuery.isError()) {
+        } @else if (cursosQuery.isError()) {
         <app-error-state [error]="cursosQuery.error()" (retry)="cursosQuery.refetch()" />
-    } @else {
-    <!-- Filtros de curso y fecha -->
-    <mat-card class="filtros-card" appearance="outlined">
-        <mat-card-content class="filtros-content">
-            <mat-form-field appearance="outline" class="filtro-field">
-                <mat-label>Curso</mat-label>
-                <mat-select [value]="cursoSeleccionado()" (selectionChange)="cursoSeleccionado.set($event.value)">
-                    @for (curso of cursos(); track curso.curso_id) {
-                        <mat-option [value]="curso.cad_id">{{ curso.nivel }} {{ curso.letra }}</mat-option>
-                    }
-                </mat-select>
-                <mat-icon matPrefix>class</mat-icon>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="filtro-field">
-                <mat-label>Fecha</mat-label>
-                <input matInput placeholder="dd/mm/yyyy" [matDatepicker]="picker" [matDatepickerFilter]="dateFilter" [value]="fechaSeleccionada()" (dateChange)="onDateChange($event.value)">
-                <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-                <mat-datepicker #picker></mat-datepicker>
-                <mat-icon matPrefix>calendar_today</mat-icon>
-            </mat-form-field>
-        </mat-card-content>
-    </mat-card>
-
-    <!-- Tabs para alternar entre Asistencia y Conducta -->
-    <mat-tab-group class="asistencia-tabs" animationDuration="500ms">
-        <mat-tab>
-            <ng-template mat-tab-label>
-                <mat-icon class="tab-icon">check_circle</mat-icon>
-                Asistencia
-            </ng-template>
-            <app-attendance-component [cursoId]="cursoSeleccionado()" 
-                [fecha]="fechaSeleccionada()" />
-        </mat-tab>
-
-        <mat-tab>
-            <ng-template mat-tab-label>
-                <mat-icon class="tab-icon">edit_note</mat-icon>
-                Conducta
-            </ng-template>
-            <app-conduct-component [cursoId]="cursoSeleccionado()"
-                [fecha]="fechaSeleccionada()"  />
+        } @else {
             
-        </mat-tab>
-    </mat-tab-group>
-    }
-</div>
+        <!-- Filtros de curso y fecha -->
+        <mat-card class="bg-white! mb-4" appearance="outlined">
+            <mat-card-content class="flex! items-center! justify-center! gap-4!">
+
+                <mat-form-field appearance="outline" class="filtro-field">
+                    <mat-label>Curso</mat-label>
+                    <mat-select [value]="cursoSeleccionado()" (selectionChange)="cursoSeleccionado.set($event.value)">
+                        @for (curso of cursos(); track curso.curso_id) {
+                        <mat-option [value]="curso.cad_id">{{ curso.nivel }} {{ curso.letra }}</mat-option>
+                        }
+                    </mat-select>
+                    <mat-icon matPrefix>class</mat-icon>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="filtro-field">
+                    <mat-label>Fecha</mat-label>
+                    <input matInput placeholder="dd/mm/yyyy" [matDatepicker]="picker" [matDatepickerFilter]="dateFilter"
+                        [value]="fechaSeleccionada()" (dateChange)="onDateChange($event.value)">
+                    <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                    <mat-datepicker #picker></mat-datepicker>
+                    <mat-icon matPrefix>calendar_today</mat-icon>
+                </mat-form-field>
+            </mat-card-content>
+        </mat-card>
+
+        <!-- Tabs para alternar entre Asistencia y Conducta -->
+        <mat-tab-group class="asistencia-tabs bg-white! p-4" animationDuration="500ms">
+            <mat-tab>
+                <ng-template mat-tab-label>
+                    <mat-icon class="tab-icon">check_circle</mat-icon>
+                    Asistencia
+                </ng-template>
+                <app-attendance-component [cursoId]="cursoSeleccionado()" [fecha]="fechaSeleccionada()" />
+            </mat-tab>
+
+            <mat-tab>
+                <ng-template mat-tab-label>
+                    <mat-icon class="tab-icon">edit_note</mat-icon>
+                    Conducta
+                </ng-template>
+                <app-conduct-component [cursoId]="cursoSeleccionado()" [fecha]="fechaSeleccionada()" />
+
+            </mat-tab>
+        </mat-tab-group>
+        }
+
+    </section>
+
+</app-navbar-docente>

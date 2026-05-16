@@ -1,9 +1,8 @@
-import { Component, computed, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, computed, effect, inject, signal } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuthQueries } from '../../../auth/data-access/auth.queries';
 import { injectQuery } from '@tanstack/angular-query-experimental';
 import { AttendanceQueries } from '../../data-access/docente.queries';
-import { Navbar } from '../../../../layout/navbar/navbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -21,12 +20,12 @@ import { LoadingStateComponent } from '../../../../shared/components/loading-sta
 import { ErrorStateComponent } from '../../../../shared/components/error-state/error-state.component';
 import { Course } from '../../models/curso.response.model';
 import { isBusinessDayChile } from '../../utils/chile-business-day.util';
+import { NavbarComponent } from '../../sections/navbar.component/navbar.component';
 
 @Component({
   selector: 'app-attendance.page.component',
   imports: [
     CommonModule,
-    Navbar,
     MatIconModule,
     MatCardModule,
     MatTabsModule,
@@ -40,7 +39,8 @@ import { isBusinessDayChile } from '../../utils/chile-business-day.util';
     MatButtonModule,
     MatSnackBarModule,
     LoadingStateComponent,
-    ErrorStateComponent
+    ErrorStateComponent,
+    NavbarComponent
   ],
   providers: [{ provide: MAT_DATE_LOCALE, useValue: 'es-CL' }],
   templateUrl: './attendance.page.component.html',
@@ -52,6 +52,7 @@ export class AttendancePageComponent {
   private readonly attendanceQueries = inject(AttendanceQueries)
   private snackBar = inject(MatSnackBar);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
 
   profileQuery = injectQuery(() => this.authQueries.me())  
@@ -63,6 +64,25 @@ export class AttendancePageComponent {
 
   fechaSeleccionada = signal<Date>(new Date());
   cursoSeleccionado = signal<number | string>('');
+  private cadIdDesdeRuta = computed<number | null>(() => {
+    const raw = this.route.snapshot.queryParamMap.get('cadId');
+    if (!raw) return null;
+    const parsed = Number(raw);
+    return Number.isFinite(parsed) ? parsed : null;
+  });
+
+  private syncCursoDesdeRuta = effect(() => {
+    const cursos = this.cursos();
+    const cadId = this.cadIdDesdeRuta();
+    const selected = this.cursoSeleccionado();
+
+    if (!cadId || cursos.length === 0 || selected) return;
+
+    const existeCurso = cursos.some(curso => curso.cad_id === cadId);
+    if (existeCurso) {
+      this.cursoSeleccionado.set(cadId);
+    }
+  });
 
   dateFilter = (d: Date | null): boolean => {
     const date = d ?? new Date();

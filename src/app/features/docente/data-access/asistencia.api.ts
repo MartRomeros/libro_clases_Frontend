@@ -18,40 +18,36 @@ export interface RegistrarAnotacionResponse {
   message: string;
 }
 
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class AttendanceApi {
+  private readonly http = inject(HttpClient);
+  private readonly attendanceUrl = environment.apiAttendanceConductUrl;
 
-    private readonly http = inject(HttpClient)
-    private attendanceUrl = environment.apiAttendanceConductUrl
+  getCursosDisponibles(): Promise<CoursesResponse> {
+    return firstValueFrom(this.http.get<CoursesResponse>(`${this.attendanceUrl}/docentes/cursos`));
+  }
 
-    getCursosDisponibles(): Promise<CoursesResponse> {
-        return firstValueFrom(
-            this.http.get<CoursesResponse>(`${this.attendanceUrl}/docentes/cursos`)
-        )
-    }
+  getAlumnosCurso(cursoId: number) {
+    return firstValueFrom(this.http.get<AlumnosResponse>(`${this.attendanceUrl}/cursos/${cursoId}/alumnos`));
+  }
 
-    getAlumnosCurso(cursoId: number) {
-        return firstValueFrom(
-            this.http.get<AlumnosResponse>(`${this.attendanceUrl}/cursos/${cursoId}/alumnos`)
-        )
-    }
+  registrarAsistencia(payload: AsistenciaPayload) {
+    return firstValueFrom(
+      this.http.post<RegistroAsistenciaResponse>(`${this.attendanceUrl}/asistencia`, payload)
+    );
+  }
 
-    registrarAsistencia(payload: AsistenciaPayload) {
-        return firstValueFrom(
-            this.http.post<RegistroAsistenciaResponse>(`${this.attendanceUrl}/asistencia`, payload)
-        )
-    }
+  registrarAnotacion(payload: AnotacionPayload) {
+    return firstValueFrom(
+      this.http.post<RegistrarAnotacionResponse>(`${this.attendanceUrl}/anotaciones`, payload)
+    );
+  }
 
-    registrarAnotacion(payload: AnotacionPayload) {
-        return firstValueFrom(
-            this.http.post<RegistrarAnotacionResponse>(`${this.attendanceUrl}/anotaciones`, payload)
-        )
-    }
-
-    getAnotaciones(cursoId: number) {
-        const query = `?curso_id=${cursoId}`;
-        return firstValueFrom(
-            this.http.get<AnotacionesResponse>(`${this.attendanceUrl}/anotaciones${query}`)
-        )
-    }
+  getAnotaciones(cursoId: number) {
+    return firstValueFrom(
+      this.http.get<AnotacionesResponse>(`${this.attendanceUrl}/anotaciones`, {
+        params: { curso_id: cursoId },
+      })
+    );
+  }
 }
