@@ -21,14 +21,14 @@ export interface RegistrarAnotacionResponse {
 @Injectable({ providedIn: "root" })
 export class AttendanceApi {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = `${environment.bffUrl}/api`;
+  private readonly apiUrl = `${environment.apiGw}/api`;
 
   getCursosDisponibles(): Promise<CoursesResponse> {
-    return firstValueFrom(this.http.get<CoursesResponse>(`${this.apiUrl}/asistencia-conducta/docentes/cursos`));
+    return firstValueFrom(this.http.get<CoursesResponse>(`${this.apiUrl}/docentes/cursos`));
   }
 
   getAlumnosCurso(cursoId: number) {
-    return firstValueFrom(this.http.get<AlumnosResponse>(`${this.apiUrl}/asistencia-conducta/cursos/${cursoId}/alumnos`));
+    return firstValueFrom(this.http.get<AlumnosResponse>(`${this.apiUrl}/cursos/${cursoId}/alumnos`));
   }
 
   registrarAsistencia(payload: AsistenciaPayload) {

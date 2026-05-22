@@ -9,33 +9,18 @@ import {
   NotaRespuesta,
   NotaPost
 } from '../models/evaluations.model';
-import { Course, CoursesResponse } from '../models/curso.response.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class EvaluationsApi {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = `${environment.bffUrl}/api`;
+  private readonly apiUrl = `${environment.gestionUrl}/api`;
 
-  async getCursos(_docenteId: number): Promise<DocenteCurso[]> {
-    const response = await firstValueFrom(
-      this.http.get<CoursesResponse | DocenteCurso[]>(`${this.apiUrl}/docentes/cursos`),
+  getCursos(docenteId: number): Promise<DocenteCurso[]> {
+    return firstValueFrom(
+      this.http.get<DocenteCurso[]>(`${this.apiUrl}/docentes/${docenteId}/cursos`),
     );
-
-    if (Array.isArray(response)) {
-      return response;
-    }
-
-    return (response.data ?? []).map((curso: Course) => ({
-      docente: '',
-      asignaturaNombre: curso.asignatura_nombre,
-      curso: `${curso.nivel} ${curso.letra}`.trim(),
-      anioAcademico: curso.anio_academico,
-      cursoId: curso.curso_id,
-      asignaturaId: curso.asignatura_id,
-      cadId: curso.cad_id,
-    }));
   }
 
   getEstudiantesPorCurso(cursoId: number) {
@@ -60,6 +45,26 @@ export class EvaluationsApi {
 
   crearEvaluacion(evaluacion: Evaluacion) {
     return firstValueFrom(this.http.post<Evaluacion>(`${this.apiUrl}/evaluaciones`, evaluacion));
+  }
+
+  actualizarEvaluacion(id: number, evaluacion: Evaluacion) {
+    return firstValueFrom(this.http.put<Evaluacion>(`${this.apiUrl}/evaluaciones/${id}`, evaluacion));
+  }
+
+  eliminarEvaluacion(id: number) {
+    return firstValueFrom(this.http.delete<void>(`${this.apiUrl}/evaluaciones/${id}`));
+  }
+
+  guardarNota(nota: NotaPost) {
+    return firstValueFrom(this.http.post<any>(`${this.apiUrl}/notas`, nota));
+  }
+
+  getNotas() {
+    return firstValueFrom(this.http.get<NotaRespuesta[]>(`${this.apiUrl}/notas`));
+  }
+
+  getNotasByEstudiante(estudianteId: number) {
+    return firstValueFrom(this.http.get<NotaRespuesta[]>(`${this.apiUrl}/notas/estudiante/${estudianteId}`));
   }
 
   guardarNotasBulk(notas: NotaPost[]) {

@@ -17,11 +17,19 @@ import {
 })
 export class AdminApi {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = `${environment.bffUrl}/api`;
+  private readonly apiUrl = `${environment.gestionUrl}/api`;
 
   // --- Usuarios ---
   getUsuarios() {
     return firstValueFrom(this.http.get<Usuario[]>(`${this.apiUrl}/usuarios`));
+  }
+
+  getUsuarioById(id: number) {
+    return firstValueFrom(this.http.get<Usuario>(`${this.apiUrl}/usuarios/${id}`));
+  }
+
+  loginUsuario(payload: { email: string; password: string }) {
+    return firstValueFrom(this.http.post<any>(`${this.apiUrl}/usuarios/login`, payload));
   }
 
   crearUsuario(usuario: Usuario) {
@@ -41,13 +49,33 @@ export class AdminApi {
     return firstValueFrom(this.http.get<Docente[]>(`${this.apiUrl}/docentes`));
   }
 
+  getDocenteById(id: number) {
+    return firstValueFrom(this.http.get<Docente>(`${this.apiUrl}/docentes/${id}`));
+  }
+
+  getCursosByDocente(id: number) {
+    return firstValueFrom(this.http.get<CAD[]>(`${this.apiUrl}/docentes/${id}/cursos`));
+  }
+
   crearDocente(docente: { docenteId: number }) {
     return firstValueFrom(this.http.post<Docente>(`${this.apiUrl}/docentes`, docente));
+  }
+
+  eliminarDocente(id: number) {
+    return firstValueFrom(this.http.delete<void>(`${this.apiUrl}/docentes/${id}`));
   }
 
   // --- Estudiantes ---
   getEstudiantes() {
     return firstValueFrom(this.http.get<Estudiante[]>(`${this.apiUrl}/estudiantes`));
+  }
+
+  getEstudianteById(id: number) {
+    return firstValueFrom(this.http.get<Estudiante>(`${this.apiUrl}/estudiantes/${id}`));
+  }
+
+  getEstudiantesByCurso(cursoId: number) {
+    return firstValueFrom(this.http.get<Estudiante[]>(`${this.apiUrl}/estudiantes/curso/${cursoId}`));
   }
 
   crearEstudiante(estudiante: { estudianteId: number; cursoId: number }) {
@@ -56,6 +84,10 @@ export class AdminApi {
 
   actualizarEstudiante(id: number, estudiante: any) {
     return firstValueFrom(this.http.put<any>(`${this.apiUrl}/estudiantes/${id}`, estudiante));
+  }
+
+  eliminarEstudiante(id: number) {
+    return firstValueFrom(this.http.delete<void>(`${this.apiUrl}/estudiantes/${id}`));
   }
 
   // --- Académico ---

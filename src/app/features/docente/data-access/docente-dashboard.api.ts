@@ -7,11 +7,11 @@ import { DocenteDashboardResponse } from '../models/docente-dashboard.model';
 @Injectable({ providedIn: 'root' })
 export class DocenteDashboardApi {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = `${environment.bffUrl}/api`;
+  private readonly url = `${environment.apiGw}/api`;
 
   getDashboard() {
     return firstValueFrom(
-      this.http.get<DocenteDashboardResponse>(`${this.apiUrl}/teachers/me/dashboard`)
+      this.http.get<DocenteDashboardResponse>(`${this.url}/teachers/me/dashboard`)
     );
   }
 }

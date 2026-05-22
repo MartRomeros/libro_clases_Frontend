@@ -23,12 +23,13 @@ import {
   FormGroup,
   Validators,
 } from '@angular/forms';
-import { injectQuery, injectMutation } from '@tanstack/angular-query-experimental';
+import { injectQuery, injectMutation, injectQueryClient } from '@tanstack/angular-query-experimental';
 
 import { Navbar } from '../../../../layout/navbar/navbar';
 import { AuthQueries } from '../../../auth/data-access/auth.queries';
 import { EvaluationsQueries } from '../../data-access/evaluations.queries';
 import { EvaluationsMutations } from '../../data-access/evaluations.mutations';
+import { evaluationsKeys } from '../../data-access/evaluations.keys';
 import {
   DocenteCurso,
   Evaluacion,
@@ -74,6 +75,7 @@ export class EvaluationsPageComponent {
   private readonly authQueries = inject(AuthQueries);
   private readonly evaluationsQueries = inject(EvaluationsQueries);
   private readonly evaluationsMutations = inject(EvaluationsMutations);
+  private readonly queryClient = injectQueryClient();
   private readonly snackBar = inject(MatSnackBar);
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
@@ -132,7 +134,13 @@ export class EvaluationsPageComponent {
   // Mutation: Crear Evaluación
   crearEvaluacionMutation = injectMutation(() => ({
     ...this.evaluationsMutations.crearEvaluacion(),
-    onSuccess: () => {
+    onSuccess: async () => {
+      await this.queryClient.invalidateQueries({
+        queryKey: evaluationsKeys.evaluacionesByCad(this.cadId()),
+      });
+      await this.queryClient.invalidateQueries({
+        queryKey: evaluationsKeys.notasByCursoAsignatura(this.cursoId(), this.asignaturaId()),
+      });
       this.snackBar.open('✓ Evaluación creada con éxito', 'Cerrar', { duration: 3000 });
       this.evaluacionForm.reset({
         nombre: '',

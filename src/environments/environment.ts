@@ -1,4 +1,6 @@
 export const environment = {
   production: false,
-  bffUrl: 'http://localhost:3003',
+  mensajeriaUrl: 'http://localhost:80',
+  gestionUrl: 'http://localhost:8080',
+  apiGw:'http://localhost:80'
 };

@@ -9,7 +9,7 @@ import { AttendanceResponse, NotaEstudiante } from '../models/estudiante.model';
 })
 export class EstudianteApi {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = `${environment.bffUrl}/api`;
+  private readonly apiUrl = `${environment.gestionUrl}/api`;
 
   getNotas(estudianteId: number) {
     return firstValueFrom(
@@ -19,7 +19,11 @@ export class EstudianteApi {
 
   getAsistencias(estudianteId: number) {
     return firstValueFrom(
-      this.http.get<AttendanceResponse>(`${this.apiUrl}/asistencia/estudiante/${estudianteId}`)
+      this.http.get<AttendanceResponse>(`${this.apiUrl}/asistencias/estudiante/${estudianteId}`)
     );
+  }
+
+  getNotasTodas() {
+    return firstValueFrom(this.http.get<NotaEstudiante[]>(`${this.apiUrl}/notas`));
   }
 }

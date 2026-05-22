@@ -32,11 +32,4 @@ export class ComunicacionesQueries {
       },
     });
   }
-
-  usuarios() {
-    return queryOptions({
-      queryKey: comunicacionesKeys.usuarios(),
-      queryFn: () => this.api.getTodosLosUsuarios(),
-    });
-  }
 }

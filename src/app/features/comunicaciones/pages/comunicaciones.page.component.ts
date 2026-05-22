@@ -1,11 +1,11 @@
 import {
   Component,
+  effect,
   inject,
   signal,
   computed,
   ViewChild,
   ElementRef,
-  OnInit,
   HostListener,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -19,6 +19,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatAutocompleteTrigger } from '@angular/material/autocomplete';
 import { MatOptionModule } from '@angular/material/core';
 import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
 import { injectMutation, injectQuery } from '@tanstack/angular-query-experimental';
@@ -366,6 +367,8 @@ interface Contacto {
                   placeholder="Escriba un miembro o grupo"
                   [formControl]="contactoCtrl"
                   [matAutocomplete]="auto"
+                  (focus)="abrirSugerencias()"
+                  (click)="abrirSugerencias()"
                 />
                 <mat-icon matSuffix>person_add</mat-icon>
                 <mat-autocomplete
@@ -1074,7 +1077,7 @@ interface Contacto {
     `,
   ],
 })
-export class ComunicacionesPageComponent implements OnInit {
+export class ComunicacionesPageComponent {
   private comunicacionesQueries = inject(ComunicacionesQueries);
   private comunicacionesMutations = inject(ComunicacionesMutations);
   private comunicacionesApi = inject(ComunicacionesApi);
@@ -1090,13 +1093,13 @@ export class ComunicacionesPageComponent implements OnInit {
   @ViewChild('editorRef') editorRef!: ElementRef<HTMLDivElement>;
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   @ViewChild('imageInput') imageInput!: ElementRef<HTMLInputElement>;
+  @ViewChild(MatAutocompleteTrigger) autocompleteTrigger?: MatAutocompleteTrigger;
 
   profileQuery = injectQuery(() => this.authQueries.me());
   profile = computed(() => this.profileQuery.data());
   conversacionesQuery = injectQuery(() =>
     this.comunicacionesQueries.conversaciones(this.profile()?.email),
   );
-  usuariosQuery = injectQuery(() => this.comunicacionesQueries.usuarios());
   enviarMensajeMutation = injectMutation(() => this.comunicacionesMutations.enviarMensaje());
   marcarComoLeidoMutation = injectMutation(() =>
     this.comunicacionesMutations.marcarComoLeido(this.profile()?.email || ''),
@@ -1127,40 +1130,30 @@ export class ComunicacionesPageComponent implements OnInit {
 
   // Contactos logic
   contactos = signal<Contacto[]>([]);
+  private contactosCargados = signal(false);
 
   nuevoMensajeTexto = '';
   nuevoAsunto = '';
   enviarCopiaEmail = false;
 
-  ngOnInit() {
-    this.cargarContactos();
-  }
+  private readonly cargarContactosCuandoHayPerfil = effect(() => {
+    const user = this.profile();
+    if (user && !this.contactosCargados()) {
+      void this.cargarContactos();
+    }
+  });
 
   async cargarContactos() {
-    const user = this.profile();
-    if (!user) return;
-
     const lista: Contacto[] = [
       { nombre: 'Todos los profesores', email: 'GROUP:PROFESORES', rol: 'Grupo' },
       { nombre: 'Todos los integrantes del curso', email: 'GROUP:ESTUDIANTES', rol: 'Grupo' },
     ];
+    this.contactos.set(lista);
+
+    const user = this.profile();
+    if (!user) return;
 
     try {
-      // Obtener todos los usuarios del sistema
-      const usuarios =
-        this.usuariosQuery.data() || (await this.comunicacionesApi.getTodosLosUsuarios());
-
-      const dbContacts: Contacto[] = usuarios
-        .filter((u) => u.email !== user.email && u.activo)
-        .map((u) => ({
-          nombre:
-            `${u.nombre} ${u.apellidoPaterno || u.apellido_paterno || ''} ${u.apellidoMaterno || u.apellido_materno || ''}`
-              .trim()
-              .replace(/\s+/g, ' '),
-          email: u.email,
-          rol: u.rolId === 2 ? 'Profesor' : u.rolId === 3 ? 'Estudiante' : 'Profesor',
-        }));
-
       if (user.rol.nombre === 'Docente') {
         const cursos = await this.evaluationsApi.getCursos(user.usuario_id);
         const allStudents: Contacto[] = [];
@@ -1178,28 +1171,20 @@ export class ComunicacionesPageComponent implements OnInit {
           });
         }
 
-        dbContacts.forEach((dbc) => {
-          if (!lista.some((l) => l.email === dbc.email)) {
-            lista.push(dbc);
-          }
-        });
-
         allStudents.forEach((s) => {
           // If the student from the course is not in the list, add them
           if (!lista.some((l) => l.email === s.email)) {
             lista.push(s);
           }
         });
-      } else {
-        dbContacts.forEach((dbc) => {
-          lista.push(dbc);
-        });
       }
 
       this.contactos.set(lista);
+      this.contactosCargados.set(true);
     } catch (error) {
       console.error('Error cargando contactos:', error);
       this.contactos.set(lista);
+      this.contactosCargados.set(true);
     }
   }
 
@@ -1263,6 +1248,10 @@ export class ComunicacionesPageComponent implements OnInit {
     // El valor ahora es el objeto contacto completo
   }
 
+  abrirSugerencias() {
+    setTimeout(() => this.autocompleteTrigger?.openPanel());
+  }
+
   filteredConversaciones = computed(() => {
     const query = this.normalize(this.searchQuery());
     const allConvs = this.conversaciones();
@@ -1324,6 +1313,9 @@ export class ComunicacionesPageComponent implements OnInit {
     this.enviarCopiaEmail = false;
     this.isDragging.set(false);
     if (this.editorRef) this.editorRef.nativeElement.innerHTML = '';
+    if (this.contactos().length === 0) {
+      void this.cargarContactos();
+    }
   }
 
   reintentarConversaciones() {
