@@ -9,7 +9,8 @@ import {
   Evaluacion,
   Curso,
   Asignatura,
-  CAD
+  CAD,
+  AdminDashboard
 } from '../models/admin.model';
 
 @Injectable({
@@ -17,7 +18,11 @@ import {
 })
 export class AdminApi {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = `${environment.gestionUrl}/api`;
+  private readonly apiUrl = `${environment.apiGw}/api`;
+
+  getDashboard() {
+    return firstValueFrom(this.http.get<AdminDashboard>(`${this.apiUrl}/admin/me/dashboard`));
+  }
 
   // --- Usuarios ---
   getUsuarios() {

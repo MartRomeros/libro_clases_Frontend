@@ -1,26 +1,21 @@
 import { Component, inject, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatBadgeModule } from '@angular/material/badge';
-import { MatListModule } from '@angular/material/list';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { injectQuery } from '@tanstack/angular-query-experimental';
 
-import { Navbar } from '../../../../layout/navbar/navbar';
 import { AuthQueries } from '../../../auth/data-access/auth.queries';
+import { AdminQueries } from '../../data-access/admin.queries';
+import { NavbarAdminComponent } from '../../sections/navbar.component/navbar.component';
 
 interface OpcionAdmin {
   titulo: string;
   descripcion: string;
   icono: string;
   ruta: string;
-  color: string;
-  badge?: number;
 }
 
 @Component({
@@ -30,13 +25,9 @@ interface OpcionAdmin {
     MatCardModule,
     MatButtonModule,
     MatIconModule,
-    MatToolbarModule,
     MatDividerModule,
-    MatListModule,
-    MatBadgeModule,
-    MatChipsModule,
     MatTooltipModule,
-    Navbar
+    NavbarAdminComponent 
   ],
   templateUrl: './admin-home.page.component.html',
   styleUrl: './admin-home.page.component.css',
@@ -45,9 +36,13 @@ export class AdminHomePageComponent {
 
   private readonly router = inject(Router);
   private readonly authQueries = inject(AuthQueries);
+  private readonly adminQueries = inject(AdminQueries);
 
   profileQuery = injectQuery(() => this.authQueries.me());
+  dashboardQuery = injectQuery(() => this.adminQueries.dashboard());
+
   profile = computed(() => this.profileQuery.data());
+  dashboard = computed(() => this.dashboardQuery.data());
 
   get adminNombre(): string {
     return this.profile()?.nombre || 'Administrador';
@@ -61,45 +56,77 @@ export class AdminHomePageComponent {
   }
 
   get saludoCompleto(): string {
-    return `Admin, ${this.adminNombre}`;
+    return `Hola, ${this.adminNombre}`;
   }
+
+  private estadoMetrica(valor: string, loading: boolean, error: boolean): string {
+    if (loading) {
+      return 'Cargando...';
+    }
+    if (error) {
+      return 'Sin informacion disponible';
+    }
+    return valor;
+  }
+
+  resumenRapido = computed(() => [
+    {
+      etiqueta: 'Estudiantes',
+      valor: this.estadoMetrica(
+        this.dashboard()?.cantidadEstudiantes?.toString() ?? '0',
+        this.dashboardQuery.isPending(),
+        this.dashboardQuery.isError()
+      ),
+      icono: 'groups'
+    },
+    {
+      etiqueta: 'Docentes',
+      valor: this.estadoMetrica(
+        this.dashboard()?.cantidadDocentes?.toString() ?? '0',
+        this.dashboardQuery.isPending(),
+        this.dashboardQuery.isError()
+      ),
+      icono: 'co_present'
+    },
+    {
+      etiqueta: 'Asistencia promedio',
+      valor: this.estadoMetrica(
+        this.dashboard() ? `${this.dashboard()!.porcentajeAsistencia}%` : '0%',
+        this.dashboardQuery.isPending(),
+        this.dashboardQuery.isError()
+      ),
+      icono: 'calendar_month'
+    },
+    {
+      etiqueta: 'Cursos',
+      valor: this.estadoMetrica(
+        this.dashboard()?.cantidadCursos?.toString() ?? '0',
+        this.dashboardQuery.isPending(),
+        this.dashboardQuery.isError()
+      ),
+      icono: 'school'
+    },
+  ]);
 
   opciones: OpcionAdmin[] = [
     {
       titulo: 'Gestión de Usuarios',
-      descripcion: 'Administra docentes, estudiantes y personal administrativo.',
-      icono: 'people',
+      descripcion: 'Administra docentes, estudiantes y personal del establecimiento.',
+      icono: 'manage_accounts',
       ruta: '/admin/usuarios',
-      color: 'primary',
     },
     {
-      titulo: 'Configuración de Cursos',
-      descripcion: 'Crea y asigna cursos, niveles y asignaturas.',
-      icono: 'settings_suggest',
-      ruta: '/admin/cursos',
-      color: 'accent',
+      titulo: 'Gestión de Cursos',
+      descripcion: 'Gestiona cursos, asignaturas y vínculos académicos.',
+      icono: 'school',
+      ruta: '/admin/usuarios',
     },
     {
-      titulo: 'Reportes y Estadísticas',
-      descripcion: 'Visualiza el rendimiento general y asistencia del colegio.',
-      icono: 'analytics',
-      ruta: '/admin/reportes',
-      color: 'primary',
+      titulo: 'Mensajes',
+      descripcion: 'Revisa y envía comunicaciones institucionales.',
+      icono: 'chat',
+      ruta: '/comunicaciones',
     },
-    {
-      titulo: 'Notificaciones Globales',
-      descripcion: 'Envía comunicados a toda la comunidad educativa.',
-      icono: 'campaign',
-      ruta: '/admin/notificaciones',
-      color: 'accent',
-    },
-  ];
-
-  resumenRapido = [
-    { etiqueta: 'Usuarios activos', valor: '1,240', icono: 'person' },
-    { etiqueta: 'Cursos', valor: '42', icono: 'class' },
-    { etiqueta: 'Alertas sistema', valor: '0', icono: 'check_circle' },
-    { etiqueta: 'Tickets soporte', valor: '5', icono: 'confirmation_number' },
   ];
 
   navegarA(ruta: string): void {

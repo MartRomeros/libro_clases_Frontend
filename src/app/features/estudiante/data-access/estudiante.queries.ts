@@ -24,4 +24,11 @@ export class EstudianteQueries {
       enabled: !!estudianteId,
     });
   }
+
+  dashboard() {
+    return queryOptions({
+      queryKey: estudianteKeys.dashboard(),
+      queryFn: () => this.api.getDashboardResumen(),
+    });
+  }
 }

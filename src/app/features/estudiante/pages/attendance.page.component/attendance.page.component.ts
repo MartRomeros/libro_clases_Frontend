@@ -8,11 +8,9 @@ import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { BaseChartDirective } from 'ng2-charts';
-import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
 import { injectQuery } from '@tanstack/angular-query-experimental';
 
-import { Navbar } from '../../../../layout/navbar/navbar';
+import { NavbarComponent } from '../../sections/navbar.component/navbar.component';
 import { AuthQueries } from '../../../auth/data-access/auth.queries';
 import { EstudianteQueries } from '../../data-access/estudiante.queries';
 import { LoadingStateComponent } from '../../../../shared/components/loading-state/loading-state.component';
@@ -31,8 +29,7 @@ import { EmptyStateComponent } from '../../../../shared/components/empty-state/e
     MatTableModule,
     MatDividerModule,
     MatTooltipModule,
-    BaseChartDirective,
-    Navbar,
+    NavbarComponent,
     LoadingStateComponent,
     ErrorStateComponent,
     EmptyStateComponent
@@ -99,35 +96,37 @@ export class AttendancePageComponent {
 
   displayedColumns: string[] = ['asignatura', 'asistidas', 'ausentes', 'total', 'porcentaje'];
 
-  public pieChartOptions: ChartConfiguration['options'] = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        display: true,
-        position: 'bottom',
-        labels: {
-          font: { family: "'Inter', sans-serif", size: 13 },
-        },
-      },
-    },
-  };
+  totalClases = computed(() => this.totalAsistidas() + this.totalAusentes());
 
-  pieChartData = computed<ChartData<'pie', number[], string | string[]>>(() => ({
-    labels: ['Asistencias', 'Inasistencias'],
-    datasets: [
-      {
-        data: [this.totalAsistidas(), this.totalAusentes()],
-        backgroundColor: ['#059669', '#dc2626'],
-        hoverBackgroundColor: ['#047857', '#b91c1c'],
-        borderWidth: 0,
-      },
-    ],
-  }));
-
-  public pieChartType: ChartType = 'pie';
+  porcentajeConico = computed(
+    () => `conic-gradient(#0053db 0deg ${(this.porcentajeGeneral() / 100) * 360}deg, #e6e8ea ${(this.porcentajeGeneral() / 100) * 360}deg 360deg)`,
+  );
 
   volver(): void {
     this.router.navigate(['/estudiante']);
+  }
+
+  estadoPorcentaje(porcentaje: number): 'success' | 'warning' | 'danger' {
+    if (porcentaje >= 85) return 'success';
+    if (porcentaje >= 75) return 'warning';
+    return 'danger';
+  }
+
+  iconoAsignatura(asignatura: string): string {
+    const nombre = asignatura.toLowerCase();
+
+    if (nombre.includes('mat')) return 'functions';
+    if (nombre.includes('leng') || nombre.includes('lit')) return 'menu_book';
+    if (nombre.includes('hist')) return 'history_edu';
+    if (nombre.includes('fis')) return 'bolt';
+    if (nombre.includes('quim')) return 'science';
+    if (nombre.includes('bio')) return 'biotech';
+    if (nombre.includes('arte')) return 'palette';
+    if (nombre.includes('musi')) return 'music_note';
+    if (nombre.includes('edu') && nombre.includes('fis')) return 'sports_soccer';
+    if (nombre.includes('tec') || nombre.includes('comp') || nombre.includes('prog')) return 'code';
+    if (nombre.includes('ing')) return 'translate';
+
+    return 'school';
   }
 }

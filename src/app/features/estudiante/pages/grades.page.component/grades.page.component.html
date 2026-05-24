@@ -1,87 +1,124 @@
-<app-navbar />
+<app-navbar-estudiante>
 
-<div class="p-4 flex gap-3">
-    <button mat-icon-button class="back-btn" matTooltip="Volver al inicio" (click)="volver()">
-        <mat-icon>arrow_back</mat-icon>
-    </button>
-    <h2 class="text-4xl bold">Mis Calificaciones</h2>
-</div>
-
-<div class="grades-container">
+<div class="grades-shell fade-in">
     @if (isLoading()) {
         <app-loading-state message="Cargando tus calificaciones..." />
     } @else if (isError()) {
         <app-error-state [error]="error()" (retry)="notasQuery.refetch()" />
     } @else {
-    <mat-card class="table-card animate-fade-in" appearance="outlined">
-        <mat-card-header>
-            <mat-card-title>Registro Académico</mat-card-title>
-            <mat-card-subtitle>Resumen de notas por asignatura</mat-card-subtitle>
-        </mat-card-header>
-        <mat-divider></mat-divider>
-        <mat-card-content>
-            <div class="table-responsive">
-                @if (dataSource.data.length === 0) {
-                    <app-empty-state 
-                        icon="grading" 
-                        title="No hay notas" 
-                        message="Aún no tienes calificaciones registradas."
-                    />
-                } @else {
-                <table mat-table [dataSource]="dataSource" class="grades-table">
-                    <!-- Asignatura Column -->
-                    <ng-container matColumnDef="asignatura">
-                        <th mat-header-cell *matHeaderCellDef> Asignatura </th>
-                        <td mat-cell *matCellDef="let element" class="subject-cell"> {{element.asignatura}} </td>
-                    </ng-container>
+        <main class="mx-auto max-w-7xl px-6 pb-12 pt-24">
+            <section class="mb-6 flex flex-col justify-between gap-4 md:flex-row md:items-center">
+                <div class="flex flex-wrap items-center gap-2">
+                    <button class="back-link" type="button" (click)="volver()">
+                        <mat-icon>arrow_back</mat-icon>
+                        <span>Volver al Inicio</span>
+                    </button>
+                    <div class="separator"></div>
+                    <h1 class="page-title">Mis Calificaciones</h1>
+                </div>
+            </section>
 
-                    <!-- Nota 1 Column -->
-                    <ng-container matColumnDef="nota1">
-                        <th mat-header-cell *matHeaderCellDef class="center-header"> Nota 1 </th>
-                        <td mat-cell *matCellDef="let element" class="center-cell">
-                            <span class="grade-badge" [class.low-grade]="element.nota1 < 4 && element.nota1 !== '-'">
-                                {{element.nota1}}
-                            </span>
-                        </td>
-                    </ng-container>
+            <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
+                <div class="lg:col-span-12 xl:col-span-9">
+                    <section class="main-card">
+                        <div class="main-card-header">
+                            <div class="title-group">
+                                <mat-icon class="title-icon">assignment</mat-icon>
+                                <h2 class="card-title">Registro Académico</h2>
+                            </div>
+                            <span class="period-chip">Periodo 2024</span>
+                        </div>
 
-                    <!-- Nota 2 Column -->
-                    <ng-container matColumnDef="nota2">
-                        <th mat-header-cell *matHeaderCellDef class="center-header"> Nota 2 </th>
-                        <td mat-cell *matCellDef="let element" class="center-cell">
-                            <span class="grade-badge" [class.low-grade]="element.nota2 < 4 && element.nota2 !== '-'">
-                                {{element.nota2}}
-                            </span>
-                        </td>
-                    </ng-container>
+                        @if (tablaData().length === 0) {
+                            <div class="empty-wrapper">
+                                <app-empty-state
+                                    icon="grading"
+                                    title="No hay notas"
+                                    message="Aún no tienes calificaciones registradas."
+                                />
+                            </div>
+                        } @else {
+                            <div class="table-wrapper">
+                                <table class="grades-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Asignatura</th>
+                                            <th>Evaluaciones</th>
+                                            <th class="text-center">Promedio</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @for (fila of tablaData(); track fila.asignatura) {
+                                            <tr>
+                                                <td class="subject-column">
+                                                    <div class="subject-meta">
+                                                        <span class="subject-name">{{ fila.asignatura }}</span>
+                                                        <span class="subject-teacher">{{ fila.docente }}</span>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    @if (fila.evaluaciones.length > 0) {
+                                                        <div class="grades-badges">
+                                                            @for (nota of fila.evaluaciones; track $index) {
+                                                                <span
+                                                                    class="grade-pill"
+                                                                    [class.grade-pill-low]="esNotaBaja(nota)">
+                                                                    {{ nota }}
+                                                                </span>
+                                                            }
+                                                        </div>
+                                                    } @else {
+                                                        <div class="empty-row-message">
+                                                            <mat-icon>info</mat-icon>
+                                                            <span>No hay notas. Aún no tienes calificaciones registradas.</span>
+                                                        </div>
+                                                    }
+                                                </td>
+                                                <td class="text-center">
+                                                    @if (fila.promedio !== null) {
+                                                        <span class="average-pill" [class.average-pill-soft]="fila.promedio < 5.5">
+                                                            {{ fila.promedio.toFixed(1) }}
+                                                        </span>
+                                                    } @else {
+                                                        <span class="average-pill average-pill-empty">--</span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
 
-                    <!-- Nota 3 Column -->
-                    <ng-container matColumnDef="nota3">
-                        <th mat-header-cell *matHeaderCellDef class="center-header"> Nota 3 </th>
-                        <td mat-cell *matCellDef="let element" class="center-cell">
-                            <span class="grade-badge" [class.low-grade]="element.nota3 < 4 && element.nota3 !== '-'">
-                                {{element.nota3}}
-                            </span>
-                        </td>
-                    </ng-container>
+                        <div class="main-card-footer">
+                            <div class="legend">
+                                <div class="legend-item">
+                                    <span class="legend-dot legend-dot-primary"></span>
+                                    <span>Aprobado</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-dot legend-dot-danger"></span>
+                                    <span>Insuficiente</span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
 
-                    <!-- Promedio Column -->
-                    <ng-container matColumnDef="promedio">
-                        <th mat-header-cell *matHeaderCellDef class="center-header"> Promedio </th>
-                        <td mat-cell *matCellDef="let element" class="center-cell">
-                            <strong [class.low-grade]="element.promedio < 4 && element.promedio !== '-'">
-                                {{element.promedio}}
-                            </strong>
-                        </td>
-                    </ng-container>
-
-                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-                </table>
-                }
+                <aside class="lg:col-span-12 xl:col-span-3 sidebar-stack">
+                    <section class="highlight-card">
+                        <p class="highlight-label">Promedio General</p>
+                        <h3 class="highlight-value">{{ promedioGeneral() }}</h3>
+                        <div class="highlight-trend">
+                            <mat-icon>trending_up</mat-icon>
+                            <span>Sin informacion disponible</span>
+                        </div>
+                        <mat-icon class="highlight-watermark">auto_graph</mat-icon>
+                    </section>                    
+                </aside>
             </div>
-
-        </mat-card-content>
-    </mat-card>
+        </main>
     }
 </div>
+
+</app-navbar-estudiante>

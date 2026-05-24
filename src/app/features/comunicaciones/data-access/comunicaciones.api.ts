@@ -1,6 +1,6 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
+import { catchError, firstValueFrom, of, throwError } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 
 export interface BackendMensaje {
@@ -19,18 +19,30 @@ export interface BackendMensaje {
 })
 export class ComunicacionesApi {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = `${environment.mensajeriaUrl}/api`;
+  private readonly apiUrl = `${environment.apiGw}/api`;
   private readonly bffMensajesUrl = `${this.apiUrl}/mensajes`;
+  private readonly emptyResponse = { ok: true, data: [] as BackendMensaje[] };
+
+  private handleEmptyInbox(error: HttpErrorResponse) {
+    if (error.status === 404) {
+      return of(this.emptyResponse);
+    }
+    return throwError(() => error);
+  }
 
   getRecibidos(email: string) {
     return firstValueFrom(
-      this.http.get<{ ok: boolean; data: BackendMensaje[] }>(`${this.bffMensajesUrl}/recibidos/${email}`)
+      this.http
+        .get<{ ok: boolean; data: BackendMensaje[] }>(`${this.bffMensajesUrl}/recibidos/${email}`)
+        .pipe(catchError((error) => this.handleEmptyInbox(error))),
     );
   }
 
   getEnviados(email: string) {
     return firstValueFrom(
-      this.http.get<{ ok: boolean; data: BackendMensaje[] }>(`${this.bffMensajesUrl}/enviados/${email}`)
+      this.http
+        .get<{ ok: boolean; data: BackendMensaje[] }>(`${this.bffMensajesUrl}/enviados/${email}`)
+        .pipe(catchError((error) => this.handleEmptyInbox(error))),
     );
   }
 

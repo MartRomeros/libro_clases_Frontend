@@ -1,91 +1,147 @@
-<app-navbar />
+<app-navbar-estudiante>
 
-<div class="p-4 flex gap-3">
-    <button mat-icon-button class="back-btn" matTooltip="Volver al inicio" (click)="volver()">
-        <mat-icon>arrow_back</mat-icon>
-    </button>
-    <h2 class="text-4xl bold">Material de Estudio</h2>
-</div>
+    <div class="resources-shell fade-in">
+        <main class="mx-auto max-w-7xl px-6 pb-8 pt-24">
+            <header class="mb-8">
+                <div class="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+                    <div>
+                        <h1 class="page-title">Material de Estudio</h1>
+                        <p class="page-subtitle">Encuentra aquí todo el material de apoyo subido por tus profesores.</p>
+                    </div>
 
-<div class="resources-container fade-in">
-    <div class="page-header">
-        <p>Encuentra aquí todo el material de apoyo subido por tus profesores.</p>
+                    <div class="filter-group">
+                        <button class="filter-chip" [class.filter-chip-active]="filtroActivo() === 'TODOS'"
+                            type="button" (click)="setFiltro('TODOS')">
+                            <mat-icon>filter_list</mat-icon>
+                            <span>Todos</span>
+                        </button>
+                        <button class="filter-chip filter-chip-muted"
+                            [class.filter-chip-active]="filtroActivo() === 'PDF'" type="button"
+                            (click)="setFiltro('PDF')">
+                            PDFs
+                        </button>
+                        <button class="filter-chip filter-chip-muted"
+                            [class.filter-chip-active]="filtroActivo() === 'PPTX'" type="button"
+                            (click)="setFiltro('PPTX')">
+                            Presentaciones
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
+                <aside class="space-y-6 lg:col-span-3">                    
+
+                    <section class="help-card">
+                        <div class="help-content">
+                            <h3>¿Necesitas ayuda?</h3>
+                            <p>Contacta a soporte técnico si tienes problemas para descargar archivos.</p>
+                            <button type="button">Contactar</button>
+                        </div>
+                        <div class="help-glow"></div>
+                    </section>
+                </aside>
+
+                <section class="lg:col-span-9">
+                    <div class="table-card">
+                        <div class="table-header">
+                            <h2 class="section-title">Archivos Disponibles</h2>
+                            <label class="search-box">
+                                <mat-icon>search</mat-icon>
+                                <input type="text" placeholder="Buscar material..." [value]="terminoBusqueda()"
+                                    (input)="actualizarBusqueda($any($event.target).value)" />
+                            </label>
+                        </div>
+
+                        @if (recursosFiltrados().length === 0) {
+                        <div class="empty-wrapper">
+                            <app-empty-state icon="folder_off" title="No hay recursos"
+                                message="Aún no hay material de estudio disponible." />
+                        </div>
+                        } @else {
+                        <div class="table-wrapper custom-scrollbar">
+                            <table class="resources-table">
+                                <thead>
+                                    <tr>
+                                        <th>Icono</th>
+                                        <th>Asignatura</th>
+                                        <th>Título</th>
+                                        <th>Tipo</th>
+                                        <th>Fecha</th>
+                                        <th>Tamaño</th>
+                                        <th class="text-right">Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (recurso of recursosFiltrados(); track recurso.id) {
+                                    <tr>
+                                        <td>
+                                            <div class="file-box" [ngClass]="getBoxClaseTipo(recurso.tipo)">
+                                                <mat-icon [ngClass]="getColorClaseRecurso(recurso.tipo)">
+                                                    {{ getIconoRecurso(recurso.tipo) }}
+                                                </mat-icon>
+                                            </div>
+                                        </td>
+                                        <td class="subject-cell">{{ recurso.asignatura }}</td>
+                                        <td class="title-cell">{{ recurso.titulo }}</td>
+                                        <td>
+                                            <span class="type-badge" [ngClass]="getBadgeClaseTipo(recurso.tipo)">
+                                                {{ recurso.tipo }}
+                                            </span>
+                                        </td>
+                                        <td class="muted-cell">{{ formatearFecha(recurso.fechaSubida) }}</td>
+                                        <td class="muted-cell">{{ recurso.tamano }}</td>
+                                        <td class="text-right">
+                                            <button class="download-link" type="button"
+                                                (click)="descargarRecurso(recurso)">
+                                                <mat-icon>download</mat-icon>
+                                                <span>Descargar</span>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        }
+
+                        <div class="table-footer">
+                            <span>Mostrando {{ totalMostrados() }} de {{ dataSource().length }} archivos</span>
+                            <div class="pager">
+                                <button disabled type="button">
+                                    <mat-icon>chevron_left</mat-icon>
+                                </button>
+                                <button type="button">
+                                    <mat-icon>chevron_right</mat-icon>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <section class="featured-grid">
+                <article class="featured-card">
+                    <div class="featured-thumb featured-thumb-books"></div>
+                    <div class="featured-copy">
+                        <span class="featured-tag">Recomendado</span>
+                        <h3>Biblioteca Digital v2.0</h3>
+                        <p>Accede a más de 5,000 libros digitales con tu cuenta institucional.</p>
+                        <a href="javascript:void(0)">Ir a la biblioteca <mat-icon>open_in_new</mat-icon></a>
+                    </div>
+                </article>
+
+                <article class="featured-card">
+                    <div class="featured-thumb featured-thumb-videos"></div>
+                    <div class="featured-copy">
+                        <span class="featured-tag">Tutoriales</span>
+                        <h3>Video Tutoriales: Matemáticas</h3>
+                        <p>Nuevos videos explicativos sobre ecuaciones de segundo grado.</p>
+                        <a href="javascript:void(0)">Ver videos <mat-icon>play_circle</mat-icon></a>
+                    </div>
+                </article>
+            </section>
+        </main>
     </div>
 
-    <mat-card class="table-card" appearance="outlined">
-        <mat-card-header>
-            <div class="header-icon-title">
-                <mat-icon color="primary">folder_open</mat-icon>
-                <div>
-                    <mat-card-title>Archivos Disponibles</mat-card-title>
-                    <mat-card-subtitle>Materiales ordenados por fecha</mat-card-subtitle>
-                </div>
-            </div>
-        </mat-card-header>
-        <mat-divider></mat-divider>
-        <mat-card-content>
-            @if (dataSource().length === 0) {
-                <app-empty-state
-                    icon="folder_off"
-                    title="No hay recursos"
-                    message="Aún no hay material de estudio disponible."
-                />
-            } @else {
-                <div class="table-responsive">
-                    <table mat-table [dataSource]="dataSource()" class="resources-table">
-                        <ng-container matColumnDef="tipo">
-                            <th mat-header-cell *matHeaderCellDef class="icon-col"></th>
-                            <td mat-cell *matCellDef="let element" class="icon-col">
-                                <mat-icon [ngClass]="getColorClaseRecurso(element.tipo)" class="file-icon">
-                                    {{ getIconoRecurso(element.tipo) }}
-                                </mat-icon>
-                            </td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="asignatura">
-                            <th mat-header-cell *matHeaderCellDef> Asignatura </th>
-                            <td mat-cell *matCellDef="let element" class="subject-cell">
-                                <mat-chip-set>
-                                    <mat-chip highlighted color="accent">{{ element.asignatura }}</mat-chip>
-                                </mat-chip-set>
-                            </td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="titulo">
-                            <th mat-header-cell *matHeaderCellDef> Título del Recurso </th>
-                            <td mat-cell *matCellDef="let element" class="title-cell">
-                                <div class="title-wrapper">
-                                    <strong>{{element.titulo}}</strong>
-                                    <span class="file-type-badge">{{ element.tipo }}</span>
-                                </div>
-                            </td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="fecha">
-                            <th mat-header-cell *matHeaderCellDef> Fecha de Subida </th>
-                            <td mat-cell *matCellDef="let element" class="date-cell"> {{element.fechaSubida}} </td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="tamano">
-                            <th mat-header-cell *matHeaderCellDef> Tamaño </th>
-                            <td mat-cell *matCellDef="let element" class="size-cell"> {{element.tamano}} </td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="acciones">
-                            <th mat-header-cell *matHeaderCellDef class="actions-col"></th>
-                            <td mat-cell *matCellDef="let element" class="actions-col text-right">
-                                <button mat-stroked-button color="primary" (click)="descargarRecurso(element)">
-                                    <mat-icon>cloud_download</mat-icon>
-                                    Descargar
-                                </button>
-                            </td>
-                        </ng-container>
-
-                        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="table-row-hover"></tr>
-                    </table>
-                </div>
-            }
-        </mat-card-content>
-    </mat-card>
-</div>
+</app-navbar-estudiante>

@@ -17,6 +17,13 @@ export interface AttendanceResponse {
   data: AttendanceItem[];
 }
 
+export interface DashboardResumenAlumno {
+  promedioGeneral: number | null;
+  asistenciaGlobal: number | null;
+  recursosDisponibles: number | null;
+  mensajesPendientes: number | null;
+}
+
 export interface Recurso {
   id: number;
   asignatura: string;

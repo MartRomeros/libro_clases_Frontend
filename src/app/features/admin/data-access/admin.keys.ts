@@ -1,5 +1,6 @@
 export const adminKeys = {
   all: ['admin'] as const,
+  dashboard: () => [...adminKeys.all, 'dashboard'] as const,
   usuarios: () => [...adminKeys.all, 'usuarios'] as const,
   docentes: () => [...adminKeys.all, 'docentes'] as const,
   estudiantes: () => [...adminKeys.all, 'estudiantes'] as const,

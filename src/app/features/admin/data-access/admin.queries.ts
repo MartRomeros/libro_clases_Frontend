@@ -9,6 +9,13 @@ import { adminKeys } from './admin.keys';
 export class AdminQueries {
   private readonly api = inject(AdminApi);
 
+  dashboard() {
+    return queryOptions({
+      queryKey: adminKeys.dashboard(),
+      queryFn: () => this.api.getDashboard(),
+    });
+  }
+
   usuarios() {
     return queryOptions({
       queryKey: adminKeys.usuarios(),

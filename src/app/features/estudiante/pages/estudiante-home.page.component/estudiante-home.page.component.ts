@@ -3,12 +3,12 @@ import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatBadgeModule } from '@angular/material/badge';
 import { injectQuery } from '@tanstack/angular-query-experimental';
 
-import { Navbar } from '../../../../layout/navbar/navbar';
-import { AuthStore } from '../../../auth/data-access/auth.store';
+import { NavbarComponent } from '../../sections/navbar.component/navbar.component';
 import { AuthQueries } from '../../../auth/data-access/auth.queries';
+import { EstudianteQueries } from '../../data-access/estudiante.queries';
+import { Recurso } from '../../models/estudiante.model';
 
 interface OpcionEstudiante {
   titulo: string;
@@ -16,25 +16,40 @@ interface OpcionEstudiante {
   icono: string;
   ruta: string;
   color: string;
-  badge?: number;
+  chip?: string;
+}
+
+interface PanelInformativo {
+  titulo: string;
+  descripcion: string;
+  icono: string;
 }
 
 @Component({
   selector: 'app-estudiante-home-page',
   standalone: true,
-  imports: [Navbar, MatIconModule, MatCardModule, MatDividerModule, MatBadgeModule],
+  imports: [NavbarComponent, MatIconModule, MatCardModule, MatDividerModule],
   templateUrl: './estudiante-home.page.component.html',
   styleUrl: './estudiante-home.page.component.css',
 })
 export class EstudianteHomePageComponent {
   private readonly router = inject(Router);
-  private readonly authStore = inject(AuthStore);
   private readonly authQueries = inject(AuthQueries);
+  private readonly estudianteQueries = inject(EstudianteQueries);
+  private readonly recursosMock: Recurso[] = [
+    { id: 1, asignatura: 'Matemáticas', titulo: 'Guía de Ejercicios: Álgebra Lineal', tipo: 'PDF', fechaSubida: '2026-04-25', tamano: '2.4 MB' },
+    { id: 2, asignatura: 'Lenguaje y Comunicación', titulo: 'Lectura Complementaria del mes', tipo: 'PDF', fechaSubida: '2026-04-20', tamano: '1.1 MB' },
+    { id: 3, asignatura: 'Historia y Geografía', titulo: 'Presentación: Revolución Industrial', tipo: 'PPTX', fechaSubida: '2026-04-22', tamano: '5.6 MB' },
+    { id: 4, asignatura: 'Ciencias Naturales', titulo: 'Laboratorio: Células', tipo: 'DOCX', fechaSubida: '2026-04-28', tamano: '1.8 MB' },
+    { id: 5, asignatura: 'Matemáticas', titulo: 'Video explicativo: Funciones Avanzadas', tipo: 'VIDEO', fechaSubida: '2026-04-29', tamano: '124 MB' }
+  ];
 
   profileQuery = injectQuery(() => this.authQueries.me());
+  dashboardQuery = injectQuery(() => this.estudianteQueries.dashboard());
   profile = computed(() => this.profileQuery.data());
   loading = computed(() => this.profileQuery.isLoading());
   error = computed(() => this.profileQuery.error());
+  dashboardResumen = computed(() => this.dashboardQuery.data());
 
   estudianteNombre = computed(() => {
     const p = this.profile();
@@ -62,14 +77,7 @@ export class EstudianteHomePageComponent {
       icono: 'library_books',
       ruta: '/estudiante/recursos',
       color: 'primary',
-    },
-    {
-      titulo: 'Comunicados',
-      descripcion: 'Infórmate sobre noticias y eventos del colegio.',
-      icono: 'announcement',
-      ruta: '/estudiante/noticias',
-      color: 'accent',
-      badge: 2,
+      //chip: 'Nuevo',
     },
     {
       titulo: 'Mensajería',
@@ -77,14 +85,48 @@ export class EstudianteHomePageComponent {
       icono: 'forum',
       ruta: '/comunicaciones',
       color: 'primary',
+      //chip: '2 mensajes',
     },
   ];
 
-  resumenRapido = [
-    { etiqueta: 'Promedio General', valor: '6.4', icono: 'star' },
-    { etiqueta: 'Asistencia', valor: '95%', icono: 'done_all' },
-    { etiqueta: 'Tareas hoy', valor: '2', icono: 'assignment' },
-    { etiqueta: 'Mensajes', valor: '2', icono: 'mail' },
+  get resumenRapido() {
+    const resumen = this.dashboardResumen();
+
+    return [
+      {
+        etiqueta: 'Promedio General',
+        valor: resumen?.promedioGeneral != null ? resumen.promedioGeneral.toFixed(1) : 'Sin informacion disponible',
+        icono: 'star',
+      },
+      {
+        etiqueta: 'Asistencia',
+        valor: resumen?.asistenciaGlobal != null ? `${resumen.asistenciaGlobal}%` : 'Sin informacion disponible',
+        icono: 'done_all',
+      },
+      {
+        etiqueta: 'Recursos Disponibles',
+        valor: String(this.recursosMock.length),
+        icono: 'assignment',
+      },
+      {
+        etiqueta: 'Mensajes',
+        valor: resumen?.mensajesPendientes != null ? String(resumen.mensajesPendientes) : 'Sin informacion disponible',
+        icono: 'mail',
+      },
+    ];
+  }
+
+  panelesInformativos: PanelInformativo[] = [
+    {
+      titulo: 'Proximas evaluaciones',
+      descripcion: 'Sin informacion disponible',
+      icono: 'event',
+    },
+    {
+      titulo: 'Actividad semanal',
+      descripcion: 'Sin informacion disponible',
+      icono: 'school',
+    },
   ];
 
   navegarA(ruta: string): void {

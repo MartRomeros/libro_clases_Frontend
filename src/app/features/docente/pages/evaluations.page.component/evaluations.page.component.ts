@@ -30,6 +30,7 @@ import { AuthQueries } from '../../../auth/data-access/auth.queries';
 import { EvaluationsQueries } from '../../data-access/evaluations.queries';
 import { EvaluationsMutations } from '../../data-access/evaluations.mutations';
 import { evaluationsKeys } from '../../data-access/evaluations.keys';
+import { estudianteKeys } from '../../../estudiante/data-access/estudiante.keys';
 import {
   DocenteCurso,
   Evaluacion,
@@ -156,7 +157,21 @@ export class EvaluationsPageComponent {
   // Mutation: Guardar Notas
   guardarNotasMutation = injectMutation(() => ({
     ...this.evaluationsMutations.guardarNotasBulk(),
-    onSuccess: () => {
+    onSuccess: async (_, variables) => {
+      const estudianteIds = Array.from(new Set(variables.map((nota) => nota.estudianteId)));
+
+      await this.queryClient.invalidateQueries({
+        queryKey: evaluationsKeys.notasByCursoAsignatura(this.cursoId(), this.asignaturaId()),
+      });
+
+      await Promise.all(
+        estudianteIds.map((estudianteId) =>
+          this.queryClient.invalidateQueries({
+            queryKey: estudianteKeys.notas(estudianteId),
+          }),
+        ),
+      );
+
       this.snackBar.open('¡Todas las calificaciones se guardaron con éxito!', 'Genial', {
         duration: 4000,
         panelClass: ['success-snackbar'],

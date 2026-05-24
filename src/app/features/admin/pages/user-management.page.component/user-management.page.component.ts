@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -16,21 +16,44 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatPaginatorIntl, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { injectQuery, injectMutation } from '@tanstack/angular-query-experimental';
 
 import { AuthQueries } from '../../../auth/data-access/auth.queries';
 import { AdminQueries } from '../../data-access/admin.queries';
 import { AdminMutations } from '../../data-access/admin.mutations';
 import { Usuario, Evaluacion } from '../../models/admin.model';
-import { Navbar } from '../../../../layout/navbar/navbar';
+import { NavbarAdminComponent } from '../../sections/navbar.component/navbar.component';
 import { LoadingStateComponent } from '../../../../shared/components/loading-state/loading-state.component';
 import { ErrorStateComponent } from '../../../../shared/components/error-state/error-state.component';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
 import { showErrorSnack } from '../../../../shared/http/error-snackbar';
 
+function getSpanishPaginatorIntl(): MatPaginatorIntl {
+  const paginatorIntl = new MatPaginatorIntl();
+  paginatorIntl.itemsPerPageLabel = 'Filas por página';
+  paginatorIntl.nextPageLabel = 'Siguiente página';
+  paginatorIntl.previousPageLabel = 'Página anterior';
+  paginatorIntl.firstPageLabel = 'Primera página';
+  paginatorIntl.lastPageLabel = 'Última página';
+  paginatorIntl.getRangeLabel = (page: number, pageSize: number, length: number) => {
+    if (length === 0 || pageSize === 0) {
+      return `0 de ${length}`;
+    }
+
+    const startIndex = page * pageSize;
+    const endIndex = Math.min(startIndex + pageSize, length);
+    return `${startIndex + 1} - ${endIndex} de ${length}`;
+  };
+
+  return paginatorIntl;
+}
+
 @Component({
   selector: 'app-user-management-page',
   standalone: true,
+  providers: [{ provide: MatPaginatorIntl, useFactory: getSpanishPaginatorIntl }],
   imports: [
     CommonModule,
     FormsModule,
@@ -49,7 +72,9 @@ import { showErrorSnack } from '../../../../shared/http/error-snackbar';
     MatTooltipModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    Navbar,
+    MatCheckboxModule,
+    MatPaginatorModule,
+    NavbarAdminComponent,
     LoadingStateComponent,
     ErrorStateComponent,
     EmptyStateComponent
@@ -81,15 +106,36 @@ export class UserManagementPageComponent {
   evaluacionesQuery = injectQuery(() => 
     this.adminQueries.evaluacionesByCad(this.selectedCadId() || 0)
   );
+  hasSelectedCad = computed(() => (this.selectedCadId() ?? 0) > 0);
 
   // Data mapping helpers (using computed signals from queries)
   usuarios = computed(() => this.usuariosQuery.data() || []);
+  usuariosPaginados = computed(() => {
+    const inicio = this.userPageIndex() * this.userPageSize();
+    return this.usuarios().slice(inicio, inicio + this.userPageSize());
+  });
   docentes = computed(() => this.docentesQuery.data() || []);
   estudiantes = computed(() => this.estudiantesQuery.data() || []);
+  estudiantesPaginados = computed(() => {
+    const inicio = this.studentPageIndex() * this.studentPageSize();
+    return this.estudiantes().slice(inicio, inicio + this.studentPageSize());
+  });
   evaluaciones = computed(() => this.evaluacionesQuery.data() || []);
+  evaluacionesPaginadas = computed(() => {
+    const inicio = this.evalPageIndex() * this.evalPageSize();
+    return this.evaluaciones().slice(inicio, inicio + this.evalPageSize());
+  });
   cursos = computed(() => this.cursosQuery.data() || []);
+  cursosPaginados = computed(() => {
+    const inicio = this.coursePageIndex() * this.coursePageSize();
+    return this.cursos().slice(inicio, inicio + this.coursePageSize());
+  });
   cads = computed(() => this.cadsQuery.data() || []);
   asignaturas = computed(() => this.asignaturasQuery.data() || []);
+  asignaturasPaginadas = computed(() => {
+    const inicio = this.subjectPageIndex() * this.subjectPageSize();
+    return this.asignaturas().slice(inicio, inicio + this.subjectPageSize());
+  });
 
   // Mutations
   crearCursoMutation = injectMutation(() => this.adminMutations.crearCurso());
@@ -112,6 +158,17 @@ export class UserManagementPageComponent {
   // Tables columns
   userColumns: string[] = ['rut', 'nombre', 'email', 'rol', 'activo', 'acciones'];
   evaluacionColumns: string[] = ['nombre', 'fecha', 'cad', 'acciones'];
+  pageSizeOptions: number[] = [5, 10, 20];
+  userPageIndex = signal(0);
+  userPageSize = signal(5);
+  coursePageIndex = signal(0);
+  coursePageSize = signal(4);
+  subjectPageIndex = signal(0);
+  subjectPageSize = signal(4);
+  studentPageIndex = signal(0);
+  studentPageSize = signal(5);
+  evalPageIndex = signal(0);
+  evalPageSize = signal(5);
   
   dateFilter = (d: Date | null): boolean => {
     const day = (d || new Date()).getDay();
@@ -163,6 +220,56 @@ export class UserManagementPageComponent {
       cursoId: ['', Validators.required],
       asignaturaId: ['', Validators.required],
       docenteId: ['', Validators.required]
+    });
+
+    effect(() => {
+      const totalUsuarios = this.usuarios().length;
+      const paginaActualFueraDeRango = this.userPageIndex() * this.userPageSize() >= totalUsuarios;
+
+      if (totalUsuarios === 0 || paginaActualFueraDeRango) {
+        this.userPageIndex.set(0);
+      }
+    });
+
+    effect(() => {
+      const totalCursos = this.cursos().length;
+      const paginaActualFueraDeRango = this.coursePageIndex() * this.coursePageSize() >= totalCursos;
+
+      if (totalCursos === 0 || paginaActualFueraDeRango) {
+        this.coursePageIndex.set(0);
+      }
+    });
+
+    effect(() => {
+      const totalAsignaturas = this.asignaturas().length;
+      const paginaActualFueraDeRango = this.subjectPageIndex() * this.subjectPageSize() >= totalAsignaturas;
+
+      if (totalAsignaturas === 0 || paginaActualFueraDeRango) {
+        this.subjectPageIndex.set(0);
+      }
+    });
+
+    effect(() => {
+      const totalEstudiantes = this.estudiantes().length;
+      const paginaActualFueraDeRango = this.studentPageIndex() * this.studentPageSize() >= totalEstudiantes;
+
+      if (totalEstudiantes === 0 || paginaActualFueraDeRango) {
+        this.studentPageIndex.set(0);
+      }
+    });
+
+    effect(() => {
+      const totalEvaluaciones = this.evaluaciones().length;
+      const paginaActualFueraDeRango = this.evalPageIndex() * this.evalPageSize() >= totalEvaluaciones;
+
+      if (totalEvaluaciones === 0 || paginaActualFueraDeRango) {
+        this.evalPageIndex.set(0);
+      }
+    });
+
+    effect(() => {
+      this.selectedCadId();
+      this.evalPageIndex.set(0);
     });
   }
 
@@ -316,6 +423,31 @@ export class UserManagementPageComponent {
         onError: (err) => showErrorSnack(this.snackBar, err)
       });
     }
+  }
+
+  onUsersPageChange(event: PageEvent): void {
+    this.userPageIndex.set(event.pageIndex);
+    this.userPageSize.set(event.pageSize);
+  }
+
+  onCoursesPageChange(event: PageEvent): void {
+    this.coursePageIndex.set(event.pageIndex);
+    this.coursePageSize.set(event.pageSize);
+  }
+
+  onSubjectsPageChange(event: PageEvent): void {
+    this.subjectPageIndex.set(event.pageIndex);
+    this.subjectPageSize.set(event.pageSize);
+  }
+
+  onStudentsPageChange(event: PageEvent): void {
+    this.studentPageIndex.set(event.pageIndex);
+    this.studentPageSize.set(event.pageSize);
+  }
+
+  onEvaluationsPageChange(event: PageEvent): void {
+    this.evalPageIndex.set(event.pageIndex);
+    this.evalPageSize.set(event.pageSize);
   }
 
   // Evaluaciones

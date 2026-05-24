@@ -36,7 +36,12 @@ export class ComunicacionesMutations {
         return this.api.enviarMensaje(formData);
       },
       onSuccess: (_data, variables) => {
-        this.queryClient.invalidateQueries({ queryKey: comunicacionesKeys.conversaciones(variables.quienEnvia) });
+        this.queryClient.invalidateQueries({
+          queryKey: comunicacionesKeys.conversaciones(variables.quienEnvia),
+        });
+        this.queryClient.refetchQueries({
+          queryKey: comunicacionesKeys.conversaciones(variables.quienEnvia),
+        });
       },
     });
   }

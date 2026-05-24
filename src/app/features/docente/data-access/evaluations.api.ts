@@ -15,7 +15,7 @@ import {
 })
 export class EvaluationsApi {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = `${environment.gestionUrl}/api`;
+  private readonly apiUrl = `${environment.apiGw}/api`;
 
   getCursos(docenteId: number): Promise<DocenteCurso[]> {
     return firstValueFrom(

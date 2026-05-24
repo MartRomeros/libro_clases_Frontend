@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#004ac6",
+                        "surface-tint": "#0053db",
+                        "secondary-container": "#d0e1fb",
+                        "surface-dim": "#d8dadc",
+                        "inverse-on-surface": "#eff1f3",
+                        "tertiary-fixed": "#ffdbcd",
+                        "surface-container-highest": "#e0e3e5",
+                        "on-primary-container": "#eeefff",
+                        "on-tertiary-fixed-variant": "#7d2d00",
+                        "background": "#f7f9fb",
+                        "surface-container-low": "#f2f4f6",
+                        "on-background": "#191c1e",
+                        "inverse-primary": "#b4c5ff",
+                        "on-error-container": "#93000a",
+                        "tertiary": "#943700",
+                        "secondary-fixed-dim": "#b7c8e1",
+                        "surface-variant": "#e0e3e5",
+                        "on-primary": "#ffffff",
+                        "inverse-surface": "#2d3133",
+                        "on-tertiary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-error": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-secondary-fixed": "#0b1c30",
+                        "tertiary-fixed-dim": "#ffb596",
+                        "surface-container-high": "#e6e8ea",
+                        "on-secondary-container": "#54647a",
+                        "outline": "#737686",
+                        "surface-bright": "#f7f9fb",
+                        "secondary-fixed": "#d3e4fe",
+                        "error": "#ba1a1a",
+                        "on-primary-fixed": "#00174b",
+                        "on-tertiary-fixed": "#360f00",
+                        "secondary": "#505f76",
+                        "surface-container": "#eceef0",
+                        "on-secondary": "#ffffff",
+                        "primary-container": "#2563eb",
+                        "on-secondary-fixed-variant": "#38485d",
+                        "tertiary-container": "#bc4800",
+                        "surface": "#f7f9fb",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "on-surface": "#191c1e",
+                        "on-surface-variant": "#434655",
+                        "on-tertiary-container": "#ffede6",
+                        "outline-variant": "#c3c6d7",
+                        "primary-fixed": "#dbe1ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-margin": "24px",
+                        "gutter": "16px",
+                        "xl": "32px",
+                        "sm": "8px",
+                        "xs": "4px",
+                        "base": "4px",
+                        "md": "16px",
+                        "lg": "24px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "display": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "label-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "14px", "fontWeight": "600" }],
+                        "display": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-lg": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "500" }]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        body {
+            background-color: #f7f9fb;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 16px;
+        }
+    </style>
+</head>
+
+<body class="text-on-background">
+    <!-- TopNavBar (Shared Component JSON Mapping) -->
+    <header
+        class="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-container-margin h-16 bg-surface-container-lowest shadow-sm border-b border-outline-variant">
+        <div class="flex items-center gap-4">
+            <span class="font-headline-md text-headline-md font-bold text-primary tracking-tight">Portal
+                Estudiantil</span>
+            <nav class="hidden md:flex gap-6 ml-8">
+                <a class="text-primary border-b-2 border-primary pb-1 font-bold font-label-md text-label-md transition-all duration-200"
+                    href="#">Inicio</a>
+                <a class="text-on-surface-variant font-medium font-label-md text-label-md hover:text-primary transition-all duration-200"
+                    href="#">Calificaciones</a>
+                <a class="text-on-surface-variant font-medium font-label-md text-label-md hover:text-primary transition-all duration-200"
+                    href="#">Asistencia</a>
+                <a class="text-on-surface-variant font-medium font-label-md text-label-md hover:text-primary transition-all duration-200"
+                    href="#">Material</a>
+            </nav>
+        </div>
+        <div class="flex items-center gap-4">
+            <button
+                class="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-transform active:scale-95">
+                <span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+            </button>
+            <div class="h-10 w-10 rounded-full overflow-hidden border border-outline-variant">
+                <img alt="Avatar del estudiante" class="w-full h-full object-cover"
+                    data-alt="A professional, close-up portrait of a young student with a friendly and focused expression. The lighting is soft and natural, suggesting a modern educational environment with a clean, high-key background. The overall aesthetic is minimalist and bright, consistent with a premium academic portal dashboard designed for clarity and professional institutionalism."
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuBuGNbFTbbZHDRV8gGj_xyyILk7K9oc3eQ4iUtCDBD47v32FKLSfH5f13oLCk8soiN8pyKkfdVG3QWzkedMk4u-F_yQFJaTDTJY9kJhzUj8LSTovVEVTMtkbo_N26GZhWSAR6C5um7g7Ali5KFnlLX3kVFXyZk3xKfVpKhzY3Sai1cp6i3BxasC5oOVMQktUAjWGBJ6WRXIjO6S0qW5VTUeaHGxD1eRzY9qy9DsDJMvpEfnmK9-JgCGJ1qG1cuh35pNTcn62yCHYzY" />
+            </div>
+        </div>
+    </header>
+    <main class="pt-24 pb-12 px-container-margin max-w-7xl mx-auto">
+        <!-- Hero Header -->
+        <section class="mb-xl">
+            <h1 class="font-display text-display text-on-background">Hola, Juan Pérez</h1>
+            <p class="font-body-lg text-body-lg text-on-surface-variant mt-1">Portal del Estudiante — Colegio Bernardo
+                O’Higgins</p>
+        </section>
+        <!-- Mi Resumen Escolar (Small Cards Section) -->
+        <section class="mb-xl">
+            <div class="flex items-center justify-between mb-md">
+                <h2 class="font-headline-md text-headline-md">Mi Resumen Escolar</h2>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-md">
+                <!-- Card 1 -->
+                <div
+                    class="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant shadow-sm flex flex-col gap-1 hover:shadow-md transition-all">
+                    <span class="font-label-md text-label-md text-on-surface-variant">Promedio General</span>
+                    <div class="flex items-end gap-2 mt-1">
+                        <span class="font-display text-display text-primary">6.2</span>
+                        <span class="material-symbols-outlined text-primary mb-1"
+                            style="font-variation-settings: 'FILL' 1;">trending_up</span>
+                    </div>
+                </div>
+                <!-- Card 2 -->
+                <div
+                    class="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant shadow-sm flex flex-col gap-1 hover:shadow-md transition-all">
+                    <span class="font-label-md text-label-md text-on-surface-variant">Asistencia</span>
+                    <div class="flex items-end gap-2 mt-1">
+                        <span class="font-display text-display text-primary">94%</span>
+                        <span class="font-label-sm text-label-sm text-on-surface-variant mb-1">Semestre Actual</span>
+                    </div>
+                </div>
+                <!-- Card 3 -->
+                <div
+                    class="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant shadow-sm flex flex-col gap-1 hover:shadow-md transition-all">
+                    <span class="font-label-md text-label-md text-on-surface-variant">Recursos</span>
+                    <div class="flex items-end gap-2 mt-1">
+                        <span class="font-display text-display text-tertiary">12</span>
+                        <span class="font-label-sm text-label-sm text-tertiary mb-1">Nuevos</span>
+                    </div>
+                </div>
+                <!-- Card 4 -->
+                <div
+                    class="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant shadow-sm flex flex-col gap-1 hover:shadow-md transition-all">
+                    <span class="font-label-md text-label-md text-on-surface-variant">Mensajes</span>
+                    <div class="flex items-end gap-2 mt-1">
+                        <span class="font-display text-display text-primary">2</span>
+                        <div class="h-2 w-2 bg-error rounded-full mb-4 animate-pulse"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Mis Herramientas de Estudio (Large Cards Section) -->
+        <section>
+            <div class="flex items-center justify-between mb-md">
+                <h2 class="font-headline-md text-headline-md">Mis Herramientas de Estudio</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+                <!-- Card Grande 1: Libro -->
+                <button
+                    class="flex items-center text-left bg-surface-container-lowest p-lg rounded-xl border border-outline-variant shadow-sm hover:shadow-md hover:border-primary transition-all group relative overflow-hidden">
+                    <div class="bg-primary-container/10 p-4 rounded-xl mr-lg group-hover:bg-primary transition-colors">
+                        <span
+                            class="material-symbols-outlined text-primary text-[32px] group-hover:text-white transition-colors"
+                            data-icon="auto_stories">auto_stories</span>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-1">
+                            <h3 class="font-headline-md text-headline-md text-on-surface">Material de Estudio</h3>
+                            <span
+                                class="px-2 py-0.5 bg-tertiary-fixed text-on-tertiary-fixed-variant font-label-sm text-label-sm rounded-full">Nuevo</span>
+                        </div>
+                        <p class="font-body-md text-body-md text-on-surface-variant">Accede a libros, guías y recursos
+                            de tus asignaturas.</p>
+                    </div>
+                    <span
+                        class="material-symbols-outlined text-on-surface-variant group-hover:text-primary group-hover:translate-x-1 transition-all"
+                        data-icon="chevron_right">chevron_right</span>
+                </button>
+                <!-- Card Grande 2: Nota -->
+                <button
+                    class="flex items-center text-left bg-surface-container-lowest p-lg rounded-xl border border-outline-variant shadow-sm hover:shadow-md hover:border-primary transition-all group relative overflow-hidden">
+                    <div class="bg-primary-container/10 p-4 rounded-xl mr-lg group-hover:bg-primary transition-colors">
+                        <span
+                            class="material-symbols-outlined text-primary text-[32px] group-hover:text-white transition-colors"
+                            data-icon="grading">grading</span>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-1">
+                            <h3 class="font-headline-md text-headline-md text-on-surface">Calificaciones</h3>
+                        </div>
+                        <p class="font-body-md text-body-md text-on-surface-variant">Revisa tus notas parciales y
+                            promedios finales.</p>
+                    </div>
+                    <span
+                        class="material-symbols-outlined text-on-surface-variant group-hover:text-primary group-hover:translate-x-1 transition-all"
+                        data-icon="chevron_right">chevron_right</span>
+                </button>
+                <!-- Card Grande 3: Calendario -->
+                <button
+                    class="flex items-center text-left bg-surface-container-lowest p-lg rounded-xl border border-outline-variant shadow-sm hover:shadow-md hover:border-primary transition-all group relative overflow-hidden">
+                    <div class="bg-primary-container/10 p-4 rounded-xl mr-lg group-hover:bg-primary transition-colors">
+                        <span
+                            class="material-symbols-outlined text-primary text-[32px] group-hover:text-white transition-colors"
+                            data-icon="calendar_month">calendar_month</span>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-1">
+                            <h3 class="font-headline-md text-headline-md text-on-surface">Horario y Asistencia</h3>
+                        </div>
+                        <p class="font-body-md text-body-md text-on-surface-variant">Ver tu calendario de clases y
+                            registro de asistencia.</p>
+                    </div>
+                    <span
+                        class="material-symbols-outlined text-on-surface-variant group-hover:text-primary group-hover:translate-x-1 transition-all"
+                        data-icon="chevron_right">chevron_right</span>
+                </button>
+                <!-- Card Grande 4: Mensaje -->
+                <button
+                    class="flex items-center text-left bg-surface-container-lowest p-lg rounded-xl border border-outline-variant shadow-sm hover:shadow-md hover:border-primary transition-all group relative overflow-hidden">
+                    <div class="bg-primary-container/10 p-4 rounded-xl mr-lg group-hover:bg-primary transition-colors">
+                        <span
+                            class="material-symbols-outlined text-primary text-[32px] group-hover:text-white transition-colors"
+                            data-icon="forum">forum</span>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-1">
+                            <h3 class="font-headline-md text-headline-md text-on-surface">Comunicación</h3>
+                            <span
+                                class="px-2 py-0.5 bg-secondary-container text-on-secondary-container font-label-sm text-label-sm rounded-full">2
+                                mensajes</span>
+                        </div>
+                        <p class="font-body-md text-body-md text-on-surface-variant">Envía y recibe mensajes de tus
+                            profesores y directivos.</p>
+                    </div>
+                    <span
+                        class="material-symbols-outlined text-on-surface-variant group-hover:text-primary group-hover:translate-x-1 transition-all"
+                        data-icon="chevron_right">chevron_right</span>
+                </button>
+            </div>
+        </section>
+        <!-- Asymmetric Layout Section: Quick Activities -->
+        <section class="mt-xl grid grid-cols-1 lg:grid-cols-3 gap-lg">
+            <div class="lg:col-span-2 bg-white rounded-2xl p-lg border border-outline-variant shadow-sm">
+                <div class="flex items-center justify-between mb-lg">
+                    <h3 class="font-headline-md text-headline-md">Próximas Evaluaciones</h3>
+                    <button class="text-primary font-label-md text-label-md hover:underline transition-all">Ver
+                        calendario completo</button>
+                </div>
+                <div class="space-y-4">
+                    <div
+                        class="flex items-center justify-between p-md bg-background rounded-xl border border-outline-variant/30">
+                        <div class="flex items-center gap-md">
+                            <div
+                                class="h-12 w-12 bg-surface-container rounded-lg flex flex-col items-center justify-center">
+                                <span class="font-label-sm text-[10px] uppercase text-on-surface-variant">Oct</span>
+                                <span class="font-headline-md text-headline-md leading-none">14</span>
+                            </div>
+                            <div>
+                                <h4 class="font-label-md text-label-md text-on-surface">Prueba de Matemáticas</h4>
+                                <p class="font-body-sm text-body-sm text-on-surface-variant">Álgebra y Funciones • 08:30
+                                    AM</p>
+                            </div>
+                        </div>
+                        <div class="h-10 w-10 flex items-center justify-center bg-white rounded-full shadow-sm">
+                            <span class="material-symbols-outlined text-on-surface-variant"
+                                data-icon="event">event</span>
+                        </div>
+                    </div>
+                    <div
+                        class="flex items-center justify-between p-md bg-background rounded-xl border border-outline-variant/30">
+                        <div class="flex items-center gap-md">
+                            <div
+                                class="h-12 w-12 bg-surface-container rounded-lg flex flex-col items-center justify-center">
+                                <span class="font-label-sm text-[10px] uppercase text-on-surface-variant">Oct</span>
+                                <span class="font-headline-md text-headline-md leading-none">16</span>
+                            </div>
+                            <div>
+                                <h4 class="font-label-md text-label-md text-on-surface">Ensayo de Historia</h4>
+                                <p class="font-body-sm text-body-sm text-on-surface-variant">Periodo Colonial • Entrega
+                                    Digital</p>
+                            </div>
+                        </div>
+                        <div class="h-10 w-10 flex items-center justify-center bg-white rounded-full shadow-sm">
+                            <span class="material-symbols-outlined text-on-surface-variant"
+                                data-icon="description">description</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div
+                class="bg-primary p-lg rounded-2xl shadow-lg flex flex-col justify-between text-white relative overflow-hidden">
+                <div class="relative z-10">
+                    <span class="material-symbols-outlined text-white/60 mb-md" data-icon="school"
+                        style="font-variation-settings: 'opsz' 48;">school</span>
+                    <h3 class="font-headline-md text-headline-md mb-2">Resumen de Actividad</h3>
+                    <p class="font-body-md text-body-md text-white/80">Has completado el 85% de tus tareas esta semana.
+                        ¡Sigue así, Juan!</p>
+                </div>
+                <div class="mt-xl relative z-10">
+                    <button
+                        class="w-full py-3 bg-white text-primary rounded-xl font-label-md text-label-md font-bold hover:bg-secondary-fixed transition-colors">
+                        Ver Mis Logros
+                    </button>
+                </div>
+                <!-- Abstract Pattern Overlay -->
+                <div class="absolute top-0 right-0 -mr-16 -mt-16 h-48 w-48 bg-white/10 rounded-full blur-3xl"></div>
+                <div
+                    class="absolute bottom-0 left-0 -ml-16 -mb-16 h-48 w-48 bg-primary-container/20 rounded-full blur-3xl">
+                </div>
+            </div>
+        </section>
+    </main>
+    <!-- FAB (Floating Action Button for Student Support) -->
+    <button
+        class="fixed bottom-8 right-8 h-14 w-14 bg-primary text-white rounded-full shadow-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all group">
+        <span class="material-symbols-outlined" data-icon="help_center">help_center</span>
+        <span
+            class="absolute right-full mr-4 bg-on-surface text-white px-3 py-1.5 rounded-lg text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Soporte
+            Estudiantil</span>
+    </button>
+    <script>
+        // Micro-interaction for hover effects on summary cards
+        const cards = document.querySelectorAll('.hover\\:shadow-md');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-2px)';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0px)';
+            });
+        });
+    </script>
+</body>
+
+</html>

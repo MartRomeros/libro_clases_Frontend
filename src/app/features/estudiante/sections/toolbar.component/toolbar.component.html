@@ -1,0 +1,46 @@
+<mat-toolbar
+    class="fixed top-0 left-0 right-0 z-900 px-[5%]! h-20! bg-white/85! backdrop-blur-xl transition-all duration-300 border-b border-gray-200/15"
+    [class.shadow-lg]="isScrolled()" id="navbar">
+    <div class="flex items-center w-full max-w-300 mx-auto">
+        <div class="flex items-center gap-2.5 shrink-0" id="logo-link">
+            <div
+                class="w-10.5 h-10.5 bg-linear-to-br from-[#001e40] to-[#003366] rounded-lg grid place-items-center shadow-md">
+                <mat-icon class="text-white! w-6! h-6! text-[24px]">school</mat-icon>
+            </div>
+            <div class="flex flex-col justify-center leading-[1.1]">
+                <span class="font-display font-extrabold text-[1rem] text-[#001e40] tracking-tight">O'Higgins</span>
+                <span class="text-[0.625rem] text-gray-500 font-medium tracking-widest uppercase">Portal Alumno</span>
+            </div>
+        </div>
+
+        <div class="hidden md:flex gap-2 ml-auto">
+            <a mat-button routerLink="/estudiante" class="nav-link text-gray-600! hover:text-[#001e40]! px-4!">Inicio</a>
+            <a mat-button routerLink="/estudiante/notas" class="nav-link text-gray-600! hover:text-[#001e40]! px-4!">Calificaciones</a>
+            <a mat-button routerLink="/estudiante/asistencia" class="nav-link text-gray-600! hover:text-[#001e40]! px-4!">Asistencia</a>
+            <a mat-button routerLink="/estudiante/recursos" class="nav-link text-gray-600! hover:text-[#001e40]! px-4!">Material</a>
+            <a mat-button routerLink="/comunicaciones" class="nav-link text-gray-600! hover:text-[#001e40]! px-4!">Mensajes</a>
+        </div>
+
+        <div class="hidden md:flex items-center gap-3 ml-6">
+            <button mat-icon-button
+                class="text-[#001e40]! bg-gray-100/50! hover:bg-gray-100! flex items-center justify-center"
+                matTooltip="Opciones de sesión" [matMenuTriggerFor]="sessionMenu">
+                <mat-icon>person</mat-icon>
+            </button>
+            <mat-menu #sessionMenu="matMenu">
+                <button mat-menu-item (click)="cerrarSesion()">
+                    <mat-icon>logout</mat-icon>
+                    <span>Cerrar sesión</span>
+                </button>
+                <button mat-menu-item (click)="verPerfil()">
+                    <mat-icon>person</mat-icon>
+                    <span>Ver perfil</span>
+                </button>
+            </mat-menu>
+        </div>
+
+        <button mat-icon-button class="md:hidden! ml-auto text-[#001e40]!" (click)="menuClick.emit()">
+            <mat-icon>menu</mat-icon>
+        </button>
+    </div>
+</mat-toolbar>

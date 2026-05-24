@@ -1,18 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, signal, computed } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTableModule } from '@angular/material/table';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { injectQuery } from '@tanstack/angular-query-experimental';
 
 import { AuthQueries } from '../../../auth/data-access/auth.queries';
-import { Navbar } from '../../../../layout/navbar/navbar';
+import { NavbarComponent } from '../../sections/navbar.component/navbar.component';
 import { Recurso } from '../../models/estudiante.model';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
 
@@ -21,15 +14,8 @@ import { EmptyStateComponent } from '../../../../shared/components/empty-state/e
   standalone: true,
   imports: [
     CommonModule,
-    MatToolbarModule,
-    MatButtonModule,
     MatIconModule,
-    MatCardModule,
-    MatTableModule,
-    MatDividerModule,
-    MatTooltipModule,
-    MatChipsModule,
-    Navbar,
+    NavbarComponent,
     EmptyStateComponent
   ],
   templateUrl: './resources.page.component.html',
@@ -42,8 +28,9 @@ export class ResourcesPageComponent {
   profileQuery = injectQuery(() => this.authQueries.me());
   profile = computed(() => this.profileQuery.data());
 
-  displayedColumns: string[] = ['tipo', 'asignatura', 'titulo', 'fecha', 'tamano', 'acciones'];
   dataSource = signal<Recurso[]>([]);
+  filtroActivo = signal<'TODOS' | 'PDF' | 'PPTX'>('TODOS');
+  terminoBusqueda = signal('');
 
   ngOnInit() {
     this.cargarRecursosMock();
@@ -60,8 +47,43 @@ export class ResourcesPageComponent {
     this.dataSource.set(data);
   }
 
+  recursosFiltrados = computed(() => {
+    const filtro = this.filtroActivo();
+    const termino = this.terminoBusqueda().trim().toLowerCase();
+
+    return this.dataSource().filter((recurso) => {
+      const coincideFiltro = filtro === 'TODOS' ? true : recurso.tipo === filtro;
+      const coincideBusqueda =
+        !termino ||
+        [
+          recurso.asignatura,
+          recurso.titulo,
+          recurso.tipo,
+          recurso.tamano,
+          this.formatearFecha(recurso.fechaSubida),
+        ]
+          .join(' ')
+          .toLowerCase()
+          .includes(termino);
+
+      return coincideFiltro && coincideBusqueda;
+    });
+  });
+
+  archivosNuevos = computed(() => this.dataSource().length);
+  almacenamientoResumen = computed(() => 'Sin informacion disponible');
+  totalMostrados = computed(() => this.recursosFiltrados().length);
+
   volver(): void {
     this.router.navigate(['/estudiante']);
+  }
+
+  setFiltro(tipo: 'TODOS' | 'PDF' | 'PPTX'): void {
+    this.filtroActivo.set(tipo);
+  }
+
+  actualizarBusqueda(valor: string): void {
+    this.terminoBusqueda.set(valor);
   }
 
   getIconoRecurso(tipo: string): string {
@@ -83,6 +105,37 @@ export class ResourcesPageComponent {
       case 'VIDEO': return 'text-purple';
       default: return 'text-gray';
     }
+  }
+
+  getBadgeClaseTipo(tipo: string): string {
+    switch (tipo) {
+      case 'PDF': return 'badge-red';
+      case 'PPTX': return 'badge-orange';
+      case 'DOCX': return 'badge-blue';
+      case 'VIDEO': return 'badge-purple';
+      case 'ENLACE': return 'badge-green';
+      default: return 'badge-gray';
+    }
+  }
+
+  getBoxClaseTipo(tipo: string): string {
+    switch (tipo) {
+      case 'PDF': return 'box-red';
+      case 'PPTX': return 'box-orange';
+      case 'DOCX': return 'box-blue';
+      case 'VIDEO': return 'box-purple';
+      case 'ENLACE': return 'box-green';
+      default: return 'box-gray';
+    }
+  }
+
+  formatearFecha(fechaIso: string): string {
+    const fecha = new Date(`${fechaIso}T00:00:00`);
+    return new Intl.DateTimeFormat('es-CL', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    }).format(fecha);
   }
 
   descargarRecurso(recurso: Recurso) {

@@ -1,9 +1,22 @@
-<app-navbar/>
+<app-navbar-admin>
 
 <div class="admin-container fade-in">
-  <mat-tab-group animationDuration="500ms">
+  <section class="page-hero">
+    <div class="page-hero__copy">
+      <p class="page-kicker">Panel administrativo</p>
+      <h1>Operación académica y gestión interna</h1>
+      <p class="page-subtitle">
+        Administra usuarios, cursos, asignaciones y evaluaciones desde una sola vista de trabajo.
+      </p>
+    </div>
+    <div class="page-hero__badge">
+      <mat-icon>inventory_2</mat-icon>
+      <span>{{ usuarios().length }} registros de usuarios</span>
+    </div>
+  </section>
+
+  <mat-tab-group animationDuration="500ms" class="admin-tabs">
     
-    <!-- PESTAÑA USUARIOS (Docentes y Estudiantes) -->
     <mat-tab>
       <ng-template mat-tab-label>
         <mat-icon class="tab-icon">manage_accounts</mat-icon>
@@ -13,9 +26,10 @@
       <div class="tab-content">
         <div class="split-layout">
           <!-- Formulario (Izquierda) -->
-          <mat-card class="form-card" appearance="outlined">
+          <mat-card class="form-card surface-card" appearance="outlined">
             <mat-card-header>
               <mat-card-title>{{ isEditing ? 'Editar Usuario' : 'Crear Nuevo Usuario' }}</mat-card-title>
+              <mat-card-subtitle>Acceso, identidad y rol dentro del sistema.</mat-card-subtitle>
             </mat-card-header>
             <mat-card-content>
               <form [formGroup]="userForm" (ngSubmit)="onSubmitUser()" class="user-form">
@@ -71,9 +85,13 @@
           </mat-card>
 
           <!-- Listado (Derecha) -->
-          <mat-card class="table-card" appearance="outlined">
-            <mat-card-header>
-              <mat-card-title>Usuarios en el Sistema</mat-card-title>
+          <mat-card class="table-card surface-card" appearance="outlined">
+            <mat-card-header class="table-header">
+              <div>
+                <mat-card-title>Usuarios en el Sistema</mat-card-title>
+                <mat-card-subtitle>Listado con acciones rápidas y control paginado.</mat-card-subtitle>
+              </div>
+              <div class="table-summary">{{ usuarios().length }} usuarios</div>
             </mat-card-header>
             <mat-card-content>
               @if (usuariosQuery.isPending()) {
@@ -87,55 +105,66 @@
                   message="Crea usuarios para administrar el acceso al sistema."
                 />
               } @else {
-              <table mat-table [dataSource]="usuarios()" class="user-table">
-                <ng-container matColumnDef="rut">
-                  <th mat-header-cell *matHeaderCellDef> RUT </th>
-                  <td mat-cell *matCellDef="let user"> {{user.rut}} </td>
-                </ng-container>
+                <div class="table-wrapper">
+                  <table mat-table [dataSource]="usuariosPaginados()" class="user-table">
+                    <ng-container matColumnDef="rut">
+                      <th mat-header-cell *matHeaderCellDef> RUT </th>
+                      <td mat-cell *matCellDef="let user"> {{user.rut}} </td>
+                    </ng-container>
 
-                <ng-container matColumnDef="nombre">
-                  <th mat-header-cell *matHeaderCellDef> Nombre </th>
-                  <td mat-cell *matCellDef="let user"> {{user.nombre}} {{user.apellidoPaterno}} </td>
-                </ng-container>
+                    <ng-container matColumnDef="nombre">
+                      <th mat-header-cell *matHeaderCellDef> Nombre </th>
+                      <td mat-cell *matCellDef="let user"> {{user.nombre}} {{user.apellidoPaterno}} </td>
+                    </ng-container>
 
-                <ng-container matColumnDef="email">
-                  <th mat-header-cell *matHeaderCellDef> Email </th>
-                  <td mat-cell *matCellDef="let user"> {{user.email}} </td>
-                </ng-container>
+                    <ng-container matColumnDef="email">
+                      <th mat-header-cell *matHeaderCellDef> Email </th>
+                      <td mat-cell *matCellDef="let user"> {{user.email}} </td>
+                    </ng-container>
 
-                <ng-container matColumnDef="rol">
-                  <th mat-header-cell *matHeaderCellDef> Rol </th>
-                  <td mat-cell *matCellDef="let user"> 
-                    <span class="role-badge" [class]="'role-' + user.rolId">
-                      {{ getRolNombre(user.rolId) }}
-                    </span>
-                  </td>
-                </ng-container>
+                    <ng-container matColumnDef="rol">
+                      <th mat-header-cell *matHeaderCellDef> Rol </th>
+                      <td mat-cell *matCellDef="let user"> 
+                        <span class="role-badge" [class]="'role-' + user.rolId">
+                          {{ getRolNombre(user.rolId) }}
+                        </span>
+                      </td>
+                    </ng-container>
 
-                <ng-container matColumnDef="activo">
-                  <th mat-header-cell *matHeaderCellDef> Estado </th>
-                  <td mat-cell *matCellDef="let user">
-                    <mat-icon [color]="user.activo ? 'primary' : 'disabled'">
-                      {{ user.activo ? 'check_circle' : 'cancel' }}
-                    </mat-icon>
-                  </td>
-                </ng-container>
+                    <ng-container matColumnDef="activo">
+                      <th mat-header-cell *matHeaderCellDef> Estado </th>
+                      <td mat-cell *matCellDef="let user">
+                        <div class="status-pill" [class.is-active]="user.activo" [class.is-inactive]="!user.activo">
+                          <mat-icon>{{ user.activo ? 'check_circle' : 'cancel' }}</mat-icon>
+                          <span>{{ user.activo ? 'Activo' : 'Inactivo' }}</span>
+                        </div>
+                      </td>
+                    </ng-container>
 
-                <ng-container matColumnDef="acciones">
-                  <th mat-header-cell *matHeaderCellDef> </th>
-                  <td mat-cell *matCellDef="let user" class="actions-cell">
-                    <button mat-icon-button color="primary" (click)="editarUsuario(user)" matTooltip="Editar">
-                      <mat-icon>edit</mat-icon>
-                    </button>
-                    <button mat-icon-button color="warn" (click)="eliminarUsuario(user.usuarioId)" [disabled]="eliminarUsuarioMutation.isPending()" matTooltip="Eliminar">
-                      <mat-icon>delete</mat-icon>
-                    </button>
-                  </td>
-                </ng-container>
+                    <ng-container matColumnDef="acciones">
+                      <th mat-header-cell *matHeaderCellDef> </th>
+                      <td mat-cell *matCellDef="let user" class="actions-cell">
+                        <button mat-icon-button color="primary" (click)="editarUsuario(user)" matTooltip="Editar">
+                          <mat-icon>edit</mat-icon>
+                        </button>
+                        <button mat-icon-button color="warn" (click)="eliminarUsuario(user.usuarioId)" [disabled]="eliminarUsuarioMutation.isPending()" matTooltip="Eliminar">
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      </td>
+                    </ng-container>
 
-                <tr mat-header-row *matHeaderRowDef="userColumns"></tr>
-                <tr mat-row *matRowDef="let row; columns: userColumns;"></tr>
-              </table>
+                    <tr mat-header-row *matHeaderRowDef="userColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: userColumns;"></tr>
+                  </table>
+                </div>
+                <mat-paginator
+                  [length]="usuarios().length"
+                  [pageIndex]="userPageIndex()"
+                  [pageSize]="userPageSize()"
+                  [pageSizeOptions]="pageSizeOptions"
+                  showFirstLastButtons
+                  (page)="onUsersPageChange($event)"
+                />
               }
             </mat-card-content>
           </mat-card>
@@ -154,9 +183,13 @@
         <div class="academic-grid">
           
           <!-- Sección Cursos -->
-          <mat-card class="academic-section" appearance="outlined">
+          <mat-card class="academic-section surface-card" appearance="outlined">
             <mat-card-header>
-              <mat-card-title>Cursos</mat-card-title>
+              <div>
+                <mat-card-title>Cursos</mat-card-title>
+                <mat-card-subtitle>Estructura base de niveles y secciones activas.</mat-card-subtitle>
+              </div>
+              <div class="table-summary">{{ cursos().length }} cursos</div>
             </mat-card-header>
             <mat-card-content>
               <form [formGroup]="cursoForm" (ngSubmit)="crearCurso()" class="mini-form">
@@ -185,21 +218,36 @@
                 />
               } @else {
                 <div class="academic-list">
-                  <div *ngFor="let c of cursos()" class="item-row">
-                    <span>{{c.nivel}} {{c.letra}} ({{c.anioAcademico}})</span>
+                  <div *ngFor="let c of cursosPaginados()" class="item-row">
+                    <div class="item-copy">
+                      <span>{{c.nivel}} {{c.letra}}</span>
+                      <small>{{c.anioAcademico}}</small>
+                    </div>
                     <button mat-icon-button color="warn" (click)="eliminarCurso(c.cursoId)" [disabled]="eliminarCursoMutation.isPending()">
                       <mat-icon>delete</mat-icon>
                     </button>
                   </div>
                 </div>
+                <mat-paginator
+                  [length]="cursos().length"
+                  [pageIndex]="coursePageIndex()"
+                  [pageSize]="coursePageSize()"
+                  [pageSizeOptions]="pageSizeOptions"
+                  showFirstLastButtons
+                  (page)="onCoursesPageChange($event)"
+                />
               }
             </mat-card-content>
           </mat-card>
 
           <!-- Sección Asignaturas -->
-          <mat-card class="academic-section" appearance="outlined">
+          <mat-card class="academic-section surface-card" appearance="outlined">
             <mat-card-header>
-              <mat-card-title>Asignaturas</mat-card-title>
+              <div>
+                <mat-card-title>Asignaturas</mat-card-title>
+                <mat-card-subtitle>Catálogo académico disponible para vinculación.</mat-card-subtitle>
+              </div>
+              <div class="table-summary">{{ asignaturas().length }} asignaturas</div>
             </mat-card-header>
             <mat-card-content>
               <form [formGroup]="asignaturaForm" (ngSubmit)="crearAsignatura()" class="mini-form">
@@ -222,21 +270,35 @@
                 />
               } @else {
                 <div class="academic-list">
-                  <div *ngFor="let a of asignaturas()" class="item-row">
-                    <span>{{a.nombre}}</span>
+                  <div *ngFor="let a of asignaturasPaginadas()" class="item-row">
+                    <div class="item-copy">
+                      <span>{{a.nombre}}</span>
+                    </div>
                     <button mat-icon-button color="warn" (click)="eliminarAsignatura(a.asignaturaId)" [disabled]="eliminarAsignaturaMutation.isPending()">
                       <mat-icon>delete</mat-icon>
                     </button>
                   </div>
                 </div>
+                <mat-paginator
+                  [length]="asignaturas().length"
+                  [pageIndex]="subjectPageIndex()"
+                  [pageSize]="subjectPageSize()"
+                  [pageSizeOptions]="pageSizeOptions"
+                  showFirstLastButtons
+                  (page)="onSubjectsPageChange($event)"
+                />
               }
             </mat-card-content>
           </mat-card>
 
           <!-- Sección CAD (Vínculos) -->
-          <mat-card class="academic-section large" appearance="outlined">
+          <mat-card class="academic-section large surface-card" appearance="outlined">
             <mat-card-header>
-              <mat-card-title>Vínculo Académico (CAD)</mat-card-title>
+              <div>
+                <mat-card-title>Vínculo Académico (CAD)</mat-card-title>
+                <mat-card-subtitle>Relación entre curso, asignatura y docente responsable.</mat-card-subtitle>
+              </div>
+              <div class="table-summary">{{ cads().length }} vínculos</div>
             </mat-card-header>
             <mat-card-content>
               <form [formGroup]="cadForm" (ngSubmit)="vincularCAD()" class="mini-form">
@@ -278,7 +340,10 @@
               } @else {
                 <div class="academic-list">
                   <div *ngFor="let cad of cads()" class="item-row">
-                    <span><strong>{{cad.curso}}</strong>: {{cad.asignaturaNombre}} ({{cad.docente}})</span>
+                    <div class="item-copy">
+                      <span><strong>{{cad.curso}}</strong>: {{cad.asignaturaNombre}}</span>
+                      <small>{{cad.docente}}</small>
+                    </div>
                     <button mat-icon-button color="warn" (click)="eliminarCAD(cad.cadId)" [disabled]="eliminarCADMutation.isPending()">
                       <mat-icon>delete</mat-icon>
                     </button>
@@ -289,9 +354,13 @@
           </mat-card>
 
           <!-- Sección Asignación de Alumnos -->
-          <mat-card class="academic-section large" appearance="outlined">
+          <mat-card class="academic-section large surface-card" appearance="outlined">
             <mat-card-header>
-              <mat-card-title>Asignación de Alumnos a Cursos</mat-card-title>
+              <div>
+                <mat-card-title>Asignación de Alumnos a Cursos</mat-card-title>
+                <mat-card-subtitle>Control de matrícula y reasignación rápida por curso.</mat-card-subtitle>
+              </div>
+              <div class="table-summary">{{ estudiantes().length }} alumnos</div>
             </mat-card-header>
             <mat-card-content>
               @if (estudiantesQuery.isPending()) {
@@ -305,7 +374,7 @@
                   message="Aún no hay estudiantes registrados en el sistema."
                 />
               } @else {
-                <div class="academic-list">
+                <div class="table-wrapper">
                   <table class="w-100 assignment-table">
                     <thead>
                       <tr>
@@ -315,7 +384,7 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr *ngFor="let est of estudiantes()">
+                      <tr *ngFor="let est of estudiantesPaginados()">
                         <td>{{ getNombreEstudiante(est.estudianteId) }}</td>
                         <td>
                           <span class="current-course">
@@ -336,6 +405,14 @@
                     </tbody>
                   </table>
                 </div>
+                <mat-paginator
+                  [length]="estudiantes().length"
+                  [pageIndex]="studentPageIndex()"
+                  [pageSize]="studentPageSize()"
+                  [pageSizeOptions]="pageSizeOptions"
+                  showFirstLastButtons
+                  (page)="onStudentsPageChange($event)"
+                />
               }
             </mat-card-content>
           </mat-card>
@@ -365,9 +442,10 @@
 
         <div class="split-layout">
           <!-- Formulario Evaluación -->
-          <mat-card class="form-card" appearance="outlined">
+          <mat-card class="form-card surface-card" appearance="outlined">
             <mat-card-header>
               <mat-card-title>Crear Evaluación</mat-card-title>
+              <mat-card-subtitle>Programa nuevas evaluaciones por vínculo académico.</mat-card-subtitle>
             </mat-card-header>
             <mat-card-content>
               <form [formGroup]="evalForm" (ngSubmit)="onSubmitEval()" class="user-form">
@@ -402,12 +480,22 @@
           </mat-card>
 
           <!-- Listado Evaluaciones -->
-          <mat-card class="table-card" appearance="outlined">
-            <mat-card-header>
-              <mat-card-title>Evaluaciones Registradas</mat-card-title>
+          <mat-card class="table-card surface-card" appearance="outlined">
+            <mat-card-header class="table-header">
+              <div>
+                <mat-card-title>Evaluaciones Registradas</mat-card-title>
+                <mat-card-subtitle>Historial del vínculo seleccionado con control paginado.</mat-card-subtitle>
+              </div>
+              <div class="table-summary">{{ evaluaciones().length }} evaluaciones</div>
             </mat-card-header>
             <mat-card-content>
-              @if (evaluacionesQuery.isPending()) {
+              @if (!hasSelectedCad()) {
+                <app-empty-state 
+                  icon="event_note" 
+                  title="Selecciona un vínculo"
+                  message="Elige un curso, asignatura y docente en el filtro superior para cargar las evaluaciones."
+                />
+              } @else if (evaluacionesQuery.isPending()) {
                 <app-loading-state message="Cargando evaluaciones..." />
               } @else if (evaluacionesQuery.isError()) {
                 <app-error-state [error]="evaluacionesQuery.error()" (retry)="evaluacionesQuery.refetch()" />
@@ -415,35 +503,45 @@
                 <app-empty-state 
                   icon="assignment_late" 
                   title="No hay evaluaciones" 
-                  [message]="selectedCadId() ? 'No se encontraron evaluaciones para este curso/asignatura.' : 'Selecciona un Curso/Asignatura arriba para ver las evaluaciones asignadas.'"
+                  message="No se encontraron evaluaciones para este curso o asignatura."
                 />
               } @else {
-              <table mat-table [dataSource]="evaluaciones()" class="user-table">
-                <ng-container matColumnDef="nombre">
-                  <th mat-header-cell *matHeaderCellDef> Nombre </th>
-                  <td mat-cell *matCellDef="let eval"> 
-                    <strong>{{eval.nombre}}</strong>
-                  </td>
-                </ng-container>
-                <ng-container matColumnDef="fecha">
-                  <th mat-header-cell *matHeaderCellDef> Fecha </th>
-                  <td mat-cell *matCellDef="let eval"> {{eval.fechaEvaluacion | date:'dd/MM/yyyy'}} </td>
-                </ng-container>
-                <ng-container matColumnDef="cad">
-                  <th mat-header-cell *matHeaderCellDef> Curso - Asignatura </th>
-                  <td mat-cell *matCellDef="let eval"> {{ getCadNombre(eval.cadId) }} </td>
-                </ng-container>
-                <ng-container matColumnDef="acciones">
-                  <th mat-header-cell *matHeaderCellDef> </th>
-                  <td mat-cell *matCellDef="let eval" class="actions-cell">
-                    <button mat-icon-button color="warn" (click)="eliminarEval(eval.evaluacionId, eval.cadId)" [disabled]="eliminarEvaluacionMutation.isPending()" matTooltip="Eliminar">
-                      <mat-icon>delete</mat-icon>
-                    </button>
-                  </td>
-                </ng-container>
-                <tr mat-header-row *matHeaderRowDef="evaluacionColumns"></tr>
-                <tr mat-row *matRowDef="let row; columns: evaluacionColumns;"></tr>
-              </table>
+                <div class="table-wrapper">
+                  <table mat-table [dataSource]="evaluacionesPaginadas()" class="user-table">
+                    <ng-container matColumnDef="nombre">
+                      <th mat-header-cell *matHeaderCellDef> Nombre </th>
+                      <td mat-cell *matCellDef="let eval"> 
+                        <strong>{{eval.nombre}}</strong>
+                      </td>
+                    </ng-container>
+                    <ng-container matColumnDef="fecha">
+                      <th mat-header-cell *matHeaderCellDef> Fecha </th>
+                      <td mat-cell *matCellDef="let eval"> {{eval.fechaEvaluacion | date:'dd/MM/yyyy'}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="cad">
+                      <th mat-header-cell *matHeaderCellDef> Curso - Asignatura </th>
+                      <td mat-cell *matCellDef="let eval"> {{ getCadNombre(eval.cadId) }} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="acciones">
+                      <th mat-header-cell *matHeaderCellDef> </th>
+                      <td mat-cell *matCellDef="let eval" class="actions-cell">
+                        <button mat-icon-button color="warn" (click)="eliminarEval(eval.evaluacionId, eval.cadId)" [disabled]="eliminarEvaluacionMutation.isPending()" matTooltip="Eliminar">
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      </td>
+                    </ng-container>
+                    <tr mat-header-row *matHeaderRowDef="evaluacionColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: evaluacionColumns;"></tr>
+                  </table>
+                </div>
+                <mat-paginator
+                  [length]="evaluaciones().length"
+                  [pageIndex]="evalPageIndex()"
+                  [pageSize]="evalPageSize()"
+                  [pageSizeOptions]="pageSizeOptions"
+                  showFirstLastButtons
+                  (page)="onEvaluationsPageChange($event)"
+                />
               }
             </mat-card-content>
           </mat-card>
@@ -453,3 +551,4 @@
 
   </mat-tab-group>
 </div>
+</app-navbar-admin>

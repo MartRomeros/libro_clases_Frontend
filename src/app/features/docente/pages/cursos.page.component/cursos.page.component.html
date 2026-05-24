@@ -40,10 +40,14 @@
                         <ng-container matColumnDef="acciones">
                             <th mat-header-cell *matHeaderCellDef class="text-center"> Ver Curso </th>
                             <td mat-cell *matCellDef="let element" class="text-center">
+                                @if (cursoTieneEvaluaciones(element)) {
                                 <button mat-icon-button color="primary" (click)="verDetalleCurso(element)"
                                     matTooltip="Ver lista de alumnos">
                                     <mat-icon>visibility</mat-icon>
                                 </button>
+                                } @else {
+                                <span class="text-gray-400">Sin evaluaciones</span>
+                                }
                             </td>
                         </ng-container>
 
@@ -95,32 +99,23 @@
                             <td mat-cell *matCellDef="let element"> {{ element.estudianteFullName }} </td>
                         </ng-container>
 
-                        <!-- Nota 1 -->
-                        <ng-container matColumnDef="nota1">
-                            <th mat-header-cell *matHeaderCellDef class="text-center"> EV 1 </th>
+                        @for (evaluacion of evaluacionesCurso(); track evaluacion.evaluacionId) {
+                        <ng-container [matColumnDef]="getEvaluacionColumn(evaluacion)">
+                            <th mat-header-cell *matHeaderCellDef class="text-center">
+                                {{ evaluacion.nombre }}
+                            </th>
                             <td mat-cell *matCellDef="let element" class="text-center">
-                                <input type="number" [(ngModel)]="element.nota1" (input)="actualizarPromedio(element)"
-                                    min="1" max="7" step="0.1" class="nota-input">
+                                <input
+                                    type="number"
+                                    [ngModel]="getNotaValue(element, evaluacion.evaluacionId)"
+                                    (ngModelChange)="setNotaValue(element, evaluacion.evaluacionId, $event)"
+                                    min="1"
+                                    max="7"
+                                    step="0.1"
+                                    class="nota-input">
                             </td>
                         </ng-container>
-
-                        <!-- Nota 2 -->
-                        <ng-container matColumnDef="nota2">
-                            <th mat-header-cell *matHeaderCellDef class="text-center"> EV 2 </th>
-                            <td mat-cell *matCellDef="let element" class="text-center">
-                                <input type="number" [(ngModel)]="element.nota2" (input)="actualizarPromedio(element)"
-                                    min="1" max="7" step="0.1" class="nota-input">
-                            </td>
-                        </ng-container>
-
-                        <!-- Nota 3 -->
-                        <ng-container matColumnDef="nota3">
-                            <th mat-header-cell *matHeaderCellDef class="text-center"> EV 3 </th>
-                            <td mat-cell *matCellDef="let element" class="text-center">
-                                <input type="number" [(ngModel)]="element.nota3" (input)="actualizarPromedio(element)"
-                                    min="1" max="7" step="0.1" class="nota-input">
-                            </td>
-                        </ng-container>
+                        }
 
                         <!-- Promedio -->
                         <ng-container matColumnDef="promedio">
@@ -132,8 +127,8 @@
                             </td>
                         </ng-container>
 
-                        <tr mat-header-row *matHeaderRowDef="estudiantesColumns"></tr>
-                        <tr mat-row *matRowDef="let row; columns: estudiantesColumns"></tr>
+                        <tr mat-header-row *matHeaderRowDef="estudiantesColumns()"></tr>
+                        <tr mat-row *matRowDef="let row; columns: estudiantesColumns()"></tr>
                     </table>
                 </div>
 

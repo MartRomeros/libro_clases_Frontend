@@ -52,3 +52,10 @@ export interface CAD {
   asignaturaNombre: string;
   docente: string;
 }
+
+export interface AdminDashboard {
+  cantidadEstudiantes: number;
+  cantidadDocentes: number;
+  porcentajeAsistencia: number;
+  cantidadCursos: number;
+}

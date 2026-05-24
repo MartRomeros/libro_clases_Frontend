@@ -1,74 +1,121 @@
-<app-navbar />
+<app-navbar-estudiante>
 
-<div class="estudiante-container">
+    <div class="estudiante-container pt-30">
 
-    <!-- Header de bienvenida -->
-    <section class="bienvenida">
-        <div class="bienvenida-content">
-            <div class="avatar-circle">
-                <mat-icon class="avatar-icon">face</mat-icon>
+        <section class="bienvenida">
+            <div class="bienvenida-content">
+                <div class="avatar-shell">
+                    <div class="avatar-circle">
+                        <mat-icon class="avatar-icon">face</mat-icon>
+                    </div>
+                </div>
+                <div class="bienvenida-texto">
+                    <h1 class="bienvenida-titulo">
+                        @if (loading()) {
+                        Cargando...
+                        } @else if (error()) {
+                        ¡Bienvenido!
+                        } @else {
+                        ¡Hola, {{ estudianteNombre() }}!
+                        }
+                    </h1>
+                    <p class="bienvenida-subtitulo">Portal del Estudiante — Colegio Bernardo O'Higgins</p>
+                </div>
             </div>
-            <div class="bienvenida-texto">
-                <h1 class="bienvenida-titulo">
-                  @if (loading()) {
-                    cargando...
-                  } @else if (error()) {
-                    ¡Bienvenido!
-                  } @else {
-                    ¡Hola, {{ estudianteNombre() }}!
-                  }
-                </h1>
-                <p class="bienvenida-subtitulo">Portal del Estudiante — Colegio Bernardo O'Higgins</p>
-            </div>
+        </section>
+
+        <section class="resumen-section">
+        <div class="section-heading">
+            <h2 class="section-title">Mi Resumen Escolar</h2>
         </div>
-    </section>
-
-    <!-- Resumen rápido -->
-    <section class="resumen-section">
-        <h2 class="section-title">Mi Resumen Escolar</h2>
         <div class="resumen-grid">
             @for (item of resumenRapido; track item.etiqueta) {
             <mat-card class="resumen-card" appearance="outlined">
                 <mat-card-content class="resumen-card-content">
-                    <mat-icon class="resumen-icono" color="primary">{{ item.icono }}</mat-icon>
-                    <div class="resumen-info">
-                        <span class="resumen-valor">{{ item.valor }}</span>
-                        <span class="resumen-etiqueta">{{ item.etiqueta }}</span>
-                    </div>
-                </mat-card-content>
-            </mat-card>
-            }
-        </div>
-    </section>
+                    <div class="resumen-icon-shell">
+                            <mat-icon class="resumen-icono" color="primary">{{ item.icono }}</mat-icon>
+                        </div>
+                        <div class="resumen-info">
+                            <span class="resumen-valor">{{ item.valor }}</span>
+                            <span class="resumen-etiqueta">{{ item.etiqueta }}</span>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+                }
+            </div>
+        </section>
 
-    <mat-divider></mat-divider>
+        <mat-divider class="section-divider"></mat-divider>
 
-    <!-- Opciones principales -->
-    <section class="opciones-section">
-        <h2 class="section-title">Mis Herramientas de Estudio</h2>
-        <div class="opciones-grid">
-            @for (opcion of opciones; track opcion.titulo) {
-            <mat-card class="opcion-card" (click)="navegarA(opcion.ruta)" tabindex="0"
-                (keydown.enter)="navegarA(opcion.ruta)">
-                <mat-card-content class="opcion-card-content">
-                    <div class="opcion-icon-wrapper" [class]="'icon-' + opcion.color">
-                        @if (opcion.badge) {
-                        <mat-icon [matBadge]="opcion.badge" matBadgeColor="warn" class="opcion-icono">
-                            {{ opcion.icono }}
-                        </mat-icon>
-                        } @else {
-                        <mat-icon class="opcion-icono">{{ opcion.icono }}</mat-icon>
-                        }
-                    </div>
-                    <div class="opcion-texto">
-                        <h3 class="opcion-titulo">{{ opcion.titulo }}</h3>
-                        <p class="opcion-descripcion">{{ opcion.descripcion }}</p>
-                    </div>
-                    <mat-icon class="opcion-chevron">chevron_right</mat-icon>
-                </mat-card-content>
-            </mat-card>
-            }
-        </div>
-    </section>
+        <section class="opciones-section">
+            <div class="section-heading">
+                <h2 class="section-title">Mis Herramientas de Estudio</h2>
+            </div>
+            <div class="opciones-grid">
+                @for (opcion of opciones; track opcion.titulo) {
+                <mat-card class="opcion-card" appearance="outlined" (click)="navegarA(opcion.ruta)" tabindex="0"
+                    (keydown.enter)="navegarA(opcion.ruta)">
+                    <mat-card-content class="opcion-card-content">
+                        <div class="opcion-icon-wrapper" [class]="'icon-' + opcion.color">
+                            <mat-icon class="opcion-icono">{{ opcion.icono }}</mat-icon>
+                        </div>
+                        <div class="opcion-texto">
+                            <div class="opcion-head">
+                                <h3 class="opcion-titulo">{{ opcion.titulo }}</h3>
+                                @if (opcion.chip) {
+                                <span class="opcion-chip">{{ opcion.chip }}</span>
+                                }
+                            </div>
+                            <p class="opcion-descripcion">{{ opcion.descripcion }}</p>
+                        </div>
+                        <mat-icon class="opcion-chevron">chevron_right</mat-icon>
+                    </mat-card-content>
+                </mat-card>
+                }
+            </div>
+        </section>
 
-</div>
+        <!--<section class="paneles-section">
+            <div class="paneles-grid">
+                <mat-card class="panel-grande" appearance="outlined">
+                    <mat-card-content class="panel-grande-content">
+                        <div class="panel-grande-header">
+                            <h3 class="panel-grande-title">{{ panelesInformativos[0].titulo }}</h3>
+                            <button class="panel-link" type="button">Ver calendario</button>
+                        </div>
+                        <div class="panel-placeholder-list">
+                            <div class="panel-placeholder-item">
+                                <div class="placeholder-icon">
+                                    <mat-icon>{{ panelesInformativos[0].icono }}</mat-icon>
+                                </div>
+                                <div class="placeholder-copy">
+                                    <span class="placeholder-title">Agenda academica</span>
+                                    <span class="placeholder-text">{{ panelesInformativos[0].descripcion }}</span>
+                                </div>
+                            </div>
+                            <div class="panel-placeholder-item">
+                                <div class="placeholder-icon">
+                                    <mat-icon>description</mat-icon>
+                                </div>
+                                <div class="placeholder-copy">
+                                    <span class="placeholder-title">Recordatorios</span>
+                                    <span class="placeholder-text">Sin informacion disponible</span>
+                                </div>
+                            </div>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+
+                <mat-card class="panel-acento" appearance="outlined">
+                    <mat-card-content class="panel-acento-content">
+                        <mat-icon class="panel-acento-icon">{{ panelesInformativos[1].icono }}</mat-icon>
+                        <h3 class="panel-acento-title">{{ panelesInformativos[1].titulo }}</h3>
+                        <p class="panel-acento-text">{{ panelesInformativos[1].descripcion }}</p>
+                        <button class="panel-acento-button" type="button">Explorar portal</button>
+                    </mat-card-content>
+                </mat-card>
+            </div>
+        </section>-->
+
+    </div>
+</app-navbar-estudiante>

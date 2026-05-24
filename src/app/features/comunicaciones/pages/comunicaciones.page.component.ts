@@ -19,7 +19,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatAutocompleteTrigger } from '@angular/material/autocomplete';
+import { MatAutocompleteSelectedEvent, MatAutocompleteTrigger } from '@angular/material/autocomplete';
 import { MatOptionModule } from '@angular/material/core';
 import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
 import { injectMutation, injectQuery } from '@tanstack/angular-query-experimental';
@@ -40,6 +40,8 @@ interface Contacto {
   rol: 'Profesor' | 'Estudiante' | 'Grupo';
   avatar?: string;
 }
+
+const GROUP_EMAIL_PREFIX = 'GROUP:';
 
 @Component({
   selector: 'app-comunicaciones-page',
@@ -106,12 +108,11 @@ interface Contacto {
             <button mat-icon-button class="btn-back" (click)="volverAtras()" matTooltip="Volver">
               <mat-icon>arrow_back</mat-icon>
             </button>
-            <h2>Mensajes</h2>
+            <div class="sidebar-title-copy">
+              <h2>Mensajes</h2>
+              <p>{{ sidebarDescription() }}</p>
+            </div>
           </div>
-          <button mat-flat-button color="primary" class="btn-nuevo" (click)="crearNuevoMensaje()">
-            <mat-icon>edit</mat-icon>
-            Nuevo mensaje
-          </button>
         </div>
 
         <div class="search-container">
@@ -156,7 +157,12 @@ interface Contacto {
                 <div class="conv-info">
                   <div class="conv-header">
                     <span class="conv-nombre">{{ conv.participantes[0].nombre }}</span>
-                    <span class="conv-fecha">{{ conv.fechaUltimoMensaje | date: 'HH:mm' }}</span>
+                    <div class="conv-meta">
+                      <span class="conv-fecha">{{ conv.fechaUltimoMensaje | date: 'HH:mm' }}</span>
+                      @if (conv.sinLeerCount > 0) {
+                        <span class="conv-badge">{{ conv.sinLeerCount }}</span>
+                      }
+                    </div>
                   </div>
                   <div class="conv-asunto">{{ conv.asunto }}</div>
                   <div class="conv-last-msg">
@@ -169,11 +175,21 @@ interface Contacto {
               </div>
             } @empty {
               <div class="sidebar-state compact">
-                <app-empty-state
-                  icon="mail"
-                  title="Sin conversaciones"
-                  message="No se encontraron mensajes para los filtros aplicados."
-                />
+                @if (searchQuery().trim()) {
+                  <app-empty-state
+                    icon="search_off"
+                    title="Sin resultados"
+                    message="No encontramos mensajes que coincidan con tu búsqueda."
+                  />
+                } @else {
+                  <app-empty-state
+                    icon="mail_outline"
+                    title="No tienes mensajes"
+                    message="Cuando recibas mensajes aparecerán aquí. También puedes iniciar una conversación nueva."
+                    actionLabel="Nuevo mensaje"
+                    (action)="crearNuevoMensaje()"
+                  />
+                }
               </div>
             }
           </div>
@@ -185,11 +201,14 @@ interface Contacto {
         @if (selectedConv(); as conv) {
           <div class="detalle-header">
             <div class="header-info">
+              <div class="detalle-avatar">{{ conv.participantes[0].nombre[0] }}</div>
+              <div class="header-copy">
               <h3>{{ conv.asunto }}</h3>
-              <p>Con {{ conv.participantes[0].nombre }}</p>
-            </div>
-            <div class="header-actions">
-              <button mat-icon-button><mat-icon>more_vert</mat-icon></button>
+              <p>
+                Conversación con {{ conv.participantes[0].nombre }} · {{ conv.mensajes.length }}
+                {{ conv.mensajes.length === 1 ? 'mensaje' : 'mensajes' }}
+              </p>
+              </div>
             </div>
           </div>
 
@@ -365,6 +384,7 @@ interface Contacto {
                 <input
                   matInput
                   placeholder="Escriba un miembro o grupo"
+                  #contactoInput
                   [formControl]="contactoCtrl"
                   [matAutocomplete]="auto"
                   (focus)="abrirSugerencias()"
@@ -533,13 +553,23 @@ interface Contacto {
           </div>
         } @else {
           <div class="empty-state">
-            <app-empty-state
-              icon="mark_email_unread"
-              title="Comenzar un nuevo mensaje"
-              message="Seleccione una conversación o envíe un mensaje nuevo para comenzar."
-              actionLabel="Redactar mensaje"
-              (action)="crearNuevoMensaje()"
-            />
+            @if (inboxConversaciones().length === 0) {
+              <app-empty-state
+                icon="mail_outline"
+                title="No tienes mensajes todavía"
+                message="Tu bandeja está vacía. Cuando alguien te escriba, la conversación aparecerá aquí."
+                actionLabel="Redactar mensaje"
+                (action)="crearNuevoMensaje()"
+              />
+            } @else {
+              <app-empty-state
+                icon="mark_email_unread"
+                title="Selecciona una conversación"
+                message="Elige un mensaje desde la izquierda o redacta uno nuevo para empezar."
+                actionLabel="Redactar mensaje"
+                (action)="crearNuevoMensaje()"
+              />
+            }
           </div>
         }
       </main>
@@ -551,9 +581,7 @@ interface Contacto {
 
       .comunicaciones-container {
         display: flex;
-        height: calc(100vh - 110px);
         margin: 12px;
-        border-radius: 18px;
         overflow: hidden;
         background: #f8fafc;
         border: 1px solid #e5e7eb;
@@ -582,6 +610,18 @@ interface Contacto {
         display: flex;
         align-items: center;
         gap: 8px;
+        min-width: 0;
+      }
+
+      .sidebar-title-copy {
+        min-width: 0;
+      }
+
+      .sidebar-title-copy p {
+        margin: 2px 0 0;
+        font-size: 0.78rem;
+        color: #64748b;
+        font-weight: 500;
       }
 
       .sidebar-header h2 {
@@ -601,11 +641,12 @@ interface Contacto {
       }
 
       .btn-nuevo {
-        height: 40px;
-        border-radius: 10px;
-        padding: 0 16px;
+        height: 44px;
+        border-radius: 14px;
+        padding: 0 18px;
         font-weight: 650;
-        box-shadow: none;
+        box-shadow: 0 10px 24px rgba(37, 99, 235, 0.18);
+        flex-shrink: 0;
       }
 
       .search-container {
@@ -631,10 +672,13 @@ interface Contacto {
           box-shadow 0.18s ease;
         border-bottom: 1px solid #f1f5f9;
         position: relative;
+        margin: 6px 10px;
+        border-radius: 16px;
       }
 
       .conversacion-item:hover {
         background: #f8fafc;
+        transform: translateY(-1px);
       }
 
       .conversacion-item.active {
@@ -683,6 +727,27 @@ interface Contacto {
         margin-bottom: 3px;
         align-items: baseline;
         gap: 10px;
+      }
+
+      .conv-meta {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+      }
+
+      .conv-badge {
+        min-width: 20px;
+        height: 20px;
+        padding: 0 6px;
+        border-radius: 999px;
+        background: #2563eb;
+        color: #ffffff;
+        font-size: 0.72rem;
+        font-weight: 800;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
       }
 
       .conv-nombre {
@@ -734,18 +799,46 @@ interface Contacto {
         flex: 1;
         display: flex;
         flex-direction: column;
-        background: #f5f7fb;
+        background:
+          radial-gradient(circle at top right, rgba(37, 99, 235, 0.07), transparent 26%),
+          linear-gradient(180deg, #f8fbff 0%, #f4f7fb 100%);
         position: relative;
       }
 
       .detalle-header {
-        padding: 16px 24px;
+        padding: 18px 24px;
         border-bottom: 1px solid #e5e7eb;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        background: #ffffff;
+        background: rgba(255, 255, 255, 0.86);
+        backdrop-filter: blur(10px);
         z-index: 1;
+      }
+
+      .header-info {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .header-copy {
+        min-width: 0;
+      }
+
+      .detalle-avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+        color: #1d4ed8;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        font-weight: 800;
+        border: 1px solid #bfdbfe;
+        flex-shrink: 0;
       }
 
       .detalle-header h3 {
@@ -769,14 +862,16 @@ interface Contacto {
         overflow-y: auto;
         display: flex;
         flex-direction: column;
-        gap: 12px;
-        background: #f5f7fb;
+        gap: 14px;
+        background:
+          radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.8), transparent 24%),
+          linear-gradient(180deg, #f8fbff 0%, #f4f7fb 100%);
       }
 
       .mensaje-wrapper {
         display: flex;
         flex-direction: column;
-        max-width: 65%;
+        max-width: min(70%, 640px);
       }
 
       .mensaje-wrapper.es-mio {
@@ -785,11 +880,11 @@ interface Contacto {
       }
 
       .mensaje-bubble {
-        padding: 12px 16px;
-        border-radius: 14px;
+        padding: 14px 16px;
+        border-radius: 18px;
         background: #ffffff;
         border: 1px solid #edf2f7;
-        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+        box-shadow: 0 14px 28px rgba(15, 23, 42, 0.06);
         color: #334155;
         font-size: 0.92rem;
         line-height: 1.5;
@@ -872,7 +967,7 @@ interface Contacto {
 
       .rich-editor-wrapper {
         border: 1px solid #e5e7eb;
-        border-radius: 18px;
+        border-radius: 22px;
         display: flex;
         flex-direction: column;
         overflow: hidden;
@@ -965,7 +1060,9 @@ interface Contacto {
         display: flex;
         flex-direction: column;
         height: 100%;
-        background: #ffffff;
+        background:
+          radial-gradient(circle at top right, rgba(37, 99, 235, 0.05), transparent 24%),
+          #ffffff;
       }
 
       .nuevo-mensaje-form {
@@ -1022,7 +1119,10 @@ interface Contacto {
         justify-content: center;
         padding: 32px;
         text-align: center;
-        background: #f5f7fb;
+      }
+
+      .compact {
+        padding-bottom: 24px;
       }
 
       /* Responsive */
@@ -1073,6 +1173,15 @@ interface Contacto {
         .mensaje-wrapper {
           max-width: 90%;
         }
+
+        .sidebar-header {
+          flex-wrap: wrap;
+        }
+
+        .btn-nuevo {
+          width: 100%;
+          justify-content: center;
+        }
       }
     `,
   ],
@@ -1093,6 +1202,7 @@ export class ComunicacionesPageComponent {
   @ViewChild('editorRef') editorRef!: ElementRef<HTMLDivElement>;
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   @ViewChild('imageInput') imageInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('contactoInput') contactoInput?: ElementRef<HTMLInputElement>;
   @ViewChild(MatAutocompleteTrigger) autocompleteTrigger?: MatAutocompleteTrigger;
 
   profileQuery = injectQuery(() => this.authQueries.me());
@@ -1105,6 +1215,7 @@ export class ComunicacionesPageComponent {
     this.comunicacionesMutations.marcarComoLeido(this.profile()?.email || ''),
   );
   conversaciones = computed(() => this.conversacionesQuery.data() || []);
+  inboxConversaciones = computed(() => this.conversaciones());
   isLoading = computed(() => this.conversacionesQuery.isLoading());
   hasError = computed(() => this.conversacionesQuery.isError());
   conversacionesError = computed(() => this.conversacionesQuery.error());
@@ -1136,6 +1247,14 @@ export class ComunicacionesPageComponent {
   nuevoAsunto = '';
   enviarCopiaEmail = false;
 
+  private esEmailDestinatarioValido(email: string | null | undefined): email is string {
+    if (!email) return false;
+    const limpio = email.trim();
+    if (!limpio) return false;
+    if (limpio.startsWith(GROUP_EMAIL_PREFIX)) return true;
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(limpio);
+  }
+
   private readonly cargarContactosCuandoHayPerfil = effect(() => {
     const user = this.profile();
     if (user && !this.contactosCargados()) {
@@ -1161,10 +1280,14 @@ export class ComunicacionesPageComponent {
         for (const curso of cursos) {
           const students = await this.evaluationsApi.getEstudiantesPorCurso(curso.cursoId);
           students.forEach((s) => {
+            if (!this.esEmailDestinatarioValido(s.email)) {
+              return;
+            }
+
             if (!allStudents.some((as) => as.email === s.email)) {
               allStudents.push({
                 nombre: s.estudianteFullName,
-                email: s.email || `${s.estudianteId}@estudiante.cl`, // Fallback
+                email: s.email,
                 rol: 'Estudiante',
               });
             }
@@ -1231,6 +1354,9 @@ export class ComunicacionesPageComponent {
 
   filteredContactos = computed(() => {
     const search = this.contactoValue();
+    if (search && typeof search === 'object') {
+      return [];
+    }
     const searchStr = this.normalize(typeof search === 'string' ? search : (search as any)?.nombre);
 
     return this.contactos().filter(
@@ -1243,25 +1369,27 @@ export class ComunicacionesPageComponent {
     return contacto ? (typeof contacto === 'string' ? contacto : contacto.nombre) : '';
   }
 
-  onContactoSelected(event: any) {
+  onContactoSelected(event: MatAutocompleteSelectedEvent) {
     const contacto = event.option.value;
-    // El valor ahora es el objeto contacto completo
+    this.contactoCtrl.setValue(contacto, { emitEvent: false });
+    this.autocompleteTrigger?.closePanel();
+    setTimeout(() => this.contactoInput?.nativeElement.blur(), 0);
   }
 
   abrirSugerencias() {
+    if (this.contactoCtrl.value && typeof this.contactoCtrl.value === 'object') {
+      return;
+    }
     setTimeout(() => this.autocompleteTrigger?.openPanel());
   }
 
   filteredConversaciones = computed(() => {
     const query = this.normalize(this.searchQuery());
-    const allConvs = this.conversaciones();
+    const conversacionesVisibles = this.inboxConversaciones();
 
-    // Filtrar para mostrar solo conversaciones con mensajes recibidos (In-box)
-    const recibidosOnly = allConvs.filter((c) => c.mensajes.some((m) => !m.esMio));
+    if (!query) return conversacionesVisibles;
 
-    if (!query) return recibidosOnly;
-
-    return recibidosOnly.filter(
+    return conversacionesVisibles.filter(
       (c) =>
         c.participantes.some(
           (p) => this.normalize(p.nombre).includes(query) || this.normalize(p.id).includes(query),
@@ -1275,6 +1403,12 @@ export class ComunicacionesPageComponent {
     const id = this.selectedConvId();
     return id ? this.conversaciones().find((c) => c.id === id) || null : null;
   });
+
+  sidebarDescription = computed(() =>
+    this.inboxConversaciones().length > 0
+      ? `${this.inboxConversaciones().length} conversaciones en tu bandeja`
+      : 'Tu bandeja de entrada está vacía',
+  );
 
   mensajeEsValido() {
     const dest = this.contactoCtrl.value;
@@ -1389,6 +1523,7 @@ export class ComunicacionesPageComponent {
       },
       {
         onSuccess: () => {
+          this.conversacionesQuery.refetch();
           this.snackBar.open('Mensaje enviado', 'Cerrar', { duration: 3000 });
           this.nuevoMensajeTexto = '';
           this.archivosAdjuntos.set([]);
@@ -1421,6 +1556,7 @@ export class ComunicacionesPageComponent {
       },
       {
         onSuccess: (resp) => {
+          this.conversacionesQuery.refetch();
           this.snackBar.open(resp.mensaje || 'Mensaje enviado', 'Cerrar', { duration: 3000 });
           // No seleccionamos la conversación si es masiva o si queremos seguir la regla de solo recibidos
           if (!destinatario.startsWith('GROUP:')) {

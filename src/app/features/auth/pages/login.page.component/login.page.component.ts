@@ -9,6 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
 import { toAppError } from '../../../../shared/http/error-normalizer';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-login.page.component',
@@ -21,6 +22,7 @@ import { toAppError } from '../../../../shared/http/error-normalizer';
     MatProgressSpinnerModule,
     MatButtonModule,
     MatInputModule,
+    RouterLink
     
   ],
   templateUrl: './login.page.component.html',

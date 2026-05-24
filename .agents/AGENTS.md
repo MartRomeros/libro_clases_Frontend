@@ -1,23 +1,10 @@
-Este proyecto consiste en la vista de usuario para el libro de clases.
-Sirve para apoyar a los 4 microservicios a realizar los cuales son:
-
-- MS Gestion escolar (Java Springboot)
-- MS Autenticacion y autorizacion (Node JS + Express)
-- MS Asistencia y conducta (Node JS + Express)
-- MS Mensajeria (Node JS + Express)
-- BFF (Node JS + Express)
-
-Ademas este proyecto sera subido a un AWS S3 en AWS Academy.
-
-MER de base de datos: `.agents/context/script.sql.md`
-
 ## Reglas
 
 - Utiliza las skills necesarias `skills/`
 - Este proyecto es de las ultimas versiones de angular. por lo que se utilizaran directivas como @if, @for. etc...
 - Follow the Spec Drive Development
 - No implementes codigo a no ser que el spec este aprobado en `.agents/specs/`
-- Para cada nueva rama o feature debe de existir:
+- Para cada nuevo spec  debe de existir:
   - spec.md
   - design.md
   - task.md

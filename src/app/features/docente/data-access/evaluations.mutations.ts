@@ -5,6 +5,7 @@ import {
 } from '@tanstack/angular-query-experimental';
 import { EvaluationsApi } from './evaluations.api';
 import { evaluationsKeys } from './evaluations.keys';
+import { estudianteKeys } from '../../estudiante/data-access/estudiante.keys';
 import { Evaluacion, NotaPost } from '../models/evaluations.model';
 
 @Injectable({
@@ -33,11 +34,21 @@ export class EvaluationsMutations {
   guardarNotasBulk() {
     return mutationOptions({
       mutationFn: (notas: NotaPost[]) => this.api.guardarNotasBulk(notas),
-      onSuccess: () => {
+      onSuccess: async (_, variables) => {
+        const estudianteIds = Array.from(new Set(variables.map((nota) => nota.estudianteId)));
+
         // Invalidate notes queries to refresh the table
-        this.queryClient.invalidateQueries({ 
+        await this.queryClient.invalidateQueries({ 
           queryKey: evaluationsKeys.notas() 
         });
+
+        await Promise.all(
+          estudianteIds.map((estudianteId) =>
+            this.queryClient.invalidateQueries({
+              queryKey: estudianteKeys.notas(estudianteId),
+            }),
+          ),
+        );
       },
     });
   }

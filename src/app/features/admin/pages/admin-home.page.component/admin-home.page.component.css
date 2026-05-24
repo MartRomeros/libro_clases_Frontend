@@ -1,7 +1,7 @@
 /* ===================== CONTENEDOR PRINCIPAL ===================== */
 .admin-container {
   max-width: 1100px;
-  margin: 0 auto;
+  margin: 96px auto 0;
   padding: 28px 20px 60px;
 }
 
@@ -49,7 +49,7 @@
 
 /* ===================== TÍTULOS DE SECCIÓN ===================== */
 .section-title {
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.8px;
@@ -97,7 +97,7 @@
 }
 
 .resumen-valor {
-  font-size: 1.7rem;
+  font-size: 1.3rem;
   font-weight: 700;
   line-height: 1;
 }
@@ -146,28 +146,14 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-}
-
-.icon-primary {
   background-color: var(--mat-sys-primary-container, #dce8ff);
-}
-
-.icon-accent {
-  background-color: var(--mat-sys-secondary-container, #ddeeff);
 }
 
 .opcion-icono {
   font-size: 26px;
   width: 26px;
   height: 26px;
-}
-
-.icon-primary .opcion-icono {
   color: var(--mat-sys-primary, #1565c0);
-}
-
-.icon-accent .opcion-icono {
-  color: var(--mat-sys-secondary, #0077b6);
 }
 
 .opcion-texto {
@@ -204,6 +190,7 @@ mat-divider {
   }
 
   .admin-container {
+    margin-top: 88px;
     padding: 20px 12px 40px;
   }
 
