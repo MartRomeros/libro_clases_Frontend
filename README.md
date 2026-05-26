@@ -1,137 +1,260 @@
-# Colegio Bernardo O’Higgins — Libro de Clases Digital (Frontend de Apoyo)
+# Libro de Clases Digital - Frontend
 
-![Angular](https://img.shields.io/badge/Angular-21.2-DD0031?style=for-the-badge&logo=angular)
-![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-4.0-38B2AC?style=for-the-badge&logo=tailwind-css)
-![AWS](https://img.shields.io/badge/AWS-Academy_Ready-232F3E?style=for-the-badge&logo=amazon-aws)
+Frontend del libro de clases digital construido con Angular para la vista de usuario del sistema. Esta aplicación consume los servicios del ecosistema académico y centraliza la experiencia para perfiles como administrador, docente y estudiante.
 
-Este proyecto es el Frontend de apoyo para los microservicios de la plataforma de gestión académica del **Colegio Bernardo O’Higgins**. Construido sobre una arquitectura moderna, serverless y altamente escalable, optimizada para el entorno de **AWS Academy**.
+## Objetivo del proyecto
 
-## 🚀 Stack Tecnológico
+Este repositorio corresponde a la capa frontend que apoya a los siguientes servicios:
 
-*   **Core:** Angular v21.2 (Standalone Components, Signals, Control Flow).
-*   **UI/UX:** Angular Material (Componentes Enterprise) + Tailwind CSS (Layout & Styling).
-*   **Infraestructura (AWS Academy):**
-    *   **Hosting:** Amazon S3 + Amazon CloudFront.
-    *   **Backend:** Amazon API Gateway + AWS Lambda.
-    *   **Mensajería:** Amazon SQS.
-    *   **Monitoreo:** Amazon CloudWatch.
+- `MS Gestion escolar` - Java Spring Boot
+- `MS Autenticacion y autorizacion` - Node.js + Express
+- `MS Asistencia y conducta` - Node.js + Express
+- `MS Mensajeria` - Node.js + Express
+- `BFF` - Node.js + Express
 
-## 🛠️ Comandos de Desarrollo
+La aplicación actúa como una SPA que consume APIs HTTP para autenticación, gestión académica, asistencia, evaluaciones y mensajería.
 
-### Instalación
+## Stack principal
+
+- Angular `21.2`
+- Angular Material
+- Angular CDK
+- RxJS
+- TanStack Angular Query
+- Chart.js + ng2-charts
+- Tailwind CSS 4 + PostCSS
+- Cypress
+- Vitest
+
+## Arquetipo del proyecto
+
+Este proyecto sigue un arquetipo de `SPA Angular standalone`, con arquitectura `feature-first` y carga diferida de rutas.
+
+Características principales del arquetipo actual:
+
+- Bootstrap moderno con `bootstrapApplication(...)`
+- Uso de `standalone components`
+- Rutas cargadas con `loadChildren` y `loadComponent`
+- Separación por dominios funcionales en `features`
+- Capa `data-access` para comunicación con backend
+- Estado local reactivo con `signals`
+- Estado remoto y caché con `TanStack Query`
+
+En términos prácticos, es una aplicación Angular modular orientada a dominios, no un frontend monolítico por pantallas sueltas.
+
+## Patrón de diseño usado
+
+El proyecto está más cerca de `MVVM` que de `MVC`.
+
+### Por qué MVVM
+
+- La `View` está en los archivos `.html` y en los componentes standalone.
+- El `ViewModel` vive principalmente en los componentes `.ts`, `stores`, `queries` y `mutations`, donde se prepara el estado para la UI.
+- El `Model` está representado por `models`, contratos tipados, APIs y datos provenientes de los microservicios.
+
+### Cómo se refleja en este repositorio
+
+- `pages` y `sections`: presentan la interfaz.
+- `data-access/*.api.ts`: encapsulan llamadas HTTP.
+- `data-access/*.queries.ts` y `*.mutations.ts`: coordinan lectura, escritura, caché y efectos de UI.
+- `data-access/*.store.ts`: administran estado local reactivo cuando aplica, por ejemplo autenticación.
+- `models/`: definen entidades y DTOs del dominio.
+
+No es un MVC clásico porque la lógica de interacción de la vista no está centralizada en controladores separados del frontend. En Angular, aquí el rol equivalente está distribuido entre componentes, stores y servicios reactivos, lo que encaja mejor con MVVM.
+
+## Estructura general
+
+```text
+src/
+  app/
+    core/
+      guards/
+      interceptors/
+      services/
+      utils/
+    layout/
+    shared/
+      components/
+      http/
+      pages/
+    features/
+      landing/
+      auth/
+      admin/
+      docente/
+      estudiante/
+      comunicaciones/
+```
+
+## Organización por feature
+
+Cada feature sigue una estructura similar:
+
+```text
+feature/
+  data-access/
+    *.api.ts
+    *.queries.ts
+    *.mutations.ts
+    *.keys.ts
+    *.store.ts
+  models/
+  pages/
+  sections/
+  *.routes.ts
+```
+
+Esta estructura facilita:
+
+- separar responsabilidades
+- aislar cada dominio funcional
+- escalar nuevas vistas sin mezclar lógica
+- mantener bajo control el acceso a APIs
+
+## Requisitos para desarrollo
+
+Para trabajar en este proyecto se necesita:
+
+- Node.js LTS instalado
+- npm disponible en el entorno
+
+Notas:
+
+- El repositorio declara `packageManager: npm@11.11.0`.
+- No es obligatorio instalar Angular CLI de forma global porque el proyecto ya la usa localmente desde `node_modules`.
+
+## Instalacion
+
 ```bash
 npm install
 ```
 
-### Ejecución Local
+Este comando instalará las dependencias principales del proyecto, incluyendo Angular, Angular Material, Tailwind, TanStack Query, Chart.js, Cypress y Vitest.
+
+## Ejecucion local
+
 ```bash
 npm start
-# La aplicación estará disponible en http://localhost:4200
 ```
 
-### Construcción para Producción
+O bien:
+
+```bash
+npm run dev
+```
+
+La aplicación quedará disponible normalmente en:
+
+```text
+http://localhost:4200
+```
+
+## Scripts disponibles
+
+```bash
+npm start
+npm run dev
+npm run build
+npm run watch
+npm test
+```
+
+## Dependencias relevantes
+
+### Runtime
+
+- `@angular/core`, `@angular/common`, `@angular/router`, `@angular/forms`
+- `@angular/material`, `@angular/cdk`, `@angular/animations`
+- `@tanstack/angular-query-experimental`
+- `rxjs`
+- `chart.js`
+- `ng2-charts`
+
+### Desarrollo
+
+- `@angular/cli`
+- `@angular/build`
+- `typescript`
+- `tailwindcss`
+- `@tailwindcss/postcss`
+- `postcss`
+- `cypress`
+- `vitest`
+- `prettier`
+
+## Integracion con backend
+
+La URL base de consumo HTTP se define actualmente en:
+
+- [src/environments/environment.ts](/C:/Users/marti/Desktop/fullstack3/frontend/src/environments/environment.ts)
+
+Actualmente la app usa una propiedad `apiGw` como base para exponer los endpoints consumidos por las features. Desde allí se conectan autenticación, administración, asistencia, evaluaciones y mensajería.
+
+## Seguridad y acceso
+
+La aplicación ya considera:
+
+- `authGuard` para proteger rutas privadas
+- `authInterceptor` para adjuntar el token en las peticiones HTTP
+- control por roles en rutas como `admin`, `docente`, `estudiante` y `comunicaciones`
+
+## Despliegue en AWS Academy
+
+Este frontend está pensado para ser servido como sitio estático en `Amazon S3` dentro de AWS Academy.
+
+### Flujo de despliegue esperado
+
+1. Generar el build de producción:
+
 ```bash
 npm run build
 ```
 
-
-## 📂 Estructura del Proyecto
-
-*   `src/app/core`: Servicios globales, guards, interceptores de seguridad y modelos compartidos de autenticación.
-*   `src/app/shared`: Componentes UI reutilizables, como el perfil de usuario.
-*   `src/app/features`: Features funcionales separadas por dominio (`auth`, `admin`, `docente`, `estudiante`).
-*   `src/app/layout`: Componentes estructurales de navegación, como el navbar.
-
-## 🧩 Estructura de Features
-
-Cada feature vive dentro de `src/app/features/<feature>` y mantiene una estructura orientada a dominio. La aplicación usa **standalone components** y carga las features mediante **lazy loading** desde `src/app/app.routes.ts`.
+2. Angular genera los archivos listos para publicar en:
 
 ```text
-src/app/features/
-├── auth/
-│   ├── auth.routes.ts
-│   ├── data-access/
-│   ├── models/
-│   └── pages/
-├── admin/
-│   ├── admin.routes.ts
-│   ├── data-access/
-│   ├── models/
-│   └── pages/
-├── docente/
-│   ├── docente.routes.ts
-│   ├── data-access/
-│   ├── models/
-│   ├── pages/
-│   └── sections/
-└── estudiante/
-    ├── estudiante.routes.ts
-    ├── data-access/
-    ├── models/
-    └── pages/
+dist/frontend/browser
 ```
 
-### Convenciones internas
+3. El contenido de esa carpeta se sube a un bucket S3 configurado para hosting estático.
 
-*   `*.routes.ts`: Define las rutas hijas de la feature y carga cada pantalla con `loadComponent`.
-*   `pages/`: Contiene las pantallas principales de la feature. Cada página se organiza con sus archivos `.ts`, `.html` y `.css`.
-*   `data-access/`: Centraliza la comunicación con backend y el estado remoto:
-    *   `*.api.ts`: Métodos HTTP contra los microservicios definidos en `environment.ts`.
-    *   `*.queries.ts`: Consultas de lectura con TanStack Query.
-    *   `*.mutations.ts`: Operaciones de escritura y posterior invalidación de cache.
-    *   `*.keys.ts`: Query keys usadas para cachear e invalidar datos de forma consistente.
-    *   `*.store.ts`: Estado local de la feature cuando aplica, como la sesión de autenticación.
-*   `models/`: Interfaces y tipos TypeScript que representan requests, responses y entidades del dominio.
-*   `sections/`: Subcomponentes internos de una feature usados para dividir pantallas complejas.
+4. S3 servirá:
 
-## ⚙️ Funcionamiento de las Features
+- `index.html`
+- archivos `js`
+- hojas de estilo `css`
+- assets e imágenes
 
-### Auth
+### Consideraciones importantes para Angular en S3
 
-La feature `auth` gestiona el inicio de sesión y la sesión local del usuario.
+- Como esta app usa routing del lado del cliente, el bucket debe considerar una estrategia para que rutas como `/admin`, `/docente` o `/estudiante` resuelvan hacia `index.html`.
+- Si cambia la URL del backend o del BFF en AWS, se debe actualizar `src/environments/environment.ts` antes de construir.
+- El frontend no se ejecuta en el servidor: se compila y se publica como archivos estáticos.
 
-*   Ruta base: `/auth/login`.
-*   `AuthApi` consume `/auth/login` y `/auth/profile`.
-*   `AuthMutations` ejecuta el login, guarda token y perfil en `AuthStore`, y redirige según el rol recibido.
-*   `AuthStore` usa signals para exponer `currentUser`, `accessToken` e `isAuthenticated`.
-*   `authInterceptor` agrega el header `Authorization: Bearer <token>` a las peticiones HTTP cuando existe token en `localStorage`.
+### Relacion con AWS Academy
 
-### Admin
+Dentro de AWS Academy, este enfoque es adecuado porque:
 
-La feature `admin` concentra la administración de usuarios y datos académicos base.
+- reduce complejidad operativa del frontend
+- abarata el despliegue
+- aprovecha S3 como hosting estático
+- deja la lógica de negocio en los microservicios y/o BFF
 
-*   Rutas: `/admin` y `/admin/usuarios`.
-*   `AdminApi` expone operaciones CRUD para usuarios, docentes, estudiantes, cursos, asignaturas, CAD y evaluaciones.
-*   `AdminQueries` define lecturas cacheadas por entidad.
-*   `AdminMutations` crea, actualiza o elimina entidades e invalida las queries afectadas para refrescar la UI.
-*   Al crear usuarios completos, la mutación también crea el registro asociado de docente o estudiante según el rol.
+## Features funcionales actuales
 
-### Docente
+- `landing`: portada pública del sitio
+- `auth`: inicio de sesión y control de sesión
+- `admin`: administración académica y usuarios
+- `docente`: asistencia, cursos y evaluaciones
+- `estudiante`: notas, asistencia y recursos
+- `comunicaciones`: bandeja y envío de mensajes
 
-La feature `docente` agrupa las acciones operativas del profesor.
+## Base de datos de referencia
 
-*   Rutas: `/docente`, `/docente/asistencia`, `/docente/clases` y `/docente/evaluaciones`.
-*   `AttendanceApi` permite obtener cursos disponibles, listar alumnos por curso y registrar asistencia.
-*   `EvaluationsApi` permite obtener cursos del docente, estudiantes por curso, evaluaciones por CAD, notas por curso/asignatura y guardar notas en bloque.
-*   `sections/` contiene bloques reutilizados dentro de pantallas docentes, como asistencia y conducta.
+La documentación de base de datos mencionada por el proyecto está en:
 
-### Estudiante
+- `.agents/context/script.sql.md`
 
-La feature `estudiante` muestra información académica consultable por el alumno.
+## Resumen arquitectonico
 
-*   Rutas: `/estudiante`, `/estudiante/notas`, `/estudiante/asistencia` y `/estudiante/recursos`.
-*   `EstudianteApi` consulta notas desde el servicio de gestión académica y asistencias desde el servicio de asistencia/conducta.
-*   Sus páginas separan la vista principal, calificaciones, asistencia y recursos para mantener responsabilidades acotadas.
-
-### Flujo de navegación y seguridad
-
-*   `src/app/app.routes.ts` redirige la raíz a login y carga las features con `loadChildren`.
-*   Las rutas `admin`, `docente` y `estudiante` están protegidas con `authGuard`.
-*   Las pantallas se cargan bajo demanda, reduciendo el bundle inicial.
-*   La comunicación con backend pasa por `HttpClient`, el interceptor de autenticación y los endpoints configurados en `src/environments/environment.ts`.
-
-## 🛡️ Estrategia de Autenticación
-Debido a las restricciones de AWS Academy (sin Cognito), se utiliza un flujo de **Autenticación Personalizada** mediante Lambdas que generan y validan tokens JWT, integrados en el frontend a través de interceptores HTTP.
-
----
-© 2026 Colegio Bernardo O’Higgins. Todos los derechos reservados.
+Este frontend Angular está organizado como una `SPA standalone`, modular por features, con una aproximación `MVVM`, usando `signals` para estado local y `TanStack Query` para estado remoto. Su despliegue objetivo en AWS Academy es como sitio estático en `Amazon S3`, mientras la lógica de negocio queda en los microservicios y el BFF.
