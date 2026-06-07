@@ -25,14 +25,17 @@
         </section>
 
         <section class="resumen-section">
-        <div class="section-heading">
-            <h2 class="section-title">Mi Resumen Escolar</h2>
-        </div>
-        <div class="resumen-grid">
-            @for (item of resumenRapido; track item.etiqueta) {
-            <mat-card class="resumen-card" appearance="outlined">
-                <mat-card-content class="resumen-card-content">
-                    <div class="resumen-icon-shell">
+            <div class="section-heading">
+                <h2 class="section-title">Mi Resumen Escolar</h2>
+                <button mat-icon-button [disabled]="dashboardQuery.isFetching()" (click)="refetchDashboard()" matTooltip="Actualizar datos">
+                    <mat-icon [class.animate-spin]="dashboardQuery.isFetching()">refresh</mat-icon>
+                </button>
+            </div>
+            <div class="resumen-grid">
+                @for (item of resumenRapido; track item.etiqueta) {
+                <mat-card class="resumen-card" appearance="outlined">
+                    <mat-card-content class="resumen-card-content">
+                        <div class="resumen-icon-shell">
                             <mat-icon class="resumen-icono" color="primary">{{ item.icono }}</mat-icon>
                         </div>
                         <div class="resumen-info">

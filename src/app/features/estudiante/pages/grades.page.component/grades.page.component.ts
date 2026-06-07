@@ -1,6 +1,8 @@
 import { Component, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { injectQuery } from '@tanstack/angular-query-experimental';
 
@@ -18,10 +20,12 @@ import { EmptyStateComponent } from '../../../../shared/components/empty-state/e
     CommonModule,
     NavbarComponent,
     MatIconModule,
+    MatButtonModule,
+    MatTooltipModule,
     LoadingStateComponent,
     ErrorStateComponent,
     EmptyStateComponent
-   ],
+  ],
   templateUrl: './grades.page.component.html',
   styleUrl: './grades.page.component.css',
 })

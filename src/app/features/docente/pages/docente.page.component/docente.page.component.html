@@ -36,6 +36,12 @@
             message="Aún no hay datos académicos disponibles para este docente." />
     </section>
     } @else {
+    <section class="px-[5%] pb-2 flex items-center justify-between">
+        <h2 class="text-xl font-semibold text-slate-700">Resumen</h2>
+        <button mat-icon-button [disabled]="dashboardLoading()" (click)="recargarResumen()" matTooltip="Actualizar datos">
+            <mat-icon [class.animate-spin]="dashboardLoading()">refresh</mat-icon>
+        </button>
+    </section>
     <section class="pb-6 px-[5%] relative overflow-hidden grid gap-16 lg:grid-cols-4">
 
         @for (item of resumenRapido(); track $index) {
@@ -71,11 +77,6 @@
                         <ng-container matColumnDef="asignatura">
                             <th mat-header-cell *matHeaderCellDef>Asignatura</th>
                             <td mat-cell *matCellDef="let clase">{{ clase.asignatura }}</td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="sala">
-                            <th mat-header-cell *matHeaderCellDef>Sala</th>
-                            <td mat-cell *matCellDef="let clase">{{ clase.sala }}</td>
                         </ng-container>
 
                         <ng-container matColumnDef="acciones">
@@ -131,7 +132,13 @@
 
         <mat-card class="bg-white! overflow-hidden! border-l-[6px]! border-l-[#003366]!" appearance="outlined">
             <mat-card-content>
-                <h2 class="text-2xl font-bold mb-6">Resumen Academico <mat-icon>bar_chart</mat-icon> </h2>
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold">Resumen Academico <mat-icon>bar_chart</mat-icon></h2>
+                    <button mat-icon-button [disabled]="dashboardLoading()" (click)="recargarResumen()"
+                        matTooltip="Recargar gráficos">
+                        <mat-icon [class.animate-spin]="dashboardLoading()">refresh</mat-icon>
+                    </button>
+                </div>
                 <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
                     <div class="rounded-xl border border-slate-200 p-4">
                         <h3 class="mb-4 text-lg font-semibold text-slate-800">Asistencia por Curso (%)</h3>
@@ -154,7 +161,13 @@
 
         <mat-card class="bg-white! overflow-hidden! border-l-[6px]! border-l-[#003366]!" appearance="outlined">
             <mat-card-content>
-                <h2 class="text-2xl font-bold mb-6">Mensajes Recientes <mat-icon>chat_bubble</mat-icon> </h2>
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold">Mensajes Recientes <mat-icon>chat_bubble</mat-icon></h2>
+                    <button mat-icon-button [disabled]="conversacionesQuery.isFetching()" (click)="recargarMensajes()"
+                        matTooltip="Recargar mensajes">
+                        <mat-icon [class.animate-spin]="conversacionesQuery.isFetching()">refresh</mat-icon>
+                    </button>
+                </div>
                 <div class="space-y-4">
                     @for (msg of mensajesRecientes(); track $index) {
                         <article class="rounded-xl border border-slate-200 p-4 transition hover:border-slate-300 hover:bg-slate-50">

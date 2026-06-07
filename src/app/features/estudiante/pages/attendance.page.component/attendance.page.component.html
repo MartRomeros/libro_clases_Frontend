@@ -10,10 +10,15 @@
             message="Aún no existen registros de asistencia para mostrar." />
         } @else {
         <main class="mx-auto max-w-7xl px-6 pb-12 pt-24">
-            <header class="mb-8">
-                <h1 class="mb-1 text-[28px] font-semibold tracking-[-0.01em] text-[#191c1e]">Mi Asistencia</h1>
-                <p class="text-base leading-6 text-[#54647a]">Revisa el detalle de tus clases y mantén tu porcentaje al
-                    día.</p>
+            <header class="mb-8 flex items-start justify-between gap-4">
+                <div>
+                    <h1 class="mb-1 text-[28px] font-semibold tracking-[-0.01em] text-[#191c1e]">Mi Asistencia</h1>
+                    <p class="text-base leading-6 text-[#54647a]">Revisa el detalle de tus clases y mantén tu porcentaje al
+                        día.</p>
+                </div>
+                <button mat-icon-button [disabled]="asistenciaQuery.isFetching()" (click)="asistenciaQuery.refetch()" matTooltip="Actualizar datos">
+                    <mat-icon [class.animate-spin]="asistenciaQuery.isFetching()">refresh</mat-icon>
+                </button>
             </header>
 
             <section class="grid grid-cols-1 gap-4 lg:grid-cols-12">

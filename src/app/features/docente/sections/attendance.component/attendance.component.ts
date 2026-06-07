@@ -82,8 +82,13 @@ export class AttendanceComponent {
   @Input() set cursoId(value: number | string | null) {
     this.cursoIdSignal.set(value);
   }
-
   get cursoId() { return this.cursoIdSignal(); }
+
+  private readonly cadIdSignal = signal<number | string | null>(null);
+  @Input() set cadId(value: number | string | null) {
+    this.cadIdSignal.set(value);
+  }
+  get cadId() { return this.cadIdSignal(); }
 
   @Input() fecha: Date | null = null;
 
@@ -185,7 +190,7 @@ export class AttendanceComponent {
     const isoDate = this.fecha ? this.fecha.toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
 
     const payload: AsistenciaPayload = {
-      cad_id: Number(this.cursoIdSignal()),
+      cad_id: Number(this.cadIdSignal()),
       fecha: isoDate,
       asistencias: this.estudiantes().map(e => ({
         estudiante_id: e.estudiante_id,

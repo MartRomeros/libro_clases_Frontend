@@ -14,7 +14,12 @@
   </section>
 
   <section class="resumen-section">
-    <h2 class="section-title">Resumen General</h2>
+    <div class="section-heading">
+      <h2 class="section-title">Resumen General</h2>
+      <button mat-icon-button [disabled]="dashboardQuery.isFetching()" (click)="dashboardQuery.refetch()" matTooltip="Actualizar datos">
+        <mat-icon [class.animate-spin]="dashboardQuery.isFetching()">refresh</mat-icon>
+      </button>
+    </div>
     <div class="resumen-grid">
       @for (item of resumenRapido(); track item.etiqueta) {
         <mat-card class="resumen-card" appearance="outlined">

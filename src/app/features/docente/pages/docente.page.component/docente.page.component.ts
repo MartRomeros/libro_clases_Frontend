@@ -9,6 +9,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartData, ChartOptions } from 'chart.js';
 
@@ -39,6 +40,7 @@ import { NavbarComponent } from '../../sections/navbar.component/navbar.componen
     LoadingStateComponent,
     ErrorStateComponent,
     EmptyStateComponent,
+    MatTooltipModule,
   ],
   templateUrl: './docente.page.component.html',
   styleUrl: './docente.page.component.css',
@@ -51,7 +53,7 @@ export class DocentePageComponent {
 
   private userQuery = injectQuery(() => this.authQueries.me());
   private dashboardQuery = injectQuery(() => this.dashboardQueries.dashboard());
-  private conversacionesQuery = injectQuery(() =>
+  conversacionesQuery = injectQuery(() =>
     this.comunicacionesQueries.conversaciones(this.userQuery.data()?.email),
   );
 
@@ -84,7 +86,7 @@ export class DocentePageComponent {
     return parts.join(' ');
   });
 
-  misClasesColumns: string[] = ['curso', 'asignatura', 'sala', 'acciones'];
+  misClasesColumns: string[] = ['curso', 'asignatura', 'acciones'];
   misClasesData = computed(() =>
     (this.dashboard()?.assignments ?? []).map((item) => ({
       cadId: item.cadId,
@@ -250,6 +252,14 @@ export class DocentePageComponent {
 
   reintentarDashboard(): void {
     this.dashboardQuery.refetch();
+  }
+
+  recargarResumen(): void {
+    this.dashboardQuery.refetch();
+  }
+
+  recargarMensajes(): void {
+    this.conversacionesQuery.refetch();
   }
 
   private formatearFechaMensaje(fecha: Date): string {

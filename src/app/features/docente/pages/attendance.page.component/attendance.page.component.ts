@@ -63,7 +63,12 @@ export class AttendancePageComponent {
   cursos = computed<Course[]>(() => this.cursosDisponibles())
 
   fechaSeleccionada = signal<Date>(new Date());
-  cursoSeleccionado = signal<number | string>('');
+  cursoSeleccionado = signal<Course | null>(null);
+
+  // IDs derivados del curso seleccionado
+  cadIdSeleccionado  = computed<number | ''>(() => this.cursoSeleccionado()?.cad_id  ?? '');
+  cursoIdSeleccionado = computed<number | ''>(() => this.cursoSeleccionado()?.curso_id ?? '');
+
   private cadIdDesdeRuta = computed<number | null>(() => {
     const raw = this.route.snapshot.queryParamMap.get('cadId');
     if (!raw) return null;
@@ -78,9 +83,9 @@ export class AttendancePageComponent {
 
     if (!cadId || cursos.length === 0 || selected) return;
 
-    const existeCurso = cursos.some(curso => curso.cad_id === cadId);
-    if (existeCurso) {
-      this.cursoSeleccionado.set(cadId);
+    const curso = cursos.find(c => c.cad_id === cadId);
+    if (curso) {
+      this.cursoSeleccionado.set(curso);
     }
   });
 

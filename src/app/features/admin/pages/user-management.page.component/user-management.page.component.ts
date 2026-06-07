@@ -193,7 +193,7 @@ export class UserManagementPageComponent {
       rut: ['', Validators.required],
       nombre: ['', Validators.required],
       apellidoPaterno: ['', Validators.required],
-      apellidoMaterno: ['', Validators.required],
+      apellidoMaterno: [''],
       email: ['', [Validators.required, Validators.email]],
       password: [''],
       rolId: [3, Validators.required],

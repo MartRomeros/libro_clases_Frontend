@@ -142,6 +142,13 @@ const GROUP_EMAIL_PREFIX = 'GROUP:';
           </div>
         }
 
+        <div class="sidebar-actions">
+          <button mat-flat-button color="primary" class="btn-redactar" (click)="crearNuevoMensaje()">
+            <mat-icon>edit</mat-icon>
+            Redactar
+          </button>
+        </div>
+
         @if (!isLoading() && !hasError()) {
           <div class="conversaciones-lista" [@listAnimation]="filteredConversaciones().length">
             @for (conv of filteredConversaciones(); track conv.id) {
@@ -585,6 +592,8 @@ const GROUP_EMAIL_PREFIX = 'GROUP:';
         overflow: hidden;
         background: #f8fafc;
         border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        height: calc(100vh - 90px);
       }
 
       /* Sidebar */
@@ -647,6 +656,17 @@ const GROUP_EMAIL_PREFIX = 'GROUP:';
         font-weight: 650;
         box-shadow: 0 10px 24px rgba(37, 99, 235, 0.18);
         flex-shrink: 0;
+      }
+
+      .sidebar-actions {
+        padding: 0 20px 14px;
+      }
+
+      .btn-redactar {
+        width: 100%;
+        border-radius: 12px;
+        font-weight: 600;
+        gap: 6px;
       }
 
       .search-container {
@@ -1304,11 +1324,22 @@ export class ComunicacionesPageComponent {
 
       this.contactos.set(lista);
       this.contactosCargados.set(true);
+      this.reabrirPanelSiEstaEnfocado();
     } catch (error) {
       console.error('Error cargando contactos:', error);
       this.contactos.set(lista);
       this.contactosCargados.set(true);
+      this.reabrirPanelSiEstaEnfocado();
     }
+  }
+
+  private reabrirPanelSiEstaEnfocado(): void {
+    setTimeout(() => {
+      const inputEl = this.contactoInput?.nativeElement;
+      if (inputEl && document.activeElement === inputEl) {
+        this.autocompleteTrigger?.openPanel();
+      }
+    });
   }
 
   @HostListener('document:dragover', ['$event'])

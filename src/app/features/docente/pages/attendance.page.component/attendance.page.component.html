@@ -15,7 +15,7 @@
                     <mat-label>Curso</mat-label>
                     <mat-select [value]="cursoSeleccionado()" (selectionChange)="cursoSeleccionado.set($event.value)">
                         @for (curso of cursos(); track curso.curso_id) {
-                        <mat-option [value]="curso.cad_id">{{ curso.nivel }} {{ curso.letra }}</mat-option>
+                        <mat-option [value]="curso">{{ curso.nivel }} {{ curso.letra }} — {{ curso.asignatura_nombre }}</mat-option>
                         }
                     </mat-select>
                     <mat-icon matPrefix>class</mat-icon>
@@ -39,7 +39,7 @@
                     <mat-icon class="tab-icon">check_circle</mat-icon>
                     Asistencia
                 </ng-template>
-                <app-attendance-component [cursoId]="cursoSeleccionado()" [fecha]="fechaSeleccionada()" />
+                <app-attendance-component [cursoId]="cursoIdSeleccionado()" [cadId]="cadIdSeleccionado()" [fecha]="fechaSeleccionada()" />
             </mat-tab>
 
             <mat-tab>
@@ -47,7 +47,7 @@
                     <mat-icon class="tab-icon">edit_note</mat-icon>
                     Conducta
                 </ng-template>
-                <app-conduct-component [cursoId]="cursoSeleccionado()" [fecha]="fechaSeleccionada()" />
+                <app-conduct-component [cursoId]="cursoIdSeleccionado()" [fecha]="fechaSeleccionada()" />
 
             </mat-tab>
         </mat-tab-group>

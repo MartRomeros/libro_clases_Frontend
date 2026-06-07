@@ -5,6 +5,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { injectQuery } from '@tanstack/angular-query-experimental';
 
+import { MatButtonModule } from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { NavbarComponent } from '../../sections/navbar.component/navbar.component';
 import { AuthQueries } from '../../../auth/data-access/auth.queries';
 import { EstudianteQueries } from '../../data-access/estudiante.queries';
@@ -28,7 +30,7 @@ interface PanelInformativo {
 @Component({
   selector: 'app-estudiante-home-page',
   standalone: true,
-  imports: [NavbarComponent, MatIconModule, MatCardModule, MatDividerModule],
+  imports: [NavbarComponent, MatIconModule, MatCardModule, MatDividerModule, MatButtonModule, MatTooltipModule],
   templateUrl: './estudiante-home.page.component.html',
   styleUrl: './estudiante-home.page.component.css',
 })
@@ -128,6 +130,10 @@ export class EstudianteHomePageComponent {
       icono: 'school',
     },
   ];
+
+  refetchDashboard(): void {
+    this.dashboardQuery.refetch();
+  }
 
   navegarA(ruta: string): void {
     this.router.navigate([ruta]);

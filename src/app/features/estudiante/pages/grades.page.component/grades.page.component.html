@@ -16,6 +16,9 @@
                     <div class="separator"></div>
                     <h1 class="page-title">Mis Calificaciones</h1>
                 </div>
+                <button mat-icon-button [disabled]="notasQuery.isFetching()" (click)="notasQuery.refetch()" matTooltip="Actualizar datos">
+                    <mat-icon [class.animate-spin]="notasQuery.isFetching()">refresh</mat-icon>
+                </button>
             </section>
 
             <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
