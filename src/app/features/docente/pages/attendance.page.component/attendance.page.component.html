@@ -9,9 +9,9 @@
             
         <!-- Filtros de curso y fecha -->
         <mat-card class="bg-white! mb-4" appearance="outlined">
-            <mat-card-content class="flex! items-center! justify-center! gap-4!">
+            <mat-card-content class="flex! flex-col! sm:flex-row! items-stretch! sm:items-center! justify-center! gap-4!">
 
-                <mat-form-field appearance="outline" class="filtro-field">
+                <mat-form-field appearance="outline" class="filtro-field w-full sm:w-auto">
                     <mat-label>Curso</mat-label>
                     <mat-select [value]="cursoSeleccionado()" (selectionChange)="cursoSeleccionado.set($event.value)">
                         @for (curso of cursos(); track curso.curso_id) {
@@ -21,7 +21,7 @@
                     <mat-icon matPrefix>class</mat-icon>
                 </mat-form-field>
 
-                <mat-form-field appearance="outline" class="filtro-field">
+                <mat-form-field appearance="outline" class="filtro-field w-full sm:w-auto">
                     <mat-label>Fecha</mat-label>
                     <input matInput placeholder="dd/mm/yyyy" [matDatepicker]="picker" [matDatepickerFilter]="dateFilter"
                         [value]="fechaSeleccionada()" (dateChange)="onDateChange($event.value)">

@@ -10,6 +10,7 @@ import {
   Curso,
   Asignatura,
   CAD,
+  Sala,
   AdminDashboard
 } from '../models/admin.model';
 
@@ -118,6 +119,11 @@ export class AdminApi {
 
   eliminarAsignatura(id: number) {
     return firstValueFrom(this.http.delete<void>(`${this.apiUrl}/academico/asignaturas/${id}`));
+  }
+
+  // --- Salas ---
+  getSalas() {
+    return firstValueFrom(this.http.get<Sala[]>(`${this.apiUrl}/academico/salas`));
   }
 
   // --- CAD ---

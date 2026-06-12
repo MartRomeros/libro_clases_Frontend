@@ -10,6 +10,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatListModule } from '@angular/material/list';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartData, ChartOptions } from 'chart.js';
 
@@ -35,6 +36,7 @@ import { NavbarComponent } from '../../sections/navbar.component/navbar.componen
     MatBadgeModule,
     MatButtonModule,
     MatTableModule,
+    MatListModule,
     BaseChartDirective,
     NavbarComponent,
     LoadingStateComponent,
@@ -86,13 +88,13 @@ export class DocentePageComponent {
     return parts.join(' ');
   });
 
-  misClasesColumns: string[] = ['curso', 'asignatura', 'acciones'];
+  misClasesColumns: string[] = ['curso', 'asignatura', 'sala', 'acciones'];
   misClasesData = computed(() =>
     (this.dashboard()?.assignments ?? []).map((item) => ({
       cadId: item.cadId,
       curso: item.courseName,
       asignatura: item.subjectName,
-      sala: item.roomIds.length > 0 ? `Sala ${item.roomIds.join(', ')}` : 'Sin sala',
+      sala: item.sala?.nombre ?? 'Sin sala',
     })),
   );
 

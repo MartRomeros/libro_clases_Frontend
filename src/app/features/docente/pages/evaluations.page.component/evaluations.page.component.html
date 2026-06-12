@@ -137,7 +137,41 @@
                             message="Este curso aún no tiene alumnos asignados."
                         />
                     } @else {
-                    <div class="table-container">
+                    <!-- Mobile list -->
+                    <div class="sm:hidden">
+                        <mat-list>
+                            @for (element of tablaDataSignal(); track element.estudianteFullName) {
+                            <mat-list-item>
+                                <mat-icon matListItemIcon>person</mat-icon>
+                                <div matListItemTitle>{{ element.estudianteFullName }}</div>
+                                <span matListItemMeta>
+                                    <span class="promedio-badge" [class.reprobado]="(element.promedio || 0) < 4">
+                                        {{ element.promedio || '0.0' }}
+                                    </span>
+                                </span>
+                            </mat-list-item>
+                            <div class="px-4 pb-2 flex flex-wrap gap-2">
+                                @for (ev of evaluaciones(); track ev.evaluacionId) {
+                                <div class="flex flex-col items-center gap-1">
+                                    <span class="text-xs text-gray-500">{{ ev.nombre }}</span>
+                                    @if (ev.evaluacionId === element.ev1Id) {
+                                    <input type="number" [(ngModel)]="element.nota1" (input)="actualizarPromedio(element)" min="1" max="7" step="0.1" class="nota-input w-16">
+                                    } @else if (ev.evaluacionId === element.ev2Id) {
+                                    <input type="number" [(ngModel)]="element.nota2" (input)="actualizarPromedio(element)" min="1" max="7" step="0.1" class="nota-input w-16">
+                                    } @else if (ev.evaluacionId === element.ev3Id) {
+                                    <input type="number" [(ngModel)]="element.nota3" (input)="actualizarPromedio(element)" min="1" max="7" step="0.1" class="nota-input w-16">
+                                    } @else {
+                                    <span class="nota-readonly">-</span>
+                                    }
+                                </div>
+                                }
+                            </div>
+                            <mat-divider></mat-divider>
+                            }
+                        </mat-list>
+                    </div>
+                    <!-- Desktop table -->
+                    <div class="table-container hidden sm:block">
                         <table mat-table [dataSource]="dataSource" class="grades-table bg-white!">
                             <ng-container matColumnDef="nombre" sticky>
                                 <th mat-header-cell *matHeaderCellDef> Estudiante </th>
@@ -157,7 +191,6 @@
                                     </div>
                                 </th>
                                 <td mat-cell *matCellDef="let element" class="text-center">
-                                    <!-- Aquí mostramos el input solo si es una de las 3 evaluaciones simplificadas por ahora -->
                                     @if (ev.evaluacionId === element.ev1Id) {
                                     <input type="number" [(ngModel)]="element.nota1" (input)="actualizarPromedio(element)"
                                         min="1" max="7" step="0.1" class="nota-input">

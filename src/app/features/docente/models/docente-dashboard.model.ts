@@ -12,7 +12,7 @@ export interface DocenteDashboardAssignment {
   subjectId: number;
   subjectName: string;
   subjectCode: string;
-  roomIds: number[];
+  sala: { id: number; nombre: string };
 }
 
 export interface DocenteDashboardCourse {

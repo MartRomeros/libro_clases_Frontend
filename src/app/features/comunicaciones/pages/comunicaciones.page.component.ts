@@ -100,7 +100,7 @@ const GROUP_EMAIL_PREFIX = 'GROUP:';
     ]),
   ],
   template: `
-    <div class="comunicaciones-container">
+    <div class="comunicaciones-container" [class.conv-selected]="selectedConvId() !== null">
       <!-- Sidebar -->
       <aside class="conversaciones-sidebar">
         <div class="sidebar-header">
@@ -207,6 +207,9 @@ const GROUP_EMAIL_PREFIX = 'GROUP:';
       <main class="conversacion-detalle">
         @if (selectedConv(); as conv) {
           <div class="detalle-header">
+            <button mat-icon-button class="btn-back-mobile" (click)="selectedConvId.set(null)" matTooltip="Volver a mensajes">
+              <mat-icon>arrow_back</mat-icon>
+            </button>
             <div class="header-info">
               <div class="detalle-avatar">{{ conv.participantes[0].nombre[0] }}</div>
               <div class="header-copy">
@@ -1166,24 +1169,50 @@ const GROUP_EMAIL_PREFIX = 'GROUP:';
         }
       }
 
+      .btn-back-mobile {
+        display: none;
+      }
+
       @media (max-width: 700px) {
         .comunicaciones-container {
           flex-direction: column;
+          height: calc(100vh - 90px);
         }
 
+        /* Sin conversación seleccionada: sidebar ocupa todo */
         .conversaciones-sidebar {
           width: 100%;
-          max-height: 42vh;
+          flex: 1;
           border-right: none;
           border-bottom: 1px solid #e5e7eb;
         }
 
-        .mensajes-thread {
-          padding: 16px;
+        .conversacion-detalle {
+          display: none;
+        }
+
+        /* Con conversación seleccionada: detalle ocupa todo, sidebar se oculta */
+        .comunicaciones-container.conv-selected .conversaciones-sidebar {
+          display: none;
+        }
+
+        .comunicaciones-container.conv-selected .conversacion-detalle {
+          display: flex;
+          flex: 1;
+        }
+
+        .btn-back-mobile {
+          display: inline-flex;
+          flex-shrink: 0;
         }
 
         .detalle-header {
           padding: 14px 16px;
+          gap: 8px;
+        }
+
+        .mensajes-thread {
+          padding: 16px;
         }
 
         .rich-reply {

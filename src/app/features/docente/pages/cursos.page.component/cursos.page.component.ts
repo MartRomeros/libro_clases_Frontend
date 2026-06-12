@@ -17,6 +17,8 @@ import { showErrorSnack } from '../../../../shared/http/error-snackbar';
 import { FormsModule } from '@angular/forms';
 import { NavbarComponent } from '../../sections/navbar.component/navbar.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatListModule } from '@angular/material/list';
+import { MatDividerModule } from '@angular/material/divider';
 import { estudianteKeys } from '../../../estudiante/data-access/estudiante.keys';
 
 @Component({
@@ -32,6 +34,8 @@ import { estudianteKeys } from '../../../estudiante/data-access/estudiante.keys'
     FormsModule,
     NavbarComponent,
     MatTooltipModule,
+    MatListModule,
+    MatDividerModule,
   ],
   templateUrl: './cursos.page.component.html',
   styleUrl: './cursos.page.component.css',

@@ -42,7 +42,7 @@
             <mat-icon [class.animate-spin]="dashboardLoading()">refresh</mat-icon>
         </button>
     </section>
-    <section class="pb-6 px-[5%] relative overflow-hidden grid gap-16 lg:grid-cols-4">
+    <section class="pb-6 px-[5%] relative overflow-hidden grid gap-4 grid-cols-2 lg:grid-cols-4">
 
         @for (item of resumenRapido(); track $index) {
         <mat-card appearance="outlined" class="bg-white! overflow-hidden! border-l-[6px]! border-l-[#003366]!">
@@ -67,7 +67,26 @@
         <mat-card class="bg-white! overflow-hidden! border-l-[6px]! border-l-[#003366]!" appearance="outlined">
             <mat-card-content>
                 <h2 class="text-xl font-bold mb-6">Mis clases de hoy <mat-icon>schedule</mat-icon> </h2>
-                <div class="mis-clases-table-container">
+                <!-- Mobile list -->
+                <div class="sm:hidden">
+                    <mat-list>
+                        @for (clase of misClasesData(); track clase.cadId) {
+                        <mat-list-item>
+                            <mat-icon matListItemIcon>class</mat-icon>
+                            <div matListItemTitle>{{ clase.curso }} — {{ clase.asignatura }}</div>
+                            <div matListItemLine>Sala: {{ clase.sala }}</div>
+                            <button mat-icon-button color="primary" matListItemMeta (click)="irAAsistenciaPorCurso(clase.cadId)" matTooltip="Asistencia">
+                                <mat-icon>fact_check</mat-icon>
+                            </button>
+                        </mat-list-item>
+                        <mat-divider></mat-divider>
+                        } @empty {
+                        <mat-list-item><div matListItemTitle class="text-gray-400">Sin clases para hoy</div></mat-list-item>
+                        }
+                    </mat-list>
+                </div>
+                <!-- Desktop table -->
+                <div class="mis-clases-table-container hidden sm:block">
                     <table mat-table [dataSource]="misClasesData()" class="tabla-premium bg-white!">
                         <ng-container matColumnDef="curso">
                             <th mat-header-cell *matHeaderCellDef>Curso</th>
@@ -77,6 +96,11 @@
                         <ng-container matColumnDef="asignatura">
                             <th mat-header-cell *matHeaderCellDef>Asignatura</th>
                             <td mat-cell *matCellDef="let clase">{{ clase.asignatura }}</td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="sala">
+                            <th mat-header-cell *matHeaderCellDef>Sala</th>
+                            <td mat-cell *matCellDef="let clase">{{ clase.sala }}</td>
                         </ng-container>
 
                         <ng-container matColumnDef="acciones">
