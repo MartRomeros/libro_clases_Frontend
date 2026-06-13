@@ -1504,7 +1504,7 @@ export class ComunicacionesPageComponent {
     this.nuevoAsunto = '';
     this.contactoCtrl.setValue('');
     this.archivosAdjuntos.set([]);
-    this.enviarCopiaEmail = false;
+    this.enviarCopiaEmail = true;
     this.isDragging.set(false);
     if (this.editorRef) this.editorRef.nativeElement.innerHTML = '';
     if (this.contactos().length === 0) {
