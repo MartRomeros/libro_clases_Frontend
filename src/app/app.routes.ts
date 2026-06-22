@@ -7,6 +7,14 @@ export const routes: Routes = [
     loadComponent: () => import('./features/landing/pages/landing.page.component/landing.page.component').then(m => m.LandingPageComponent)
   },
   {
+    path: 'matriculas',
+    loadComponent: () => import('./features/matriculas/matriculas').then(m => m.Matriculas)
+  },
+  {
+    path: 'webpay-return',
+    loadComponent: () => import('./features/matriculas/webpay-return.component').then(m => m.WebpayReturnComponent)
+  },
+  {
     path: 'auth',
     loadChildren: () => import('./features/auth/auth.routes').then(m => m.AUTH_ROUTES)
   },

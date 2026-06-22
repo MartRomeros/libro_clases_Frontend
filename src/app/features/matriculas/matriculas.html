@@ -1,0 +1,182 @@
+<app-navbar>
+  <!-- Beautiful Landing Page Style Admission/Matricula Section -->
+  <section class="py-24 bg-linear-to-br from-[#001e40] to-[#004080] relative overflow-hidden text-white min-h-[calc(100vh-64px)] flex items-center">
+    <div class="absolute -top-50 -right-37.5 w-175 h-175 rounded-full bg-[radial-gradient(circle,rgba(45,188,254,0.08)_0%,transparent_70%)] pointer-events-none"></div>
+
+    <div class="max-w-300 mx-auto px-[5%] flex flex-col md:flex-row gap-20 relative z-10 w-full">
+      <div class="flex-1 flex flex-col justify-center">
+        <span class="inline-block text-[0.65rem] font-bold tracking-widest uppercase text-[#2dbcfe] mb-4">PROCESO 2027</span>
+        <h2 class="font-display text-3xl md:text-5xl font-extrabold leading-tight text-white mb-5">
+          Matrícula Digital.<br />Asegura el cupo<br /><span class="text-[#2dbcfe]">de tu estudiante.</span>
+        </h2>
+        <p class="text-[0.9375rem] text-white/75 leading-relaxed max-w-105 mb-8">
+          Completa el formulario de matrícula oficial. Por favor, asegúrate de ingresar los datos correctos del alumno y el apoderado responsable.
+        </p>
+        <ul class="flex flex-col gap-3.5" role="list">
+          <li class="flex items-center gap-3.5 text-sm text-white/85" role="listitem">
+            <span class="font-display text-[0.6875rem] font-bold text-[#2dbcfe] bg-[#2dbcfe]/15 border border-[#2dbcfe]/30 rounded-full px-2.5 py-1 shrink-0">01</span>
+            <span>Completa el formulario en línea</span>
+          </li>
+          <li class="flex items-center gap-3.5 text-sm text-white/85" role="listitem">
+            <span class="font-display text-[0.6875rem] font-bold text-[#2dbcfe] bg-[#2dbcfe]/15 border border-[#2dbcfe]/30 rounded-full px-2.5 py-1 shrink-0">02</span>
+            <span>Validación de la información</span>
+          </li>
+          <li class="flex items-center gap-3.5 text-sm text-white/85" role="listitem">
+            <span class="font-display text-[0.6875rem] font-bold text-[#2dbcfe] bg-[#2dbcfe]/15 border border-[#2dbcfe]/30 rounded-full px-2.5 py-1 shrink-0">03</span>
+            <span>Firma del contrato de matrícula</span>
+          </li>
+          <li class="flex items-center gap-3.5 text-sm text-white/85" role="listitem">
+            <span class="font-display text-[0.6875rem] font-bold text-[#2dbcfe] bg-[#2dbcfe]/15 border border-[#2dbcfe]/30 rounded-full px-2.5 py-1 shrink-0">04</span>
+            <span>Estudiante matriculado oficialmente</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="flex-none w-full md:w-120">
+        <form [formGroup]="matriculaForm" (ngSubmit)="grabar()"
+          class="bg-white/98 backdrop-blur-xl p-8 md:p-10 rounded-4xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/20 text-[#1a1c1c]">
+          
+          <div class="mb-6">
+            <h3 class="font-display text-2xl font-extrabold text-[#001e40] mb-1">Formulario de Matrícula</h3>
+            <p class="text-xs text-gray-500">Ingrese los datos correspondientes para registrar la matrícula</p>
+          </div>
+
+          <div class="space-y-4">
+            <!-- SECCIÓN DATOS DEL ALUMNO -->
+            <div class="pb-2 border-b border-gray-100">
+              <h4 class="text-xs font-bold uppercase text-[#00658d] tracking-wider mb-3">Datos del Alumno</h4>
+              
+              <div class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>RUT Alumno</mat-label>
+                    <mat-icon matPrefix class="mr-3 text-gray-400">badge</mat-icon>
+                    <input #rutInput matInput formControlName="rutAlumno" placeholder="Ej: 20.123.456-7" aria-required="true" (input)="onRutInput(rutInput.value)">
+                    @if (matriculaForm.get('rutAlumno')?.hasError('required')) {
+                      <mat-error>El RUT es obligatorio</mat-error>
+                    }
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Curso</mat-label>
+                    <mat-icon matPrefix class="mr-3 text-gray-400">school</mat-icon>
+                    <mat-select formControlName="curso" aria-required="true" (selectionChange)="onCursoChange($event.value)">
+                      <mat-option value="" disabled>Seleccione un curso</mat-option>
+                      <mat-option *ngFor="let c of cursosList" [value]="c.cursoId">
+                        {{c.nivel}} {{c.letra}} ({{c.anioAcademico}})
+                      </mat-option>
+                    </mat-select>
+                    @if (matriculaForm.get('curso')?.hasError('required')) {
+                      <mat-error>El curso es obligatorio</mat-error>
+                    }
+                  </mat-form-field>
+                </div>
+
+                <!-- Indicador de tipo de alumno -->
+                @if (rutStatus === 'found') {
+                  <div class="px-4 py-2.5 rounded-xl bg-blue-50 border border-blue-200 text-blue-800 text-xs flex items-center gap-2">
+                    <mat-icon class="text-sm! w-4! h-4!">info</mat-icon>
+                    <span class="font-bold">Alumno Registrado:</span>
+                    <span>Los datos existentes han sido cargados.</span>
+                  </div>
+                }
+                @if (rutStatus === 'new') {
+                  <div class="px-4 py-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs flex items-center gap-2">
+                    <mat-icon class="text-sm! w-4! h-4!">person_add</mat-icon>
+                    <span class="font-bold">Alumno Nuevo:</span>
+                    <span>Complete los campos para registrarlo.</span>
+                  </div>
+                }
+
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Nombre(s) del Alumno</mat-label>
+                  <mat-icon matPrefix class="mr-3 text-gray-400">person</mat-icon>
+                  <input matInput formControlName="nombreAlumno" placeholder="Ej: Juan Pablo" aria-required="true">
+                  @if (matriculaForm.get('nombreAlumno')?.hasError('required')) {
+                    <mat-error>El nombre del alumno es obligatorio</mat-error>
+                  }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Apellidos del Alumno</mat-label>
+                  <mat-icon matPrefix class="mr-3 text-gray-400">person_outline</mat-icon>
+                  <input matInput formControlName="apellidosAlumno" placeholder="Ej: Pérez Rodríguez" aria-required="true">
+                  @if (matriculaForm.get('apellidosAlumno')?.hasError('required')) {
+                    <mat-error>Los apellidos del alumno son obligatorios</mat-error>
+                  }
+                </mat-form-field>
+              </div>
+            </div>
+
+            <!-- Indicador de Cupos Disponibles -->
+            @if (cuposDisponibles !== null) {
+              <div class="px-5 py-3.5 rounded-2xl flex items-center justify-between text-sm transition-all"
+                [ngClass]="{
+                  'bg-emerald-50 text-emerald-800 border border-emerald-200/50': cuposDisponibles > 0,
+                  'bg-rose-50 text-rose-800 border border-rose-200/50 animate-pulse': cuposDisponibles <= 0
+                }">
+                <div class="flex items-center gap-2">
+                  <mat-icon class="text-lg!">{{ cuposDisponibles > 0 ? 'check_circle' : 'error' }}</mat-icon>
+                  <span class="font-bold tracking-wide">Cupos Disponibles:</span>
+                </div>
+                <span class="text-base font-extrabold">{{ cuposDisponibles }}</span>
+              </div>
+            }
+            @if (isLoadingCupos) {
+              <div class="flex items-center gap-2 text-xs text-gray-400 px-4 py-1">
+                <mat-icon class="animate-spin text-[16px]! w-4! h-4!">refresh</mat-icon>
+                <span>Consultando vacantes en el servidor...</span>
+              </div>
+            }
+
+            <!-- SECCIÓN DATOS DEL APODERADO -->
+            <div class="pt-2">
+              <h4 class="text-xs font-bold uppercase text-[#00658d] tracking-wider mb-3">Datos del Apoderado</h4>
+              
+              <div class="space-y-4">
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Nombre Completo del Apoderado</mat-label>
+                  <mat-icon matPrefix class="mr-3 text-gray-400">supervisor_account</mat-icon>
+                  <input matInput formControlName="nombreApoderado" placeholder="Ej: Carlos Pérez Silva" aria-required="true">
+                  @if (matriculaForm.get('nombreApoderado')?.hasError('required')) {
+                    <mat-error>El nombre del apoderado es obligatorio</mat-error>
+                  }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>RUT Apoderado</mat-label>
+                  <mat-icon matPrefix class="mr-3 text-gray-400">badge</mat-icon>
+                  <input matInput formControlName="rutApoderado" placeholder="Ej: 12.345.678-9" aria-required="true">
+                  @if (matriculaForm.get('rutApoderado')?.hasError('required')) {
+                    <mat-error>El RUT del apoderado es obligatorio</mat-error>
+                  }
+                </mat-form-field>
+              </div>
+            </div>
+
+            <!-- BOTONES -->
+            <div class="flex flex-col sm:flex-row gap-3 pt-4">
+              <button mat-stroked-button type="button" (click)="limpiar()" routerLink="/"
+                class="flex-1! py-6! rounded-full! border-gray-200! text-[#001e40]! font-bold! tracking-wide">
+                Cancelar
+              </button>
+              <button mat-flat-button type="submit"
+                [disabled]="!matriculaForm.valid || cuposDisponibles === null || cuposDisponibles <= 0 || isInitiatingPayment"
+                class="flex-1! py-6! bg-[#2dbcfe]! text-[#001e40]! disabled:bg-gray-100! disabled:text-gray-400! rounded-full! font-bold! tracking-wide shadow-md hover:shadow-lg transition-all">
+                @if (isInitiatingPayment) {
+                  <ng-container>
+                    <mat-icon class="animate-spin mr-2">refresh</mat-icon>
+                    Iniciando pago...
+                  </ng-container>
+                } @else {
+                  Grabar Matrícula
+                }
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+  <app-footer></app-footer>
+</app-navbar>

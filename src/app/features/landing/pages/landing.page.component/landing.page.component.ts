@@ -7,10 +7,11 @@ import { Contact } from '../../sections/contact/contact';
 import { Footer } from '../../sections/footer/footer';
 import { About } from '../../sections/about/about';
 import { Departments } from '../../sections/departments/departments';
+import { ChatComponent } from '../../sections/chat/chat';
 
 @Component({
   selector: 'app-landing.page.component',
-  imports: [Navbar, Hero, Admision, Utiles, Contact, Footer, About, Departments],
+  imports: [Navbar, Hero, Admision, Utiles, Contact, Footer, About, Departments, ChatComponent],
   templateUrl: './landing.page.component.html',
   styleUrl: './landing.page.component.css',
 })
