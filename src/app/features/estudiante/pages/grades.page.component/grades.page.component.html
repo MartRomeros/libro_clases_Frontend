@@ -41,7 +41,37 @@
                                 />
                             </div>
                         } @else {
-                            <div class="table-wrapper">
+                            <!-- Mobile cards -->
+                            <div class="block sm:hidden divide-y divide-gray-100">
+                                @for (fila of tablaData(); track fila.asignatura) {
+                                <div class="px-4 py-3">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <div>
+                                            <p class="font-semibold text-sm text-[#191c1e]">{{ fila.asignatura }}</p>
+                                            <p class="text-xs text-[#54647a]">{{ fila.docente }}</p>
+                                        </div>
+                                        @if (fila.promedio !== null) {
+                                        <span class="average-pill" [class.average-pill-soft]="fila.promedio < 5.5">
+                                            {{ fila.promedio.toFixed(1) }}
+                                        </span>
+                                        } @else {
+                                        <span class="average-pill average-pill-empty">--</span>
+                                        }
+                                    </div>
+                                    @if (fila.evaluaciones.length > 0) {
+                                    <div class="grades-badges">
+                                        @for (nota of fila.evaluaciones; track $index) {
+                                        <span class="grade-pill" [class.grade-pill-low]="esNotaBaja(nota)">{{ nota }}</span>
+                                        }
+                                    </div>
+                                    } @else {
+                                    <p class="text-xs text-[#54647a]">Sin calificaciones</p>
+                                    }
+                                </div>
+                                }
+                            </div>
+                            <!-- Desktop table -->
+                            <div class="table-wrapper hidden sm:block">
                                 <table class="grades-table">
                                     <thead>
                                         <tr>

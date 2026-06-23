@@ -9,4 +9,5 @@ export const adminKeys = {
   cads: () => [...adminKeys.all, 'cads'] as const,
   evaluaciones: () => [...adminKeys.all, 'evaluaciones'] as const,
   evaluacionesByCad: (cadId: number) => [...adminKeys.evaluaciones(), { cadId }] as const,
+  salas: () => [...adminKeys.all, 'salas'] as const,
 };

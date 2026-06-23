@@ -65,4 +65,11 @@ export class AdminQueries {
       enabled: !!cadId,
     });
   }
+
+  salas() {
+    return queryOptions({
+      queryKey: adminKeys.salas(),
+      queryFn: () => this.api.getSalas(),
+    });
+  }
 }

@@ -8,6 +8,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatListModule } from '@angular/material/list';
 import { injectQuery } from '@tanstack/angular-query-experimental';
 
 import { NavbarComponent } from '../../sections/navbar.component/navbar.component';
@@ -29,6 +30,7 @@ import { EmptyStateComponent } from '../../../../shared/components/empty-state/e
     MatTableModule,
     MatDividerModule,
     MatTooltipModule,
+    MatListModule,
     NavbarComponent,
     LoadingStateComponent,
     ErrorStateComponent,

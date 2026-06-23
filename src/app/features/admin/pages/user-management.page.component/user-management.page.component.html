@@ -105,7 +105,25 @@
                   message="Crea usuarios para administrar el acceso al sistema."
                 />
               } @else {
-                <div class="table-wrapper">
+                <!-- Mobile list -->
+                <div class="sm:hidden">
+                  <mat-list>
+                    @for (user of usuariosPaginados(); track user.usuarioId) {
+                      <mat-list-item>
+                        <mat-icon matListItemIcon>person</mat-icon>
+                        <div matListItemTitle>{{ user.nombre }} {{ user.apellidoPaterno }}</div>
+                        <div matListItemLine>{{ user.rut }} · <span class="role-badge" [class]="'role-' + user.rolId">{{ getRolNombre(user.rolId) }}</span></div>
+                        <div matListItemMeta class="flex gap-1">
+                          <button mat-icon-button color="primary" (click)="editarUsuario(user)"><mat-icon>edit</mat-icon></button>
+                          <button mat-icon-button color="warn" (click)="eliminarUsuario(user.usuarioId!)" [disabled]="eliminarUsuarioMutation.isPending()"><mat-icon>delete</mat-icon></button>
+                        </div>
+                      </mat-list-item>
+                      <mat-divider></mat-divider>
+                    }
+                  </mat-list>
+                </div>
+                <!-- Desktop table -->
+                <div class="table-wrapper hidden sm:block">
                   <table mat-table [dataSource]="usuariosPaginados()" class="user-table">
                     <ng-container matColumnDef="rut">
                       <th mat-header-cell *matHeaderCellDef> RUT </th>
@@ -124,7 +142,7 @@
 
                     <ng-container matColumnDef="rol">
                       <th mat-header-cell *matHeaderCellDef> Rol </th>
-                      <td mat-cell *matCellDef="let user"> 
+                      <td mat-cell *matCellDef="let user">
                         <span class="role-badge" [class]="'role-' + user.rolId">
                           {{ getRolNombre(user.rolId) }}
                         </span>
@@ -323,6 +341,17 @@
                       </mat-option>
                     </mat-select>
                   </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>Sala</mat-label>
+                    <mat-select formControlName="salaId">
+                      @if (salasQuery.isPending()) {
+                        <mat-option disabled>Cargando salas...</mat-option>
+                      } @else {
+                        <mat-option *ngFor="let s of salas()" [value]="s.salaId">{{ s.nombre }}</mat-option>
+                      }
+                    </mat-select>
+                    <mat-icon matPrefix>meeting_room</mat-icon>
+                  </mat-form-field>
                   <button mat-raised-button color="accent" type="submit" [disabled]="cadForm.invalid || vincularCADMutation.isPending()">Vincular</button>
                 </fieldset>
               </form>
@@ -374,7 +403,31 @@
                   message="Aún no hay estudiantes registrados en el sistema."
                 />
               } @else {
-                <div class="table-wrapper">
+                <!-- Mobile list -->
+                <div class="sm:hidden">
+                  <mat-list>
+                    @for (est of estudiantesPaginados(); track est.estudianteId) {
+                      <mat-list-item>
+                        <mat-icon matListItemIcon>face</mat-icon>
+                        <div matListItemTitle>{{ getNombreEstudiante(est.estudianteId) }}</div>
+                        <div matListItemLine>
+                          <span class="current-course">{{ est.cursoId ? (cursos().find(c => c.cursoId === est.cursoId)?.nivel + ' ' + cursos().find(c => c.cursoId === est.cursoId)?.letra) : 'Sin Curso' }}</span>
+                        </div>
+                      </mat-list-item>
+                      <div class="px-4 pb-2">
+                        <mat-form-field appearance="outline" class="w-full mini-select">
+                          <mat-label>Cambiar Curso</mat-label>
+                          <mat-select [value]="est.cursoId" (selectionChange)="asignarCurso(est.estudianteId, $event.value)" [disabled]="actualizarEstudianteMutation.isPending()">
+                            <mat-option *ngFor="let c of cursos()" [value]="c.cursoId">{{c.nivel}} {{c.letra}}</mat-option>
+                          </mat-select>
+                        </mat-form-field>
+                      </div>
+                      <mat-divider></mat-divider>
+                    }
+                  </mat-list>
+                </div>
+                <!-- Desktop table -->
+                <div class="table-wrapper hidden sm:block">
                   <table class="w-100 assignment-table">
                     <thead>
                       <tr>
@@ -506,11 +559,28 @@
                   message="No se encontraron evaluaciones para este curso o asignatura."
                 />
               } @else {
-                <div class="table-wrapper">
+                <!-- Mobile list -->
+                <div class="sm:hidden">
+                  <mat-list>
+                    @for (eval of evaluacionesPaginadas(); track eval.evaluacionId) {
+                      <mat-list-item>
+                        <mat-icon matListItemIcon>event_note</mat-icon>
+                        <div matListItemTitle>{{ eval.nombre }}</div>
+                        <div matListItemLine>{{ eval.fechaEvaluacion | date:'dd/MM/yyyy' }} · {{ getCadNombre(eval.cadId) }}</div>
+                        <button mat-icon-button color="warn" matListItemMeta (click)="eliminarEval(eval.evaluacionId!, eval.cadId)" [disabled]="eliminarEvaluacionMutation.isPending()">
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      </mat-list-item>
+                      <mat-divider></mat-divider>
+                    }
+                  </mat-list>
+                </div>
+                <!-- Desktop table -->
+                <div class="table-wrapper hidden sm:block">
                   <table mat-table [dataSource]="evaluacionesPaginadas()" class="user-table">
                     <ng-container matColumnDef="nombre">
                       <th mat-header-cell *matHeaderCellDef> Nombre </th>
-                      <td mat-cell *matCellDef="let eval"> 
+                      <td mat-cell *matCellDef="let eval">
                         <strong>{{eval.nombre}}</strong>
                       </td>
                     </ng-container>

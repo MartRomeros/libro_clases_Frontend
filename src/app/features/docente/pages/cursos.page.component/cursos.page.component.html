@@ -13,7 +13,26 @@
                     message="No se encontraron cursos asignados para este docente. Verifica tu configuración académica."
                   />
                 } @else {
-                  <div class="table-container">
+                  <!-- Mobile list -->
+                  <div class="sm:hidden">
+                    <mat-list>
+                      @for (element of dataSource.data; track element.cadId) {
+                      <mat-list-item>
+                          <mat-icon matListItemIcon>menu_book</mat-icon>
+                          <div matListItemTitle><span class="badge-curso">{{ element.curso }}</span> {{ element.asignaturaNombre }}</div>
+                          <div matListItemLine>Año: {{ element.anioAcademico }}</div>
+                          @if (cursoTieneEvaluaciones(element)) {
+                          <button mat-icon-button color="primary" matListItemMeta (click)="verDetalleCurso(element)" matTooltip="Ver alumnos">
+                              <mat-icon>visibility</mat-icon>
+                          </button>
+                          }
+                      </mat-list-item>
+                      <mat-divider></mat-divider>
+                      }
+                    </mat-list>
+                  </div>
+                  <!-- Desktop table -->
+                  <div class="table-container hidden sm:block">
                     <table mat-table [dataSource]="dataSource" class="tabla-premium bg-white!">
 
                         <!-- Columna Curso -->
@@ -86,7 +105,37 @@
                     message="Este curso aún no tiene alumnos asignados."
                   />
                 } @else {
-                <div class="table-container">
+                <!-- Mobile list -->
+                <div class="sm:hidden">
+                    <mat-list>
+                        @for (element of estudiantesDataSource.data; track element.rut) {
+                        <mat-list-item>
+                            <mat-icon matListItemIcon>person</mat-icon>
+                            <div matListItemTitle>{{ element.estudianteFullName }}</div>
+                            <div matListItemLine>RUT: {{ element.rut }}</div>
+                            <span matListItemMeta>
+                                <span class="promedio-badge" [class.reprobado]="(element.promedio || 0) < 4">
+                                    Prom: {{ element.promedio || '0.0' }}
+                                </span>
+                            </span>
+                        </mat-list-item>
+                        <div class="px-4 pb-2 flex flex-wrap gap-2">
+                            @for (evaluacion of evaluacionesCurso(); track evaluacion.evaluacionId) {
+                            <div class="flex flex-col items-center gap-1">
+                                <span class="text-xs text-gray-500">{{ evaluacion.nombre }}</span>
+                                <input type="number"
+                                    [ngModel]="getNotaValue(element, evaluacion.evaluacionId)"
+                                    (ngModelChange)="setNotaValue(element, evaluacion.evaluacionId, $event)"
+                                    min="1" max="7" step="0.1" class="nota-input w-16">
+                            </div>
+                            }
+                        </div>
+                        <mat-divider></mat-divider>
+                        }
+                    </mat-list>
+                </div>
+                <!-- Desktop table -->
+                <div class="table-container hidden sm:block">
                     <table mat-table [dataSource]="estudiantesDataSource" class="tabla-premium bg-white!">
 
                         <ng-container matColumnDef="rut">

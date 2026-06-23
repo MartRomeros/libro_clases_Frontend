@@ -28,7 +28,30 @@
                             <h2 class="text-[20px] font-semibold leading-7 text-[#191c1e]">Detalle por Asignatura</h2>
                             <p class="mt-1 text-sm leading-5 text-[#54647a]">Desglose de asistencia por clase</p>
                         </div>
-                        <div class="overflow-x-auto">
+                        <!-- Mobile list -->
+                        <div class="sm:hidden">
+                            <mat-list>
+                                @for (element of processedData(); track element.asignatura) {
+                                <mat-list-item>
+                                    <mat-icon matListItemIcon>{{ iconoAsignatura(element.asignatura) }}</mat-icon>
+                                    <div matListItemTitle>{{ element.asignatura }}</div>
+                                    <div matListItemLine>
+                                        Asistidas: {{ element.clasesAsistidas }} / {{ element.totalClases }}
+                                        &nbsp;·&nbsp;
+                                        Inasistencias: {{ element.clasesAusentes }}
+                                    </div>
+                                    <span matListItemMeta>
+                                        <span class="badge" [ngClass]="'badge-' + estadoPorcentaje(element.porcentaje)">
+                                            {{ element.porcentaje }}%
+                                        </span>
+                                    </span>
+                                </mat-list-item>
+                                <mat-divider></mat-divider>
+                                }
+                            </mat-list>
+                        </div>
+                        <!-- Desktop table -->
+                        <div class="overflow-x-auto hidden sm:block">
                             <table mat-table [dataSource]="processedData()" class="attendance-table">
                                 <ng-container matColumnDef="asignatura">
                                     <th mat-header-cell *matHeaderCellDef> Asignatura </th>

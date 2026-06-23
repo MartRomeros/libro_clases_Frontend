@@ -18,6 +18,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatPaginatorIntl, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatListModule } from '@angular/material/list';
 import { injectQuery, injectMutation } from '@tanstack/angular-query-experimental';
 
 import { AuthQueries } from '../../../auth/data-access/auth.queries';
@@ -74,6 +75,7 @@ function getSpanishPaginatorIntl(): MatPaginatorIntl {
     MatNativeDateModule,
     MatCheckboxModule,
     MatPaginatorModule,
+    MatListModule,
     NavbarAdminComponent,
     LoadingStateComponent,
     ErrorStateComponent,
@@ -101,6 +103,7 @@ export class UserManagementPageComponent {
   cadsQuery = injectQuery(() => this.adminQueries.cads());
   cursosQuery = injectQuery(() => this.adminQueries.cursos());
   asignaturasQuery = injectQuery(() => this.adminQueries.asignaturas());
+  salasQuery = injectQuery(() => this.adminQueries.salas());
 
   selectedCadId = signal<number | null>(null);
   evaluacionesQuery = injectQuery(() => 
@@ -132,6 +135,7 @@ export class UserManagementPageComponent {
   });
   cads = computed(() => this.cadsQuery.data() || []);
   asignaturas = computed(() => this.asignaturasQuery.data() || []);
+  salas = computed(() => this.salasQuery.data() || []);
   asignaturasPaginadas = computed(() => {
     const inicio = this.subjectPageIndex() * this.subjectPageSize();
     return this.asignaturas().slice(inicio, inicio + this.subjectPageSize());
@@ -219,7 +223,8 @@ export class UserManagementPageComponent {
     this.cadForm = this.fb.group({
       cursoId: ['', Validators.required],
       asignaturaId: ['', Validators.required],
-      docenteId: ['', Validators.required]
+      docenteId: ['', Validators.required],
+      salaId: ['', Validators.required]
     });
 
     effect(() => {

@@ -53,6 +53,11 @@ export interface CAD {
   docente: string;
 }
 
+export interface Sala {
+  salaId: number;
+  nombre: string;
+}
+
 export interface AdminDashboard {
   cantidadEstudiantes: number;
   cantidadDocentes: number;
