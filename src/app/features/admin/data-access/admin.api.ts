@@ -149,4 +149,21 @@ export class AdminApi {
   eliminarEvaluacion(id: number) {
     return firstValueFrom(this.http.delete<void>(`${this.apiUrl}/evaluaciones/${id}`));
   }
+
+  // --- Matrículas (MsMatriculas) ---
+  buscarEstudianteMatricula(rut: string) {
+    // Nueva implementación: Llama al microservicio MsMatriculas a través del API Gateway
+    return firstValueFrom(this.http.get<any>(`${this.apiUrl}/matriculas/estudiantes/${rut}`));
+  }
+
+  iniciarPagoWebpay(amount: number, returnUrl: string) {
+    return firstValueFrom(this.http.post<{url: string, token: string}>(
+      `${this.apiUrl}/matriculas/webpay/create`,
+      { amount, returnUrl }
+    ));
+  }
+
+  grabarMatricula(payload: any) {
+    return firstValueFrom(this.http.post<any>(`${this.apiUrl}/matriculas`, payload));
+  }
 }

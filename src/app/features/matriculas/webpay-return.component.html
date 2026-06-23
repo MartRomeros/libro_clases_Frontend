@@ -1,0 +1,82 @@
+<app-navbar>
+  <section class="min-h-[calc(100vh-64px)] flex items-center justify-center
+                   bg-gradient-to-br from-[#001e40] to-[#004080] py-20 px-4">
+
+    <!-- ESTADO: CARGANDO -->
+    @if (state === 'loading') {
+      <div class="flex flex-col items-center gap-6 text-white">
+        <mat-spinner diameter="56"></mat-spinner>
+        <p class="text-lg font-semibold">Procesando resultado del pago...</p>
+      </div>
+    }
+
+    <!-- ESTADO: ÉXITO -->
+    @if (state === 'success') {
+      <div class="bg-white rounded-4xl shadow-2xl p-10 max-w-md w-full text-center">
+        <div class="flex justify-center mb-4">
+          <span class="bg-emerald-100 rounded-full p-4">
+            <mat-icon class="text-emerald-600 text-5xl! w-12! h-12!">check_circle</mat-icon>
+          </span>
+        </div>
+        <h2 class="text-2xl font-extrabold text-[#001e40] mb-2">¡Matrícula Registrada!</h2>
+        <p class="text-gray-500 mb-6 text-sm">El pago fue procesado y la matrícula quedó registrada exitosamente.</p>
+        @if (resumen) {
+          <div class="text-left bg-gray-50 rounded-2xl p-4 mb-6 space-y-2 text-sm">
+            <div class="flex justify-between">
+              <span class="text-gray-500">Alumno</span>
+              <span class="font-semibold text-[#001e40]">{{ resumen.nombreAlumno }} {{ resumen.apellidosAlumno }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-500">RUT</span>
+              <span class="font-semibold text-[#001e40]">{{ resumen.rutAlumno }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-500">Curso</span>
+              <span class="font-semibold text-[#001e40]">{{ resumen.cursoNombre }}</span>
+            </div>
+          </div>
+        }
+        <button mat-flat-button routerLink="/"
+          class="w-full py-4! rounded-full! bg-[#2dbcfe]! text-[#001e40]! font-bold!">
+          Ir al Inicio
+        </button>
+      </div>
+    }
+
+    <!-- ESTADO: ERROR -->
+    @if (state === 'error') {
+      <div class="bg-white rounded-4xl shadow-2xl p-10 max-w-md w-full text-center">
+        <div class="flex justify-center mb-4">
+          <span class="bg-rose-100 rounded-full p-4">
+            <mat-icon class="text-rose-600 text-5xl! w-12! h-12!">error_outline</mat-icon>
+          </span>
+        </div>
+        <h2 class="text-2xl font-extrabold text-[#001e40] mb-2">Error al Registrar</h2>
+        <p class="text-gray-500 mb-6 text-sm">{{ errorMessage }}</p>
+        <button mat-flat-button routerLink="/matriculas"
+          class="w-full py-4! rounded-full! bg-rose-500! text-white! font-bold!">
+          Reintentar
+        </button>
+      </div>
+    }
+
+    <!-- ESTADO: CANCELACIÓN -->
+    @if (state === 'cancelled') {
+      <div class="bg-white rounded-4xl shadow-2xl p-10 max-w-md w-full text-center">
+        <div class="flex justify-center mb-4">
+          <span class="bg-amber-100 rounded-full p-4">
+            <mat-icon class="text-amber-500 text-5xl! w-12! h-12!">cancel</mat-icon>
+          </span>
+        </div>
+        <h2 class="text-2xl font-extrabold text-[#001e40] mb-2">Pago Cancelado</h2>
+        <p class="text-gray-500 mb-6 text-sm">Cancelaste el pago en el portal de WebPay. Puedes reintentar cuando quieras.</p>
+        <button mat-flat-button routerLink="/matriculas"
+          class="w-full py-4! rounded-full! bg-amber-400! text-[#001e40]! font-bold!">
+          Reintentar
+        </button>
+      </div>
+    }
+
+  </section>
+  <app-footer></app-footer>
+</app-navbar>
