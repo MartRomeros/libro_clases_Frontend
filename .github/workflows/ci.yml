@@ -36,5 +36,5 @@ jobs:
           local-dir: ./dist/frontend/browser/
           server-dir: /public_html/
           port: 21            # <-- Fuerza el puerto de FTP clásico
-          security: false     # <-- Desactiva TLS/SSL si tu FileZilla es FTP plano
+          security: loose     # <-- Desactiva TLS/SSL si tu FileZilla es FTP plano
 
