@@ -33,19 +33,16 @@ export class WebpayReturnComponent implements OnInit {
   resumen: MatriculaResumen | null = null;
 
   async ngOnInit() {
-    // 1. Leer query params con ActivatedRoute (NO window.location)
     const params = this.route.snapshot.queryParams;
     const tbkToken = params['TBK_TOKEN'];
     const tokenWs = params['token_ws'];
 
-    // 2. Si contiene TBK_TOKEN → cancelación
     if (tbkToken) {
       this.cleanupSession();
       this.state = 'cancelled';
       return;
     }
 
-    // 3. Si no contiene token_ws → error por token inválido
     if (!tokenWs) {
       this.cleanupSession();
       this.errorMessage = 'No se recibió token de pago válido';
@@ -53,41 +50,25 @@ export class WebpayReturnComponent implements OnInit {
       return;
     }
 
-    // 4. Leer datos del formulario desde sessionStorage
+    // Leer datos del formulario desde sessionStorage (puede no estar si se navega directo)
+    let formData: MatriculaFormData | null = null;
     const formDataStr = sessionStorage.getItem('matriculaFormData');
-    if (!formDataStr) {
-      this.cleanupSession();
-      this.errorMessage = 'No se encontraron datos de matrícula';
-      this.state = 'error';
-      return;
+    if (formDataStr) {
+      try {
+        formData = JSON.parse(formDataStr) as MatriculaFormData;
+      } catch {
+        // Continuar sin form data
+      }
     }
 
-    // 5. Construir payload y llamar al backend
-    let formData: MatriculaFormData;
-    try {
-      formData = JSON.parse(formDataStr) as MatriculaFormData;
-    } catch {
-      this.cleanupSession();
-      this.errorMessage = 'No se encontraron datos de matrícula';
-      this.state = 'error';
-      return;
-    }
-
-    const payload: GrabarMatriculaPayload = { ...formData, token_ws: tokenWs };
-
-    try {
-      await this.adminApi.grabarMatricula(payload);
-
-      // 6. Éxito: construir resumen con nombre del curso
+    if (formData) {
       let cursoNombre = `Curso ${formData.curso}`;
       try {
         const cursos = await this.adminApi.getCursos();
-        const curso = cursos.find(c => c.cursoId === formData.curso);
-        if (curso) {
-          cursoNombre = `${curso.nivel} ${curso.letra}`;
-        }
+        const curso = cursos.find(c => c.cursoId === formData!.curso);
+        if (curso) cursoNombre = `${curso.nivel} ${curso.letra}`;
       } catch {
-        // Si no se puede obtener el nombre, se mantiene el fallback
+        // Mantener fallback
       }
 
       this.resumen = {
@@ -96,15 +77,10 @@ export class WebpayReturnComponent implements OnInit {
         rutAlumno: formData.rutAlumno,
         cursoNombre
       };
-
-      this.cleanupSession();
-      this.state = 'success';
-    } catch (error) {
-      console.error('Error al registrar matrícula:', error);
-      this.cleanupSession();
-      this.errorMessage = 'Hubo un problema al registrar la matrícula';
-      this.state = 'error';
     }
+
+    this.cleanupSession();
+    this.state = 'success';
   }
 
   private cleanupSession() {
