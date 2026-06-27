@@ -9,17 +9,13 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MAT_DATE_LOCALE, MatNativeDateModule } from '@angular/material/core';
 import { CommonModule } from '@angular/common';
 import { AttendanceComponent } from '../../sections/attendance.component/attendance.component';
 import { ConductComponent } from '../../sections/conduct.component/conduct.component';
 import { MatButtonModule } from '@angular/material/button';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { LoadingStateComponent } from '../../../../shared/components/loading-state/loading-state.component';
 import { ErrorStateComponent } from '../../../../shared/components/error-state/error-state.component';
 import { Course } from '../../models/curso.response.model';
-import { isBusinessDayChile } from '../../utils/chile-business-day.util';
 import { NavbarComponent } from '../../sections/navbar.component/navbar.component';
 
 @Component({
@@ -32,17 +28,13 @@ import { NavbarComponent } from '../../sections/navbar.component/navbar.componen
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     AttendanceComponent,
-    ConductComponent ,
+    ConductComponent,
     MatButtonModule,
-    MatSnackBarModule,
     LoadingStateComponent,
     ErrorStateComponent,
     NavbarComponent
   ],
-  providers: [{ provide: MAT_DATE_LOCALE, useValue: 'es-CL' }],
   templateUrl: './attendance.page.component.html',
   styleUrl: './attendance.page.component.css',
 })
@@ -50,7 +42,6 @@ export class AttendancePageComponent {
 
   private readonly authQueries = inject(AuthQueries)
   private readonly attendanceQueries = inject(AttendanceQueries)
-  private snackBar = inject(MatSnackBar);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
@@ -88,35 +79,6 @@ export class AttendancePageComponent {
       this.cursoSeleccionado.set(curso);
     }
   });
-
-  dateFilter = (d: Date | null): boolean => {
-    const date = d ?? new Date();
-    return isBusinessDayChile(date);
-  };
-
-  onDateChange(date: Date | null): void {
-    if (!date) {
-      this.snackBar.open('Formato de fecha inválido. Usa dd/mm/yyyy.', 'Entendido', {
-        duration: 3500,
-        panelClass: ['warn-snackbar'],
-      });
-      return;
-    }
-
-    if (!isBusinessDayChile(date)) {
-      this.snackBar.open('No se permiten fines de semana ni feriados de Chile.', 'Entendido', {
-        duration: 4000,
-        panelClass: ['warn-snackbar'],
-      });
-      const previousDate = this.fechaSeleccionada();
-      this.fechaSeleccionada.set(new Date(previousDate));
-      return;
-    }
-
-    this.fechaSeleccionada.set(date);
-  }
-
-  
 
   volver(): void {
     const rol = this.profile()?.rol?.nombre?.toLowerCase() ?? '';

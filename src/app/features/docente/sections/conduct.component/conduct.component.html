@@ -34,25 +34,16 @@
                     }
                 </mat-form-field>
 
-                <div class="row">
-                    <!-- Tipo de Anotación -->
-                    <mat-form-field appearance="outline" class="flex-1">
-                        <mat-label>Tipo</mat-label>
-                        <mat-select formControlName="tipo">
-                            @for (tipo of tiposAnotacion; track tipo) {
-                                <mat-option [value]="tipo">{{ tipo }}</mat-option>
-                            }
-                        </mat-select>
-                        <mat-icon matPrefix>label</mat-icon>
-                    </mat-form-field>
-
-                    <!-- Fecha (Solo informativa) -->
-                    <mat-form-field appearance="outline" class="flex-1">
-                        <mat-label>Fecha</mat-label>
-                        <input matInput [value]="fecha | date:'dd/MM/yyyy'" disabled>
-                        <mat-icon matPrefix>calendar_today</mat-icon>
-                    </mat-form-field>
-                </div>
+                <!-- Tipo de Anotación -->
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Tipo</mat-label>
+                    <mat-select formControlName="tipo">
+                        @for (tipo of tiposAnotacion; track tipo) {
+                            <mat-option [value]="tipo">{{ tipo }}</mat-option>
+                        }
+                    </mat-select>
+                    <mat-icon matPrefix>label</mat-icon>
+                </mat-form-field>
 
                 <!-- Descripción -->
                 <mat-form-field appearance="outline" class="full-width">
