@@ -1,6 +1,6 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
@@ -30,6 +30,31 @@ import { LoadingStateComponent } from '../../../../shared/components/loading-sta
 import { ErrorStateComponent } from '../../../../shared/components/error-state/error-state.component';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
 import { showErrorSnack } from '../../../../shared/http/error-snackbar';
+
+// Función para validar RUT Chileno
+export function rutValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    if (!control.value) return null;
+    
+    let rut = control.value.toString().replace(/[^0-9kK]/g, '').toUpperCase();
+    if (rut.length < 7) return { invalidRut: true };
+    
+    const dv = rut.slice(-1);
+    let rutCuerpo = rut.slice(0, -1);
+    
+    let suma = 0;
+    let multiplo = 2;
+    for (let i = rutCuerpo.length - 1; i >= 0; i--) {
+      suma += parseInt(rutCuerpo.charAt(i), 10) * multiplo;
+      multiplo = multiplo < 7 ? multiplo + 1 : 2;
+    }
+    
+    const dvEsperado = 11 - (suma % 11);
+    const dvCalculado = dvEsperado === 11 ? '0' : dvEsperado === 10 ? 'K' : dvEsperado.toString();
+    
+    return dvCalculado === dv ? null : { invalidRut: true };
+  };
+}
 
 function getSpanishPaginatorIntl(): MatPaginatorIntl {
   const paginatorIntl = new MatPaginatorIntl();
@@ -194,7 +219,7 @@ export class UserManagementPageComponent {
 
   constructor() {
     this.userForm = this.fb.group({
-      rut: ['', Validators.required],
+      rut: ['', [Validators.required, rutValidator()]],
       nombre: ['', Validators.required],
       apellidoPaterno: ['', Validators.required],
       apellidoMaterno: [''],

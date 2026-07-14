@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatOptionModule } from '@angular/material/core';
@@ -8,14 +8,41 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { RouterLink, Router } from '@angular/router';
+import { RouterLink, Router, RouterModule } from '@angular/router';
 import { Navbar } from '../landing/sections/navbar/navbar';
 import { Footer } from '../landing/sections/footer/footer';
 import { AdminApi } from '../admin/data-access/admin.api';
 import { Curso, Estudiante } from '../admin/models/admin.model';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
+// Función para validar RUT Chileno
+export function rutValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    if (!control.value) return null;
+    
+    let rut = control.value.toString().replace(/[^0-9kK]/g, '').toUpperCase();
+    if (rut.length < 7) return { invalidRut: true };
+    
+    const dv = rut.slice(-1);
+    let rutCuerpo = rut.slice(0, -1);
+    
+    let suma = 0;
+    let multiplo = 2;
+    for (let i = rutCuerpo.length - 1; i >= 0; i--) {
+      suma += parseInt(rutCuerpo.charAt(i), 10) * multiplo;
+      multiplo = multiplo < 7 ? multiplo + 1 : 2;
+    }
+    
+    const dvEsperado = 11 - (suma % 11);
+    const dvCalculado = dvEsperado === 11 ? '0' : dvEsperado === 10 ? 'K' : dvEsperado.toString();
+    
+    return dvCalculado === dv ? null : { invalidRut: true };
+  };
+}
 
 @Component({
   selector: 'app-matriculas',
+  standalone: true,
   imports: [
     ReactiveFormsModule,
     CommonModule,
@@ -26,7 +53,9 @@ import { Curso, Estudiante } from '../admin/models/admin.model';
     MatButtonModule,
     MatIconModule,
     MatSnackBarModule,
+    MatProgressSpinnerModule,
     RouterLink,
+    RouterModule,
     Navbar,
     Footer
   ],
@@ -55,10 +84,10 @@ export class Matriculas implements OnInit {
     this.matriculaForm = this.fb.group({
       nombreAlumno: ['', Validators.required],
       apellidosAlumno: ['', Validators.required],
-      rutAlumno: ['', Validators.required],
+      rutAlumno: ['', [Validators.required, rutValidator()]],
       curso: ['', Validators.required],
       nombreApoderado: ['', Validators.required],
-      rutApoderado: ['', Validators.required]
+      rutApoderado: ['', [Validators.required, rutValidator()]]
     });
   }
 
@@ -180,11 +209,20 @@ export class Matriculas implements OnInit {
   sessionStorage.setItem('matriculaFormData', JSON.stringify(formData));
 
   const amount = 1000;
-  const returnUrl = `${window.location.origin}/webpay-return`;
+  const returnUrl = `http://localhost:81/api/matriculas/webpay/return`;
 
   try {
     // 1. Consumimos el BFF para inicializar la transacción en Webpay
-    const { url, token } = await this.adminApi.iniciarPagoWebpay(amount, returnUrl);
+    const selectedCurso = this.cursosList.find(c => c.cursoId === formData.curso);
+    const studentData = {
+      nombreAlumno: formData.nombreAlumno,
+      apellidosAlumno: formData.apellidosAlumno,
+      rutAlumno: formData.rutAlumno,
+      nombreApoderado: formData.nombreApoderado,
+      rutApoderado: formData.rutApoderado,
+      curso: selectedCurso ? `${selectedCurso.nivel} ${selectedCurso.letra}` : formData.curso
+    };
+    const { url, token } = await this.adminApi.iniciarPagoWebpay(amount, returnUrl, studentData);
     
     if (url && token) {
       // Crear formulario dinámico para POST a Webpay

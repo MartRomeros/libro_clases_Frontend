@@ -37,6 +37,8 @@
                   <mat-label>RUT</mat-label>
                   <input matInput formControlName="rut" placeholder="12.345.678-9">
                   <mat-icon matPrefix>badge</mat-icon>
+                  <mat-error *ngIf="userForm.get('rut')?.hasError('required')">El RUT es obligatorio</mat-error>
+                  <mat-error *ngIf="userForm.get('rut')?.hasError('invalidRut') && !userForm.get('rut')?.hasError('required')">El RUT ingresado no es válido</mat-error>
                 </mat-form-field>
 
                 <div class="row">

@@ -162,10 +162,10 @@ export class AdminApi {
     return firstValueFrom(this.http.get<any>(`${this.apiUrl}/matriculas/estudiantes/${rut}`));
   }
 
-  iniciarPagoWebpay(amount: number, returnUrl: string) {
+  iniciarPagoWebpay(amount: number, returnUrl: string, studentData?: any) {
     return firstValueFrom(this.http.post<{url: string, token: string}>(
       `${this.apiUrl}/matriculas/webpay/create`,
-      { amount, returnUrl }
+      { amount, returnUrl, studentData }
     ));
   }
 

@@ -55,6 +55,9 @@
                     @if (matriculaForm.get('rutAlumno')?.hasError('required')) {
                       <mat-error>El RUT es obligatorio</mat-error>
                     }
+                    @if (matriculaForm.get('rutAlumno')?.hasError('invalidRut') && !matriculaForm.get('rutAlumno')?.hasError('required')) {
+                      <mat-error>El RUT ingresado no es válido</mat-error>
+                    }
                   </mat-form-field>
 
                   <mat-form-field appearance="outline" class="w-full">
@@ -149,6 +152,9 @@
                   <input matInput formControlName="rutApoderado" placeholder="Ej: 12.345.678-9" aria-required="true">
                   @if (matriculaForm.get('rutApoderado')?.hasError('required')) {
                     <mat-error>El RUT del apoderado es obligatorio</mat-error>
+                  }
+                  @if (matriculaForm.get('rutApoderado')?.hasError('invalidRut') && !matriculaForm.get('rutApoderado')?.hasError('required')) {
+                    <mat-error>El RUT ingresado no es válido</mat-error>
                   }
                 </mat-form-field>
               </div>
