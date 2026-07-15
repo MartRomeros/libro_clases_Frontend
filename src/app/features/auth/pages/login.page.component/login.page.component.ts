@@ -22,21 +22,18 @@ import { RouterLink } from '@angular/router';
     MatProgressSpinnerModule,
     MatButtonModule,
     MatInputModule,
-    RouterLink
-    
+    RouterLink,
   ],
   templateUrl: './login.page.component.html',
   styleUrl: './login.page.component.css',
 })
 export class LoginPageComponent {
-
-
   private fb = inject(FormBuilder);
   loginForm: FormGroup;
   hidePassword = signal(true);
 
-  private readonly authMutations = inject(AuthMutations)
-  readonly loginMutation = this.authMutations.login()
+  private readonly authMutations = inject(AuthMutations);
+  readonly loginMutation = this.authMutations.login();
 
   loginErrorMessage = computed(() => {
     const error = this.loginMutation.error();
@@ -47,8 +44,8 @@ export class LoginPageComponent {
   constructor() {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(3)]]
-    })
+      password: ['', [Validators.required, Validators.minLength(3)]],
+    });
   }
 
   onSubmit() {
@@ -62,8 +59,4 @@ export class LoginPageComponent {
   togglePasswordVisibility() {
     this.hidePassword.set(!this.hidePassword());
   }
-
-
-
-
 }
