@@ -209,7 +209,7 @@ export class Matriculas implements OnInit {
   sessionStorage.setItem('matriculaFormData', JSON.stringify(formData));
 
   const amount = 1000;
-  const returnUrl = `http://localhost:81/api/matriculas/webpay/return`;
+  const returnUrl = `${window.location.origin}/webpay-return`;
 
   try {
     // 1. Consumimos el BFF para inicializar la transacción en Webpay

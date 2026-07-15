@@ -24,7 +24,7 @@ export class ChatComponent {
   private http = inject(HttpClient);
 
   // n8n Webhook URL - User can modify this
-  private n8nWebhookUrl = 'http://localhost:5678/webhook-test/chat-v2';
+  private n8nWebhookUrl = 'http://localhost:5678/webhook/chat-v2';
 
   // Generate a consistent session ID for the lifetime of this component
   private sessionId = 'session-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6);
@@ -33,7 +33,7 @@ export class ChatComponent {
   isOpen = signal<boolean>(false);
   isLoading = signal<boolean>(false);
   userInput = signal<string>('');
-  
+
   messages = signal<Message[]>([
     {
       text: '¡Hola! Soy Bernardo, tu asistente virtual. ¿En qué puedo ayudarte hoy?',
@@ -116,16 +116,16 @@ export class ChatComponent {
           time: new Date(),
           paymentUrl
         }]);
-        
+
         this.scrollToBottom();
       },
       error: (error) => {
         console.error('Error connecting to n8n webhook:', error);
         this.isLoading.set(false);
-        
+
         // Premium fallback/mock responses in case n8n is offline or not yet configured
         let mockResponse = '¡Gracias por escribir! Como asistente en desarrollo, me conectaré con n8n muy pronto. ¿Deseas saber más sobre las matrículas o el calendario escolar?';
-        
+
         // Simulating matching responses for high-quality mock experience if endpoint is default/local
         const lowerText = text.toLowerCase();
         if (lowerText.includes('hola') || lowerText.includes('buenos')) {
@@ -143,7 +143,7 @@ export class ChatComponent {
           isUser: false,
           time: new Date()
         }]);
-        
+
         this.scrollToBottom();
       }
     });

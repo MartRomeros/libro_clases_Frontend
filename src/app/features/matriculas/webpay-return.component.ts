@@ -35,7 +35,7 @@ export class WebpayReturnComponent implements OnInit {
   async ngOnInit() {
     const params = this.route.snapshot.queryParams;
     const tbkToken = params['TBK_TOKEN'];
-    const tokenWs = params['token_ws'];
+    const hasQueryParams = Object.keys(params).length > 0;
 
     if (tbkToken) {
       this.cleanupSession();
@@ -43,16 +43,20 @@ export class WebpayReturnComponent implements OnInit {
       return;
     }
 
-    if (!tokenWs) {
+    if (!hasQueryParams) {
       this.cleanupSession();
-      this.errorMessage = 'No se recibió token de pago válido';
+      this.errorMessage = 'No se recibió información de pago válida';
       this.state = 'error';
       return;
     }
 
+    // Mostrar éxito de inmediato: no depende de la carga del nombre del curso
+    this.state = 'success';
+
     // Leer datos del formulario desde sessionStorage (puede no estar si se navega directo)
     let formData: MatriculaFormData | null = null;
     const formDataStr = sessionStorage.getItem('matriculaFormData');
+    this.cleanupSession();
     if (formDataStr) {
       try {
         formData = JSON.parse(formDataStr) as MatriculaFormData;
@@ -61,26 +65,25 @@ export class WebpayReturnComponent implements OnInit {
       }
     }
 
-    if (formData) {
-      let cursoNombre = `Curso ${formData.curso}`;
-      try {
-        const cursos = await this.adminApi.getCursos();
-        const curso = cursos.find(c => c.cursoId === formData!.curso);
-        if (curso) cursoNombre = `${curso.nivel} ${curso.letra}`;
-      } catch {
-        // Mantener fallback
-      }
-
-      this.resumen = {
-        nombreAlumno: formData.nombreAlumno,
-        apellidosAlumno: formData.apellidosAlumno,
-        rutAlumno: formData.rutAlumno,
-        cursoNombre
-      };
+    if (!formData) {
+      return;
     }
 
-    this.cleanupSession();
-    this.state = 'success';
+    let cursoNombre = `Curso ${formData.curso}`;
+    try {
+      const cursos = await this.adminApi.getCursos();
+      const curso = cursos.find(c => c.cursoId === formData!.curso);
+      if (curso) cursoNombre = `${curso.nivel} ${curso.letra}`;
+    } catch {
+      // Mantener fallback; el estado de éxito ya se mostró
+    }
+
+    this.resumen = {
+      nombreAlumno: formData.nombreAlumno,
+      apellidosAlumno: formData.apellidosAlumno,
+      rutAlumno: formData.rutAlumno,
+      cursoNombre
+    };
   }
 
   private cleanupSession() {
