@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiGw: 'http://localhost:80',
+  apiGw: 'https://cyg64t8vca.execute-api.us-east-1.amazonaws.com',
 };

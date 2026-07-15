@@ -24,7 +24,7 @@ export class ChatComponent {
   private http = inject(HttpClient);
 
   // n8n Webhook URL - User can modify this
-  private n8nWebhookUrl = 'http://localhost:5678/webhook/chat-v2';
+  private n8nWebhookUrl = 'https://engraver-zealous-prance.ngrok-free.dev/webhook/chat-v2';
 
   // Generate a consistent session ID for the lifetime of this component
   private sessionId = 'session-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6);

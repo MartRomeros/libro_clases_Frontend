@@ -1,6 +1,8 @@
 # Libro de Clases Digital - Frontend
 
-Frontend del libro de clases digital construido con Angular para la vista de usuario del sistema. Esta aplicación consume los servicios del ecosistema académico y centraliza la experiencia para perfiles como administrador, docente y estudiante.
+Frontend del libro de clases digital construido con Angular para la vista de usuario del sistema. Esta aplicación consume los servicios del ecosistema académico y centraliza la experiencia para perfiles como administrador, docente, estudiante y apoderado.
+
+Sitio en producción: **https://colegio.martin-romero.cl**
 
 ## Objetivo del proyecto
 
@@ -12,19 +14,19 @@ Este repositorio corresponde a la capa frontend que apoya a los siguientes servi
 - `MS Mensajeria` - Node.js + Express
 - `BFF` - Node.js + Express
 
-La aplicación actúa como una SPA que consume APIs HTTP para autenticación, gestión académica, asistencia, evaluaciones y mensajería.
+La aplicación actúa como una SPA que consume APIs HTTP para autenticación, gestión académica, asistencia, evaluaciones, mensajería y matrículas/pagos (Webpay), todas a través de un único API Gateway.
 
 ## Stack principal
 
-- Angular `21.2`
-- Angular Material
-- Angular CDK
+- Angular `21.2` (standalone components)
+- Angular Material + Angular CDK
 - RxJS
 - TanStack Angular Query
 - Chart.js + ng2-charts
 - Tailwind CSS 4 + PostCSS
-- Cypress
-- Vitest
+- Vitest (unit tests, vía `@angular/build:unit-test` sobre jsdom)
+
+> Cypress fue removido del proyecto. La convención actual de testing son specs a nivel de componente (`*.spec.ts` junto al archivo que testean).
 
 ## Arquetipo del proyecto
 
@@ -58,6 +60,7 @@ El proyecto está más cerca de `MVVM` que de `MVC`.
 - `data-access/*.api.ts`: encapsulan llamadas HTTP.
 - `data-access/*.queries.ts` y `*.mutations.ts`: coordinan lectura, escritura, caché y efectos de UI.
 - `data-access/*.store.ts`: administran estado local reactivo cuando aplica, por ejemplo autenticación.
+- `data-access/*.keys.ts`: factories jerárquicas de query keys de TanStack Query.
 - `models/`: definen entidades y DTOs del dominio.
 
 No es un MVC clásico porque la lógica de interacción de la vista no está centralizada en controladores separados del frontend. En Angular, aquí el rol equivalente está distribuido entre componentes, stores y servicios reactivos, lo que encaja mejor con MVVM.
@@ -84,6 +87,7 @@ src/
       docente/
       estudiante/
       comunicaciones/
+      matriculas/
 ```
 
 ## Organización por feature
@@ -116,31 +120,31 @@ Esta estructura facilita:
 Para trabajar en este proyecto se necesita:
 
 - Node.js LTS instalado
-- npm disponible en el entorno
+- `pnpm` disponible en el entorno (gestor de paquetes actual del proyecto)
 
 Notas:
 
-- El repositorio declara `packageManager: npm@11.11.0`.
+- El proyecto está migrado de `npm` a `pnpm` (`pnpm-lock.yaml` + `pnpm-workspace.yaml`). `npm` sigue funcionando como respaldo porque los scripts de `package.json` son agnósticos al gestor de paquetes, pero se recomienda `pnpm` para trabajo nuevo.
 - No es obligatorio instalar Angular CLI de forma global porque el proyecto ya la usa localmente desde `node_modules`.
 
 ## Instalacion
 
 ```bash
-npm install
+pnpm install
 ```
 
-Este comando instalará las dependencias principales del proyecto, incluyendo Angular, Angular Material, Tailwind, TanStack Query, Chart.js, Cypress y Vitest.
+Este comando instalará las dependencias principales del proyecto, incluyendo Angular, Angular Material, Tailwind, TanStack Query, Chart.js y Vitest.
 
 ## Ejecucion local
 
 ```bash
-npm start
+pnpm start
 ```
 
 O bien:
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 La aplicación quedará disponible normalmente en:
@@ -152,12 +156,14 @@ http://localhost:4200
 ## Scripts disponibles
 
 ```bash
-npm start
-npm run dev
-npm run build
-npm run watch
-npm test
+pnpm start
+pnpm run dev
+pnpm run build
+pnpm run watch
+pnpm test
 ```
+
+No hay script de lint definido en `package.json`. El formateo se maneja con Prettier (`.prettierrc`: comillas simples, ancho de línea 100, parser de Angular para `.html`).
 
 ## Dependencias relevantes
 
@@ -178,67 +184,61 @@ npm test
 - `tailwindcss`
 - `@tailwindcss/postcss`
 - `postcss`
-- `cypress`
 - `vitest`
 - `prettier`
 
 ## Integracion con backend
 
-La URL base de consumo HTTP se define actualmente en:
+La URL base de consumo HTTP se define en:
 
-- [src/environments/environment.ts](/C:/Users/marti/Desktop/fullstack3/frontend/src/environments/environment.ts)
+- `src/environments/environment.ts` (propiedad `apiGw`)
 
-Actualmente la app usa una propiedad `apiGw` como base para exponer los endpoints consumidos por las features. Desde allí se conectan autenticación, administración, asistencia, evaluaciones y mensajería.
+Todas las llamadas HTTP de la app pasan por un único API Gateway configurado ahí. Desde allí se conectan autenticación, administración, asistencia, evaluaciones, mensajería y matrículas/Webpay.
+
+Si cambia la URL del backend/BFF, se debe actualizar `apiGw` en `environment.ts` **antes** de generar el build de producción (actualmente no existen `environment.prod.ts` ni `fileReplacements`; el mismo archivo se usa para todos los builds).
 
 ## Seguridad y acceso
 
 La aplicación ya considera:
 
-- `authGuard` para proteger rutas privadas
-- `authInterceptor` para adjuntar el token en las peticiones HTTP
-- control por roles en rutas como `admin`, `docente`, `estudiante` y `comunicaciones`
+- `authGuard` para proteger rutas privadas, con `data: { roles: [...] }` por ruta
+- `authInterceptor` para adjuntar el JWT (`Authorization: Bearer <token>`) en cada petición, leyéndolo desde `localStorage`
+- control por roles (`Administrador`, `Docente`, `Estudiante`, `Apoderado`) normalizado en `core/utils/access-control.ts`
+- `AuthStore` como fuente única de verdad del token; al cerrar sesión limpia tanto `localStorage` como la caché de TanStack Query
 
-## Despliegue en AWS Academy
+## Despliegue en colegio.martin-romero.cl
 
-Este frontend está pensado para ser servido como sitio estático en `Amazon S3` dentro de AWS Academy.
+Este frontend se sirve como sitio estático sobre hosting **Apache/cPanel**, en el dominio `colegio.martin-romero.cl`.
 
-### Flujo de despliegue esperado
+### Flujo de despliegue (CI)
 
-1. Generar el build de producción:
+El workflow `.github/workflows/ci.yml` se dispara en cada push a `master`:
 
-```bash
-npm run build
-```
+1. `npm install`
+2. `npm run build` (equivalente a `ng build`, configuración `production` por defecto)
+3. Angular genera los archivos listos para publicar en `dist/frontend/browser/`
+4. `SamKirkland/FTP-Deploy-Action` sube el contenido de esa carpeta por FTP a `/public_html/` del hosting cPanel
 
-2. Angular genera los archivos listos para publicar en:
+No hay gate de tests ni lint en CI: el único chequeo antes de desplegar es que el build sea exitoso.
 
-```text
-dist/frontend/browser
-```
+### Ruteo de Angular en Apache (.htaccess)
 
-3. El contenido de esa carpeta se sube a un bucket S3 configurado para hosting estático.
+Como esta app usa routing del lado del cliente (`@angular/router`), Apache necesita reescribir cualquier ruta que no sea un archivo/carpeta real hacia `index.html` para que el router de Angular la resuelva. Esto se maneja con `public/.htaccess`, que Angular copia automáticamente a `dist/frontend/browser/.htaccess` en cada build (vía el asset glob `**/*` configurado en `angular.json`).
 
-4. S3 servirá:
+El `.htaccess` cubre:
 
-- `index.html`
-- archivos `js`
-- hojas de estilo `css`
-- assets e imágenes
+- redirección forzada a HTTPS
+- fallback de rutas SPA (`/admin`, `/docente`, `/estudiante`, etc.) hacia `index.html`
+- compresión (`mod_deflate`) para JS/CSS/HTML/JSON/SVG
+- cache de larga duración para assets con hash, y `no-cache` para `index.html` (para que los usuarios siempre reciban la última versión de la app tras cada deploy)
 
-### Consideraciones importantes para Angular en S3
+Si se cambia el dominio o el `server-dir` del FTP, revisar que `<base href="/" />` en `src/index.html` siga correspondiendo a la raíz donde se publica el sitio.
 
-- Como esta app usa routing del lado del cliente, el bucket debe considerar una estrategia para que rutas como `/admin`, `/docente` o `/estudiante` resuelvan hacia `index.html`.
-- Si cambia la URL del backend o del BFF en AWS, se debe actualizar `src/environments/environment.ts` antes de construir.
-- El frontend no se ejecuta en el servidor: se compila y se publica como archivos estáticos.
+### Consideraciones importantes
 
-### Relacion con AWS Academy
-
-Dentro de AWS Academy, este enfoque es adecuado porque:
-
-- reduce complejidad operativa del frontend
-- abarata el despliegue
-- aprovecha S3 como hosting estático
-- deja la lógica de negocio en los microservicios y/o BFF
+- El frontend no se ejecuta en el servidor: se compila y se publica como archivos estáticos servidos por Apache.
+- Si cambia la URL del backend/BFF, actualizar `src/environments/environment.ts` (`apiGw`) antes de construir y desplegar.
+- Los secretos de FTP (`FTP_SERVER`, `FTP_USERNAME`, `FTP_PASSWORD`) están configurados como GitHub Secrets del repositorio, no en el código.
 
 ## Features funcionales actuales
 
@@ -248,13 +248,8 @@ Dentro de AWS Academy, este enfoque es adecuado porque:
 - `docente`: asistencia, cursos y evaluaciones
 - `estudiante`: notas, asistencia y recursos
 - `comunicaciones`: bandeja y envío de mensajes
-
-## Base de datos de referencia
-
-La documentación de base de datos mencionada por el proyecto está en:
-
-- `.agents/context/script.sql.md`
+- `matriculas`: proceso de matrícula y pago vía Webpay (Transbank)
 
 ## Resumen arquitectonico
 
-Este frontend Angular está organizado como una `SPA standalone`, modular por features, con una aproximación `MVVM`, usando `signals` para estado local y `TanStack Query` para estado remoto. Su despliegue objetivo en AWS Academy es como sitio estático en `Amazon S3`, mientras la lógica de negocio queda en los microservicios y el BFF.
+Este frontend Angular está organizado como una `SPA standalone`, modular por features, con una aproximación `MVVM`, usando `signals` para estado local y `TanStack Query` para estado remoto. Se despliega como sitio estático sobre hosting Apache/cPanel en `colegio.martin-romero.cl`, con `.htaccess` resolviendo el ruteo del lado del cliente, mientras la lógica de negocio queda en los microservicios y el BFF.
